@@ -1,7 +1,14 @@
 import os
 import sys
 import argparse
+import configparser
 from harpoon.commands.base import Command
+
+def load_config():
+        config = configparser.ConfigParser()
+        if os.path.isfile(os.path.join(os.path.expanduser("~"), ".harpoon")):
+            config.read(os.path.join(os.path.expanduser("~"), ".harpoon"))
+        return config
 
 def init_plugins():
     plugin_dir = os.path.dirname(os.path.realpath(__file__)) + '/commands'
@@ -27,6 +34,8 @@ def main():
         sp.set_defaults(command=p)
 
     args = parser.parse_args()
-    print(args)
+    config = load_config()
 
+    print(args)
     print(plugins)
+    plugins[args.command].run(config, args)
