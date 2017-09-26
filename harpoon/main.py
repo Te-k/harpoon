@@ -35,7 +35,9 @@ def main():
 
     args = parser.parse_args()
     config = load_config()
-
     print(args)
     print(plugins)
-    plugins[args.command].run(config, args)
+    if hasattr(args, 'command'):
+        plugins[args.command].run(config, args)
+    else:
+        parser.print_help()
