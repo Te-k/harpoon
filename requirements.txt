@@ -1,0 +1,4 @@
+requests
+configparser
+tweepy
+passivetotal
