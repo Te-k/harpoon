@@ -8,7 +8,7 @@ setup(
     author='Tek',
     author_email='tek@randhome.io',
     keywords='osint',
-    install_requires=['requests', 'configparser', 'tweepy', 'passivetotal'],
+    install_requires=['requests', 'configparser', 'tweepy', 'passivetotal', 'beautifulsoup4', 'lxml'],
     license='GPLv3',
     packages=['harpoon', 'harpoon.commands'],
     entry_points= {
