@@ -29,7 +29,10 @@ def main():
 
     plugins = init_plugins()
     for p in plugins:
-        sp = subparsers.add_parser(plugins[p].name, help='...')
+        sp = subparsers.add_parser(
+            plugins[p].name,
+            help=plugins[p].description
+        )
         plugins[p].add_arguments(sp)
         sp.set_defaults(command=p)
 

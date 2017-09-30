@@ -45,7 +45,11 @@ class Yandex(object):
         # FIXME: do not get date
         r = requests.get(cache_url)
         if r.status_code == 200:
-            return {'success': True, 'data': r.text[:-90]}
+            return {
+                'success': True,
+                'data': r.text[:-90],
+                'url': cache_url
+            }
         else:
             return {'success': False}
 

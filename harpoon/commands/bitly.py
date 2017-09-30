@@ -5,6 +5,7 @@ from harpoon.lib.bitly import Bitly, Link
 
 class CommandBitly(Command):
     name = "bitly"
+    description = "Bit.ly api plugin"
 
     def add_arguments(self, parser):
         parser.add_argument('--hash', '-H', help='HASH of a link')

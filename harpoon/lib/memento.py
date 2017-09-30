@@ -9,7 +9,7 @@ class MementoClient(object):
     """
     def __init__(self, base_url='http://archive.is/'):
         self.base_url = base_url
-        self.linkre = re.compile('^<(?P<url>[^>]+)>; rel="(?P<type>[a-z]+)"(; datetime="(?P<date>[^"]+)"|,|; type="application/link-format"; from="(?P<from>[^"]+)"; until="(?P<until>[^"]+)")')
+        self.linkre = re.compile('^<(?P<url>[^>]+)>; rel="(?P<type>[a-z ]+)"(; datetime="(?P<date>[^"]+)"|,|; type="application/link-format"; from="(?P<from>[^"]+)"; until="(?P<until>[^"]+)")')
 
     def _parselinks(self, data):
         """
@@ -35,23 +35,25 @@ class MementoClient(object):
         """
         Download list of snapshots for an url
         """
-        r = requests.get(urljoin(self.base_url + 'timemap/', quote(url)))
-        links = self._parselinks(r.text)
-        # Get original url
-        original = list(
-            filter(
-                lambda x: x['type'] == 'original',
-                links
-            )
-        )[0]['url']
-        # Sort snapshots
-        snapshots = []
-        for d in links:
-            if d['type'] == 'memento':
-                snapshots.append({
-                    'url': original,
-                    'date':d['date'],
-                    'archive': d['url']
-                })
-        return snapshots
-
+        r = requests.get(urljoin(self.base_url + 'timemap/', quote(url, safe='')))
+        if r.status_code != 200:
+            return []
+        else:
+            links = self._parselinks(r.text)
+            # Get original url
+            original = list(
+                filter(
+                    lambda x: x['type'] == 'original',
+                    links
+                )
+            )[0]['url']
+            # Sort snapshots
+            snapshots = []
+            for d in links:
+                if d['type'] in ['memento', 'first last memento']:
+                    snapshots.append({
+                        'url': original,
+                        'date':d['date'],
+                        'archive': d['url']
+                    })
+            return snapshots

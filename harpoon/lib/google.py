@@ -22,7 +22,9 @@ class Google(object):
             return {
                     "success": True,
                     "date": timestamptext,
-                    "data": html.unescape(r.text[r.text.find("<pre>")+5:r.text.find("</pre>")])
+                    "data": html.unescape(r.text[r.text.find("<pre>")+5:r.text.find("</pre>")]),
+                    'url': r.url
+
             }
         else:
             if r.status_code != 404:

@@ -6,6 +6,7 @@ from harpoon.lib.googl import GoogleShortener
 
 class CommandGoogl(Command):
     name = "googl"
+    description = "Plugin to request goo.gl url shortener infos"
 
     def add_arguments(self, parser):
         parser.add_argument('--hash', '-H', help='HASH of a link')

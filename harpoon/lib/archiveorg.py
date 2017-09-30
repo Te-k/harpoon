@@ -12,6 +12,7 @@ class ArchiveOrg(object):
         """
         Return a list of snapshots for a given url
         """
+        # FIXME: report more snapshot through the Memento API
         r = requests.get('http://archive.org/wayback/available?url=%s' %
                 urllib.parse.quote(url))
         data = r.json()
@@ -55,6 +56,7 @@ class ArchiveOrg(object):
         """
         snapshots = ArchiveOrg.snapshots(url)
         if len(snapshots):
-            return ArchiveOrg.download_cache(snapshots[0]['archive'])
+            last = sorted(snapshots, key=lambda x: x['date'], reverse=True)[0]
+            return ArchiveOrg.download_cache(last['archive'])
         else:
             return {'success': False}
