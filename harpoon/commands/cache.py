@@ -5,6 +5,7 @@ from harpoon.lib.google import Google
 from harpoon.lib.yandex import Yandex
 from harpoon.lib.archiveis import ArchiveIs
 from harpoon.lib.archiveorg import ArchiveOrg
+from harpoon.lib.utils import unbracket
 
 
 class CommandCache(Command):
@@ -22,12 +23,13 @@ class CommandCache(Command):
         parser.add_argument('--dump', '-D', action='store_true', help='Dump data')
 
     def run(self, conf, args):
+        url = unbracket(args.URL)
         if args.source == 'all':
             if args.dump:
                 print("Please specify the source to dump the data")
                 sys.exit(1)
             # Google
-            google = Google.cache(args.URL)
+            google = Google.cache(url)
             if google['success']:
                 print('Google: FOUND %s (%s)' % (
                     google['url'],
@@ -36,13 +38,13 @@ class CommandCache(Command):
             else:
                 print("Google: NOT FOUND")
             # Yandex
-            yandex = Yandex.cache(args.URL)
+            yandex = Yandex.cache(url)
             if yandex['success']:
                 print('Yandex: FOUND %s' % yandex['url'])
             else:
                 print("Yandex: NOT FOUND")
             # Archive.is
-            arch = ArchiveIs.snapshots(args.URL)
+            arch = ArchiveIs.snapshots(url)
             if len(arch) > 0:
                 print('Archive.is: FOUND')
                 for s in arch:
@@ -50,7 +52,7 @@ class CommandCache(Command):
             else:
                 print('Archive.is: NOT FOUND')
             # Web Archive
-            web = ArchiveOrg.snapshots(args.URL)
+            web = ArchiveOrg.snapshots(url)
             if len(web) > 0:
                 print('Archive.org: FOUND')
                 for s in web:
@@ -59,7 +61,7 @@ class CommandCache(Command):
                 print('Archive.org: NOT FOUND')
 
         elif args.source == "google":
-            data = Google.cache(args.URL)
+            data = Google.cache(url)
             if data['success']:
                 if args.dump:
                     print(data['data'])
@@ -72,7 +74,7 @@ class CommandCache(Command):
             else:
                 print('No Google cache for this url')
         elif args.source == "yandex":
-            data = Yandex.cache(args.URL)
+            data = Yandex.cache(url)
             if data['success']:
                 if args.dump:
                     print(data['data'])
@@ -81,7 +83,7 @@ class CommandCache(Command):
             else:
                 print('Cache not found')
         elif args.source == 'archiveis':
-            data = ArchiveIs.snapshots(args.URL)
+            data = ArchiveIs.snapshots(url)
             if len(data) == 0:
                 print('No snapshot found')
             else:
@@ -94,7 +96,7 @@ class CommandCache(Command):
                     for s in data:
                         print('-%s: %s' % (s['date'], s['archive']))
         elif args.source == "webarchive":
-            data = ArchiveOrg.snapshots(args.URL)
+            data = ArchiveOrg.snapshots(url)
             if len(data) > 0:
                 if args.dump:
                     last = sorted(data, key=lambda x: x['date'], reverse=True)[0]
