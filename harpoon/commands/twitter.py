@@ -37,10 +37,10 @@ class CommandTwitter(Command):
             a = bird.get_profile_information(args.user)
             print(json.dumps(a._json, sort_keys=True, indent=4, separators=(',', ': ')))
         elif args.tweets:
-            a = bird.get_user_tweets(args.tweets, limit=1000)
+            a = bird.get_user_tweets(args.tweets)
             for page in a:
                 # FIXME : improve this
-                print(json.dumps(page, sort_keys=True, indent=4, separators=(',', ': ')))
+                print(json.dumps(page._json, sort_keys=True, indent=4, separators=(',', ': ')))
         elif args.tweet:
             a = bird.get_tweet(args.tweet)
             print(json.dumps(a._json, sort_keys=True, indent=4, separators=(',', ': ')))
@@ -86,8 +86,16 @@ class CommandTwitter(Command):
                             user.contributors_enabled
                         )
                     )
-                except tweepy.error.TweepError:
-                    sys.stderr.write("User %s not found\n" % d.strip())
+                except tweepy.error.TweepError as ex:
+                    if ex.args[0][0]['code'] == 88:
+                        # Rate limit exceeded
+                        sys.stderr.write("Rate Limit exceeded\n")
+                        sys.exit(1)
+                    elif ex.args[0][0]['code'] == 50:
+                        sys.stderr.write("User %s not found\n" % d.strip())
+                    else:
+                        sys.stderr.write("Weird error %i: %s\n" % (ex.args[0][0]['code'], ex.args[0][0]['message']))
+                        sys.exit(1)
         else:
             print("Please provide a command")
             self.parser.print_help()

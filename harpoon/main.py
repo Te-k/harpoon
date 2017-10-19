@@ -43,3 +43,6 @@ def main():
         plugins[args.command].run(config, args)
     else:
         parser.print_help()
+
+if __name__ == "__main__":
+    main()
