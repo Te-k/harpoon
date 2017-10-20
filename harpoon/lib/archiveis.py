@@ -33,7 +33,8 @@ class ArchiveIs(object):
         return {
             'success': True,
             'date': date,
-            'data': cached_data
+            'data': cached_data,
+            'cacheurl': cache_url
         }
 
     @staticmethod

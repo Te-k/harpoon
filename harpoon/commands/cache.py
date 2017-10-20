@@ -5,6 +5,7 @@ from harpoon.lib.google import Google
 from harpoon.lib.yandex import Yandex
 from harpoon.lib.archiveis import ArchiveIs
 from harpoon.lib.archiveorg import ArchiveOrg
+from harpoon.lib.bing import Bing
 from harpoon.lib.utils import unbracket
 
 
@@ -16,11 +17,12 @@ class CommandCache(Command):
         parser.add_argument('URL', help='URL of the cache')
         parser.add_argument(
             '--source', '-s',
-            choices=['all', 'google', 'yandex', 'webarchive', 'archiveis'],
+            choices=['all', 'google', 'yandex', 'webarchive', 'archiveis', 'bing'],
             default='all',
             help='Source of the cache'
         )
         parser.add_argument('--dump', '-D', action='store_true', help='Dump data')
+        self.parser = parser
 
     def run(self, conf, args):
         url = unbracket(args.URL)
@@ -32,7 +34,7 @@ class CommandCache(Command):
             google = Google.cache(url)
             if google['success']:
                 print('Google: FOUND %s (%s)' % (
-                    google['url'],
+                    google['cacheurl'],
                     google['date']
                 ))
             else:
@@ -40,7 +42,7 @@ class CommandCache(Command):
             # Yandex
             yandex = Yandex.cache(url)
             if yandex['success']:
-                print('Yandex: FOUND %s' % yandex['url'])
+                print('Yandex: FOUND %s' % yandex['cacheurl'])
             else:
                 print("Yandex: NOT FOUND")
             # Archive.is
@@ -59,6 +61,15 @@ class CommandCache(Command):
                     print('-%s: %s' % (s['date'], s['archive']))
             else:
                 print('Archive.org: NOT FOUND')
+            # Bing
+            bing = Bing.cache(url)
+            if bing['success']:
+                print('Bing: FOUND %s (%s)' % (
+                    bing['cacheurl'],
+                    bing['date']
+                ))
+            else:
+                print("Bing: NOT FOUND")
 
         elif args.source == "google":
             data = Google.cache(url)
@@ -67,7 +78,7 @@ class CommandCache(Command):
                     print(data['data'])
                 else:
                     print('Cache found: %s (%s)' % (
-                            data['url'],
+                            data['cacheurl'],
                             data['date']
                         )
                     )
@@ -79,7 +90,16 @@ class CommandCache(Command):
                 if args.dump:
                     print(data['data'])
                 else:
-                    print('Cache found: %s' % data['url'])
+                    print('Cache found: %s' % data['cacheurl'])
+            else:
+                print('Cache not found')
+        elif args.source == "bing":
+            data = Bing.cache(url)
+            if data['success']:
+                if args.dump:
+                    print(data['data'])
+                else:
+                    print('Cache found: %s' % data['cacheurl'])
             else:
                 print('Cache not found')
         elif args.source == 'archiveis':
@@ -106,5 +126,7 @@ class CommandCache(Command):
                     print('Snapshots found:')
                     for s in data:
                         print('-%s: %s' % (s['date'], s['archive']))
+            else:
+                print("No snapshot found")
         else:
-            pass
+            self.parser.print_help()
