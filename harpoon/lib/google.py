@@ -18,9 +18,9 @@ class Google(object):
             timestamp = parse(timestamptext)
             return {
                     "success": True,
-                    "date": timestamptext,
+                    "date": timestamp,
                     "data": html.unescape(r.text[r.text.find("<pre>")+5:r.text.find("</pre>")]),
-                    'url': r.url
+                    'cacheurl': r.url
 
             }
         else:
@@ -76,9 +76,10 @@ class Google(object):
             timestamp = parse(timestamptext)
             return {
                     "success": True,
-                    "date": timestamptext,
+                    "date": timestamp,
                     "data": html.unescape(r.text[r.text.find("<pre>")+5:r.text.find("</pre>")]),
-                    'url': r.url
+                    'cacheurl': r.url,
+                    'url': url
 
             }
         else:

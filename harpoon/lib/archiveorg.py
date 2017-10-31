@@ -44,7 +44,8 @@ class ArchiveOrg(object):
             return {
                 'success': True,
                 'data': cached_data,
-                'date': date
+                'date': date,
+                'cacheurl': cache_url
             }
         else:
             return {'success': False}

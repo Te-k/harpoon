@@ -1,6 +1,7 @@
 import requests
 import urllib
 from bs4 import BeautifulSoup
+from harpoon.lib.utils import same_url
 
 class Yandex(object):
     @staticmethod
@@ -42,13 +43,13 @@ class Yandex(object):
         '''
         Extract content from a cached Yandex url
         '''
-        # FIXME: do not get date
+        # FIXME: do not get date and url
         r = requests.get(cache_url)
         if r.status_code == 200:
             return {
                 'success': True,
                 'data': r.text[:-90],
-                'url': cache_url
+                'cacheurl': cache_url,
             }
         else:
             return {'success': False}
