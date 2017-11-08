@@ -6,3 +6,4 @@ beautifulsoup4
 lxml
 censys
 git+https://github.com/Te-k/pycrtsh.git
+shodan
