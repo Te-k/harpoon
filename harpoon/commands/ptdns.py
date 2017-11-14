@@ -6,7 +6,7 @@ from passivetotal.libs.dns import DnsRequest
 
 class CommandPtDns(Command):
     name = "ptdns"
-    description = "Request Passive Total passive DNS database"
+    description = "Requests Passive Total passive DNS database"
 
     def add_arguments(self, parser):
         parser.add_argument('DOMAIN',  help='DOMAIN to be queried')

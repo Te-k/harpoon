@@ -1,12 +1,13 @@
 #! /usr/bin/env python
 import sys
-import shodan
 import json
+import shodan
 from harpoon.commands.base import Command
+
 
 class CommandShodan(Command):
     name = "shodan"
-    description = "Shodan plugin"
+    description = "Requests Shodan API"
 
     def add_arguments(self, parser):
         parser.add_argument('--ip', '-i', help='Check IP of an host')
@@ -33,7 +34,5 @@ class CommandShodan(Command):
                         r['data'][:1000]
                     )
                 )
-
         else:
             self.parser.print_help()
-

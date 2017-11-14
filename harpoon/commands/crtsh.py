@@ -14,7 +14,7 @@ def json_serial(obj):
 
 class CommandCert(Command):
     name = "crtsh"
-    description = "Request certificate information"
+    description = "Search in https://crt.sh/ (Certificate Transparency database)"
 
     def add_arguments(self, parser):
         parser.add_argument('--domain', '-d', help='Search certificates for this domain and list shared alternate domains')

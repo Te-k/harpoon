@@ -6,7 +6,7 @@ from harpoon.commands.base import Command
 
 class CommandFullContact(Command):
     name = "fullcontact"
-    description = "Full Contact plugin"
+    description = "Requests Full Contact API (https://www.fullcontact.com/)"
 
     def add_arguments(self, parser):
         parser.add_argument('--twitter', '-t', help='Search person based on twitter')

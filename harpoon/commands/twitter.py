@@ -7,7 +7,7 @@ from harpoon.lib.bird import Bird
 
 class CommandTwitter(Command):
     name = "twitter"
-    description = "Request Twitter information"
+    description = "Requests Twitter API"
 
     def add_arguments(self, parser):
         parser.add_argument('--user', '-u',

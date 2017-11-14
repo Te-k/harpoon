@@ -11,7 +11,7 @@ from harpoon.lib.utils import unbracket
 
 class CommandCache(Command):
     name = "cache"
-    description = "Request cache of different sources"
+    description = "Requests webpage cache from different sources"
 
     def add_arguments(self, parser):
         parser.add_argument('URL', help='URL of the cache')
