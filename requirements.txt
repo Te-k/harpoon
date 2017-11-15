@@ -10,3 +10,4 @@ shodan
 fullcontact.py
 censys
 pyhunter
+git+https://github.com/Te-k/pysafe.git@v0.1
