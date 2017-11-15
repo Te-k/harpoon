@@ -15,3 +15,5 @@ cache               Requests webpage cache from different sources
 shodan              Requests Shodan API
 bitly               Request bit.ly information through the API
 ```
+
+To configure harpoon, run `harpoon config` and fullfil needed API keys
