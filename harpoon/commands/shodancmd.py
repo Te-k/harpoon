@@ -8,6 +8,7 @@ from harpoon.commands.base import Command
 class CommandShodan(Command):
     name = "shodan"
     description = "Requests Shodan API"
+    config = {'Shodan': ['key']}
 
     def add_arguments(self, parser):
         parser.add_argument('--ip', '-i', help='Check IP of an host')

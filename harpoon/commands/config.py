@@ -14,14 +14,12 @@ class CommandConfig(Command):
     description = "Configure Harpoon"
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            '--show',
-            '-s',
-            action='store_true',
-            help='Show harpoon configuration'
-        )
+        parser.add_argument('--show', '-s', action='store_true',
+            help='Show harpoon configuration')
+        parser.add_argument('--check', '-c', action='store_true',
+            help='Config harpoon configuration')
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
         configpath = os.path.join(os.path.expanduser('~'), '.harpoon')
         if args.show:
             if not os.path.isfile(configpath):
@@ -30,6 +28,25 @@ class CommandConfig(Command):
             else:
                 with open(configpath, 'r') as f:
                     print(f.read())
+        elif args.check:
+            print('Configuration check:')
+            for p in plugins:
+                if plugins[p].config_needed:
+                    if plugins[p].test_config(conf):
+                        if len(p) < 7:
+                            print('-%s\t\t -> OK' % p)
+                        else:
+                            print('-%s\t -> OK' % p)
+                    else:
+                        if len(p) < 7:
+                            print('-%s\t\t -> FAILED' % p)
+                        else:
+                            print('-%s\t -> FAILED' % p)
+                else:
+                    if len(p) < 7:
+                        print('-%s\t\t -> OK' % p)
+                    else:
+                        print('-%s\t -> OK' % p)
         else:
             if not os.path.isfile(configpath):
                 origpath = os.path.join(

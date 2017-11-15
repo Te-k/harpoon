@@ -6,15 +6,14 @@ from harpoon.lib.bitly import Bitly, Link
 class CommandBitly(Command):
     name = "bitly"
     description = "Request bit.ly information through the API"
+    config = { 'Bitly': ['token']}
 
     def add_arguments(self, parser):
         parser.add_argument('--hash', '-H', help='HASH of a link')
         parser.add_argument('--file', '-f', help='File containing list of hashes')
+        self.parser = parser
 
     def run(self, conf, args):
-        if 'Bitly' not in conf and 'token' not in conf['Bitly']:
-            print('Invalid configuration file, quitting...')
-            sys.exit(1)
         bitly = Bitly(access_token=conf['Bitly']["token"])
         if args.hash:
             link = Link(bitly, args.hash)
@@ -39,6 +38,4 @@ class CommandBitly(Command):
                         )
                     )
         else:
-            print("Please provide a hash or a file")
-
-
+            self.parser.print_help()

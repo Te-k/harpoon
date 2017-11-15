@@ -27,6 +27,7 @@ def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(help='Commands')
 
+    # Init plugins
     plugins = init_plugins()
     for p in plugins:
         sp = subparsers.add_parser(
@@ -38,9 +39,15 @@ def main():
 
     args = parser.parse_args()
     config = load_config()
-    #print(args)
     if hasattr(args, 'command'):
-        plugins[args.command].run(config, args)
+        # Config plugin need plugin list
+        if args.command == 'config':
+            plugins[args.command].run(config, args, plugins)
+        else:
+            if not plugins[args.command].test_config(config):
+                print('Invalid configuration for this plugin, quitting...')
+                sys,exit(1)
+            plugins[args.command].run(config, args)
     else:
         parser.print_help()
 

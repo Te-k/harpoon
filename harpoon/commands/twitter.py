@@ -8,6 +8,7 @@ from harpoon.lib.bird import Bird
 class CommandTwitter(Command):
     name = "twitter"
     description = "Requests Twitter API"
+    config = {'Twitter': ['consumer_secret', 'consumer_key', 'access_token', 'access_token_secret']}
 
     def add_arguments(self, parser):
         parser.add_argument('--user', '-u',
@@ -23,14 +24,6 @@ class CommandTwitter(Command):
         self.parser = parser
 
     def run(self, conf, args):
-        if 'Twitter' not in conf:
-            print('Invalid configuration for Twitter plugin, quitting...')
-            sys.exit(1)
-        for attr in ['consumer_key', 'consumer_secret', 'access_token', 'access_token_secret']:
-            if attr not in conf['Twitter']:
-                print('Invalid configuration for Twitter plugin, quitting...')
-                sys.exit(1)
-
         bird = Bird(conf['Twitter'])
 
         if args.user:

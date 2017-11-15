@@ -9,6 +9,7 @@ from passivetotal.libs.whois import WhoisRequest
 class CommandPtWhois(Command):
     name = "ptwhois"
     description = "Requests Passive Total whois information"
+    config = {'PassiveTotal': ['username', 'key']}
 
     def add_arguments(self, parser):
         self.parser = parser

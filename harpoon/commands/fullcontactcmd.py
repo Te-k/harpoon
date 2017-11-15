@@ -7,6 +7,7 @@ from harpoon.commands.base import Command
 class CommandFullContact(Command):
     name = "fullcontact"
     description = "Requests Full Contact API (https://www.fullcontact.com/)"
+    config = {'FullContact': ['key']}
 
     def add_arguments(self, parser):
         parser.add_argument('--twitter', '-t', help='Search person based on twitter')
@@ -17,9 +18,6 @@ class CommandFullContact(Command):
         self.parser = parser
 
     def run(self, conf, args):
-        if 'FullContact' not in conf and 'key' not in conf['FullContact']:
-            print('Bad configuration for Full Contact, quitting...')
-            sys.exit(1)
         fc = FullContact(conf['FullContact']['key'])
         if args.twitter:
             res = fc.person(twitter=args.twitter)
