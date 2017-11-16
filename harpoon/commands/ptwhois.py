@@ -15,6 +15,7 @@ class CommandPtWhois(Command):
         self.parser = parser
         parser.add_argument('--domain', '-d', help='DOMAIN to be queried')
         parser.add_argument('--file', '-f', help='File with list of domains')
+        parser.add_argument('--email', '-e', help='Check for domain registered by this email')
 
 
     def run(self, conf, args):
@@ -69,5 +70,13 @@ class CommandPtWhois(Command):
                                 r["registrant"]["country"] if "country" in r["registrant"] else ""
                             )
                         )
+
+
+        elif args.email:
+            raw_results = client.search_whois_by_field(
+                query=args.email.strip(),
+                field="email"
+            )
+            print(json.dumps(raw_results,  sort_keys=True, indent=4, separators=(',', ': ')))
         else:
             self.parser.print_help()
