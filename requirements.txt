@@ -11,3 +11,4 @@ fullcontact.py
 censys
 pyhunter
 git+https://github.com/Te-k/pysafe.git@v0.1
+git+https://github.com/Te-k/spyonweb.git
