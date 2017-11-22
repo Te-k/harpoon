@@ -28,6 +28,11 @@ class CommandPassiveTotal(Command):
         parser_c.add_argument('--file', '-f',  help='Check malware info from a domain list in a file and return csv of results')
         parser_c.add_argument('--raw', '-r',  help='Show raw results (JSON)', action="store_true")
         parser_c.set_defaults(subcommand='malware')
+        parser_d = subparsers.add_parser('osint', help='Request OSINT info')
+        parser_d.add_argument('--domain', '-d',  help='DOMAIN to be queried')
+        parser_d.add_argument('--file', '-f',  help='Check OSINT info from a domain list in a file and return csv of results')
+        parser_d.add_argument('--raw', '-r',  help='Show raw results (JSON)', action="store_true")
+        parser_d.set_defaults(subcommand='osint')
         self.parser = parser
 
 
@@ -99,7 +104,7 @@ class CommandPassiveTotal(Command):
             elif args.subcommand == "malware":
                 client = EnrichmentRequest(conf["PassiveTotal"]["username"], conf["PassiveTotal"]['key'])
                 if args.domain:
-                    raw_results = client.get_malware(query=args.DOMAIN)
+                    raw_results = client.get_malware(query=args.domain)
                     print(json.dumps(raw_results,  sort_keys=True, indent=4, separators=(',', ': ')))
                 elif args.file:
                     with open(args.file, 'r') as infile:
@@ -142,6 +147,53 @@ class CommandPassiveTotal(Command):
                                             )
                                         )
 
+                else:
+                    self.parser.print_help()
+
+            elif args.subcommand == "osint":
+                client = EnrichmentRequest(conf["PassiveTotal"]["username"], conf["PassiveTotal"]['key'])
+                if args.domain:
+                    raw_results = client.get_osint(query=args.domain)
+                    print(json.dumps(raw_results,  sort_keys=True, indent=4, separators=(',', ': ')))
+                elif args.file:
+                    with open(args.file, 'r') as infile:
+                        data = infile.read().split()
+                    domain_list = list(set([a.strip() for a in data]))
+                    if len(domain_list) < 51:
+                        raw_results = client.get_bulk_osint(query=domain_list)
+                        if "results" not in raw_results or not raw_results["success"]:
+                            print("Request failed")
+                            print(json.dumps(raw_results,  sort_keys=True, indent=4, separators=(',', ': ')))
+                            sys.exit(1)
+                        else:
+                            results = raw_results["results"]
+                    else:
+                        results = {}
+                        bulk_size=50
+                        i = 0
+                        while i*bulk_size < len(domain_list):
+                            raw_results = client.get_bulk_osint(query=domain_list[i*bulk_size:(i+1)*bulk_size])
+                            if "results" not in raw_results or not raw_results["success"]:
+                                print("Request failed")
+                                print(json.dumps(raw_results,  sort_keys=True, indent=4, separators=(',', ': ')))
+                                sys.exit(1)
+                            else:
+                                results.update(raw_results["results"])
+                            i += 1
+                    if args.raw:
+                        print(json.dumps(results, sort_keys=True, indent=4, separators=(',', ': ')))
+                    else:
+                        print("Domain|Source|URL|Tags")
+                        for domain in results:
+                            if "results" in results[domain]:
+                                for report in results[domain]["results"]:
+                                    print("%s|%s|%s|%s" % (
+                                            domain,
+                                            report["source"],
+                                            report["source_url"],
+                                            " / ".join(report["tags"])
+                                        )
+                                    )
                 else:
                     self.parser.print_help()
 
