@@ -1,0 +1,131 @@
+#! /usr/bin/env python
+import sys
+import json
+import datetime
+from harpoon.commands.base import Command
+from harpoon.lib.utils import bracket, unbracket
+from passivetotal.libs.whois import WhoisRequest
+from passivetotal.libs.dns import DnsRequest
+from passivetotal.libs.enrichment import EnrichmentRequest
+
+class CommandPassiveTotal(Command):
+    name = "pt"
+    description = "Requests Passive Total database"
+    config = {'PassiveTotal': ['username', 'key']}
+
+    def add_arguments(self, parser):
+        subparsers = parser.add_subparsers(help='Subcommand')
+        parser_a = subparsers.add_parser('whois', help='Request whois info')
+        parser_a.add_argument('--domain', '-d', help='DOMAIN to be queried')
+        parser_a.add_argument('--file', '-f', help='File with list of domains')
+        parser_a.add_argument('--email', '-e', help='Check for domain registered by this email')
+        parser_a.set_defaults(subcommand='whois')
+        parser_b = subparsers.add_parser('dns', help='Request dns info')
+        parser_b.add_argument('DOMAIN',  help='DOMAIN to be queried')
+        parser_b.set_defaults(subcommand='dns')
+        parser_c = subparsers.add_parser('malware', help='Request malware info')
+        parser_c.add_argument('--domain', '-d',  help='DOMAIN to be queried')
+        parser_c.add_argument('--file', '-f',  help='Check malware info from a domain list in a file and return csv of results')
+        parser_c.add_argument('--raw', '-r',  help='Show raw results (JSON)', action="store_true")
+        parser_c.set_defaults(subcommand='malware')
+        self.parser = parser
+
+
+    def run(self, conf, args):
+        if 'subcommand' in args:
+            if args.subcommand == 'whois':
+                client = WhoisRequest(conf['PassiveTotal']['username'], conf['PassiveTotal']['key'])
+                if args.domain:
+                    raw_results = client.search_whois_by_field(
+                        query=unbracket(args.domain.strip()),
+                        field="domain"
+                    )
+                    print(json.dumps(raw_results,  sort_keys=True, indent=4, separators=(',', ': ')))
+                elif args.file:
+                    with open(args.file, 'r') as infile:
+                        data = infile.read().split()
+                    print("Domain|Date|Registrar|name|email|Phone|organization|Street|City|Postal Code|State|Country")
+                    for d in data:
+                        do = unbracket(d.strip())
+                        # FIXME: bulk request here
+                        raw_results = client.search_whois_by_field(
+                            query=do,
+                            field="domain"
+                        )
+                        if "results" not in raw_results:
+                            print("%s|||||||||||" %  bracket(do) )
+                        else:
+                            if len(raw_results["results"]) == 0:
+                                print("%s|||||||||||" %  bracket(do) )
+                            else:
+                                r = raw_results["results"][0]
+                                if "registered" in r:
+                                    dd = datetime.datetime.strptime(r["registered"], "%Y-%m-%dT%H:%M:%S.%f%z")
+                                    ddo = dd.strftime("%m/%d/%Y %H:%M:%S")
+                                else:
+                                    ddo = ""
+
+                                print("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (
+                                        bracket(do),
+                                        ddo,
+                                        r["registrar"] if "registrar" in r else "",
+                                        r["registrant"]["name"] if "name" in r["registrant"] else "",
+                                        r["registrant"]["email"] if "email" in r["registrant"] else "",
+                                        r["registrant"]["telephone"] if "telephone" in r["registrant"] else "",
+                                        r["registrant"]["organization"] if "organization" in r["registrant"] else "",
+                                        r["registrant"]["street"] if "street" in r["registrant"] else "",
+                                        r["registrant"]["city"] if "city" in r["registrant"] else "",
+                                        r["registrant"]["postalCode"] if "postalCode" in r["registrant"] else "",
+                                        r["registrant"]["state"] if "state" in r["registrant"] else "",
+                                        r["registrant"]["country"] if "country" in r["registrant"] else ""
+                                    )
+                                )
+
+
+                elif args.email:
+                    raw_results = client.search_whois_by_field(
+                        query=args.email.strip(),
+                        field="email"
+                    )
+                    print(json.dumps(raw_results,  sort_keys=True, indent=4, separators=(',', ': ')))
+                else:
+                    self.parser.print_help()
+            elif args.subcommand == "dns":
+                client = DnsRequest(conf['PassiveTotal']['username'], conf['PassiveTotal']['key'])
+                raw_results = client.get_passive_dns(
+                    query=args.DOMAIN,
+                )
+                print(json.dumps(raw_results,  sort_keys=True, indent=4, separators=(',', ': ')))
+            elif args.subcommand == "malware":
+                client = EnrichmentRequest(conf["PassiveTotal"]["username"], conf["PassiveTotal"]['key'])
+                if args.domain:
+                    raw_results = client.get_malware(query=args.DOMAIN)
+                    print(json.dumps(raw_results,  sort_keys=True, indent=4, separators=(',', ': ')))
+                elif args.file:
+                    with open(args.file, 'r') as infile:
+                        data = infile.read().split()
+                    raw_results = client.get_bulk_malware(query=data)
+                    if args.raw:
+                        print(json.dumps(raw_results,  sort_keys=True, indent=4, separators=(',', ': ')))
+                    else:
+                        print("Domain|Date|Sample|Source|Source URL")
+                        if "results" in raw_results:
+                            for domain in raw_results["results"]:
+                                if "results" in raw_results["results"][domain]:
+                                    for sample in raw_results["results"][domain]["results"]:
+                                        print("%s|%s|%s|%s|%s" % (
+                                                domain,
+                                                sample["collectionDate"],
+                                                sample["sample"],
+                                                sample["source"],
+                                                sample["sourceUrl"]
+                                            )
+                                        )
+
+                else:
+                    self.parser.print_help()
+
+            else:
+                self.parser.print_help()
+        else:
+            self.parser.print_help()
