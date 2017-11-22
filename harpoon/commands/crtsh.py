@@ -68,6 +68,7 @@ class CommandCert(Command):
                         )
                     )
         elif args.list:
+            sha1_list = []
             with open(args.list, 'r') as f:
                 domains = [a.strip() for a in f.read().split()]
             if args.format == "txt":
@@ -90,7 +91,9 @@ class CommandCert(Command):
                     data[d] = {}
                     index = crt.search(d)
                     for c in index:
-                        data[d][c["id"]] = crt.get(c["id"], type="id")
+                        if data["sha1"] not in sha1_list:
+                            sha1_list.append(data["sha1"])
+                            data[d][c["id"]] = crt.get(c["id"], type="id")
                 print(json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '), default=json_serial))
             elif args.format == "csv":
                 print("id|serial|sha1|Common Name|Issuer|Not Before|Not After|Basic Constraints|Alt Names")
@@ -98,18 +101,22 @@ class CommandCert(Command):
                     index = crt.search(d)
                     for c in index:
                         data = crt.get(c["id"], type="id")
-                        print("%s|%s|%s|%s|%s|%s|%s|%s|%s" % (
-                            c["id"],
-                            data["serial"],
-                            data["sha1"],
-                            data["subject"]["commonName"],
-                            data["issuer"]["commonName"],
-                            data["not_before"],
-                            data["not_after"],
-                            data["extensions"]["basic_constraints"] if "basic_constraints" in data["extensions"] else "False",
-                            ", ".join(data["extensions"]["alternative_names"]) if "alternative_names" in data["extensions"] else ""
+                        if data["sha1"] not in sha1_list:
+                            sha1_list.append(data["sha1"])
+                            print("%s|%s|%s|%s|%s|%s|%s|%s|%s" % (
+                                c["id"],
+                                data["serial"],
+                                data["sha1"],
+                                data["subject"]["commonName"],
+                                data["issuer"]["commonName"],
+                                data["not_before"],
+                                data["not_after"],
+                                data["extensions"]["basic_constraints"] if "basic_constraints" in data["extensions"] else "False",
+                                ", ".join(data["extensions"]["alternative_names"]) if "alternative_names" in data["extensions"] else ""
+                                )
                             )
-                        )
+            else:
+                self.parser.print_help()
         else:
             self.parser.print_help()
 
