@@ -104,16 +104,36 @@ class CommandPassiveTotal(Command):
                 elif args.file:
                     with open(args.file, 'r') as infile:
                         data = infile.read().split()
-                    raw_results = client.get_bulk_malware(query=data)
+                    domain_list = list(set([a.strip() for a in data]))
+                    if len(domain_list) < 51:
+                        raw_results = client.get_bulk_malware(query=domain_list)
+                        if "results" not in raw_results or not raw_results["success"]:
+                            print("Request failed")
+                            print(json.dumps(raw_results,  sort_keys=True, indent=4, separators=(',', ': ')))
+                            sys.exit(1)
+                        else:
+                            results = raw_results["results"]
+                    else:
+                        results = {}
+                        bulk_size=50
+                        i = 0
+                        while i*bulk_size < len(domain_list):
+                            raw_results = client.get_bulk_malware(query=domain_list[i*bulk_size:(i+1)*bulk_size])
+                            if "results" not in raw_results or not raw_results["success"]:
+                                print("Request failed")
+                                print(json.dumps(raw_results,  sort_keys=True, indent=4, separators=(',', ': ')))
+                                sys.exit(1)
+                            else:
+                                results.update(raw_results["results"])
+                            i += 1
                     if args.raw:
-                        print(json.dumps(raw_results,  sort_keys=True, indent=4, separators=(',', ': ')))
+                        print(json.dumps(results, sort_keys=True, indent=4, separators=(',', ': ')))
                     else:
                         print("Domain|Date|Sample|Source|Source URL")
-                        if "results" in raw_results:
-                            for domain in raw_results["results"]:
-                                if "results" in raw_results["results"][domain]:
-                                    for sample in raw_results["results"][domain]["results"]:
-                                        print("%s|%s|%s|%s|%s" % (
+                        for domain in results:
+                            if "results" in results[domain]:
+                                for sample in results[domain]["results"]:
+                                    print("%s|%s|%s|%s|%s" % (
                                                 domain,
                                                 sample["collectionDate"],
                                                 sample["sample"],
