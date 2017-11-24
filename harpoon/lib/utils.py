@@ -1,3 +1,5 @@
+import re
+from IPy import IP
 from urllib.parse import urlparse, parse_qs
 
 def unbracket(domain):
@@ -39,4 +41,23 @@ def same_url(url1, url2):
                 return True
     return False
 
-
+def typeguess(indicator):
+    """
+    Guess the type of the indicator
+    returns string in "IPv4", "IPv6", "md5", "sha1", "sha256", "domain"
+    """
+    if re.match("\w{32}", indicator):
+        return "md5"
+    elif re.match("\w{40}", indicator):
+        return "sha1"
+    elif re.match("\w{64}", indicator):
+        return "sha256"
+    else:
+        try:
+            i = IP(indicator)
+            if i.version() == 4:
+                return "IPv4"
+            else:
+                return "IPv6"
+        except ValueError:
+            return "domain"

@@ -16,3 +16,4 @@ PyGitHub
 telethon
 virustotal-api
 mispy
+OTXv2
