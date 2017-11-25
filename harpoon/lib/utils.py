@@ -46,11 +46,11 @@ def typeguess(indicator):
     Guess the type of the indicator
     returns string in "IPv4", "IPv6", "md5", "sha1", "sha256", "domain"
     """
-    if re.match("\w{32}", indicator):
+    if re.match("^\w{32}$", indicator):
         return "md5"
-    elif re.match("\w{40}", indicator):
+    elif re.match("^\w{40}$", indicator):
         return "sha1"
-    elif re.match("\w{64}", indicator):
+    elif re.match("^\w{64}$", indicator):
         return "sha256"
     else:
         try:
