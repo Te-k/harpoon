@@ -19,3 +19,4 @@ mispy
 OTXv2
 IPy
 geoip2
+pyasn

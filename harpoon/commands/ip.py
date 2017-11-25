@@ -6,6 +6,11 @@ import datetime
 import urllib.request
 import tarfile
 import geoip2.database
+import re
+import subprocess
+import glob
+import shutil
+import pyasn
 from IPy import IP
 from harpoon.commands.base import Command
 from harpoon.lib.utils import bracket, unbracket
@@ -17,6 +22,8 @@ class CommandIp(Command):
     update_needed = True
     geocity = os.path.join(os.path.expanduser('~'), '.config/harpoon/GeoLite2-City.mmdb')
     geoasn = os.path.join(os.path.expanduser('~'), '.config/harpoon/GeoLite2-ASN.mmdb')
+    asnname = os.path.join(os.path.expanduser('~'), '.config/harpoon/asnnames.csv')
+    asncidr = os.path.join(os.path.expanduser('~'), '.config/harpoon/asncidr.dat')
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(help='Subcommand')
@@ -50,10 +57,40 @@ class CommandIp(Command):
             f.write(mmdb.read())
         mmdb.close()
         print("-GeoLite2-ASN.mmdb")
+        print("Download ASN Name database")
+        try:
+            os.remove(self.asnname)
+        except OSError:
+            pass
+        file_name, headers = urllib.request.urlretrieve('http://www.cidr-report.org/as2.0/autnums.html')
+        fin = open(file_name, 'r', encoding="latin-1", errors='ignore')
+        fout = open(self.asnname, 'w+')
+        line = fin.readline()
+        reg = re.compile('^<a href="/cgi-bin/as-report\?as=AS\d+&view=2.0">AS(\d+)\s*</a> (.+)$')
+        while line != '':
+            res = reg.match(line)
+            if res:
+                fout.write('%s|%s\n' % (res.group(1), res.group(2)))
+            line = fin.readline()
+        fin.close()
+        fout.close()
+        print('-asnname.csv')
+        print("Downloading CIDR data")
+        try:
+            os.remove(self.asncidr)
+        except OSError:
+            pass
+        os.chdir("/tmp")
+        subprocess.call(["pyasn_util_download.py", "--latest"])
+        ls = glob.glob("rib*.bz2")[0]
+        subprocess.call(['pyasn_util_convert.py', '--single', ls, 'latest.dat'])
+        shutil.move('latest.dat', self.asncidr)
+        print('-asncidr.dat')
 
     def run(self, conf, args):
         if 'subcommand' in args:
             if args.subcommand == 'info':
+                # FIXME: move code here in a library
                 ip = unbracket(args.IP)
                 try:
                     ipy = IP(ip)
@@ -63,15 +100,35 @@ class CommandIp(Command):
                 citydb = geoip2.database.Reader(self.geocity)
                 asndb = geoip2.database.Reader(self.geoasn)
                 res = citydb.city(ip)
-                print('Located in %s, %s' % (
+                print('MaxMind: Located in %s, %s' % (
                         res.city.name,
                         res.country.name
                     )
                 )
                 res = asndb.asn(ip)
-                print('ASN%i, %s' % (
+                print('MaxMind: ASN%i, %s' % (
                         res.autonomous_system_number,
                         res.autonomous_system_organization
+                    )
+                )
+                asndb2 = pyasn.pyasn(self.asncidr)
+                res = asndb2.lookup(ip)
+                # Search for name
+                f = open(self.asnname, 'r')
+                found = False
+                line = f.readline()
+                name = ''
+                while not found and line != '':
+                    s = line.split('|')
+                    if s[0] == str(res[0]):
+                        name = s[1].strip()
+                        found = True
+                    line = f.readline()
+
+                print('ASN %i - %s (range %s)' % (
+                        res[0],
+                        name,
+                        res[1]
                     )
                 )
                 if ipy.iptype() == "PRIVATE":
