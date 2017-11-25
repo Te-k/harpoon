@@ -18,6 +18,8 @@ class CommandConfig(Command):
             help='Show harpoon configuration')
         parser.add_argument('--check', '-c', action='store_true',
             help='Config harpoon configuration')
+        parser.add_argument('--update', '-u', action='store_true',
+            help='Update plugin data')
 
     def run(self, conf, args, plugins):
         configdir = os.path.join(os.path.expanduser('~'), '.config/harpoon')
@@ -48,6 +50,12 @@ class CommandConfig(Command):
                         print('-%s\t\t -> OK' % p)
                     else:
                         print('-%s\t -> OK' % p)
+        elif args.update:
+            print("Updating all plugins data:")
+            for p in plugins:
+                if plugins[p].update_needed:
+                    print("Updating plugin %s" % p)
+                    plugins[p].update()
         else:
             if not os.path.isdir(configdir):
                 os.makedirs(configdir)
