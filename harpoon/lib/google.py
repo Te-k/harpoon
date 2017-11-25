@@ -43,17 +43,18 @@ class Google(object):
         res = []
         divs = soup.find_all('div', class_='g')
         for d in divs:
-            link = parse_qs(urlparse(d.h3.a['href']).query)
-            data = {
-                'name': d.h3.a.text,
-                'url': link['q'][0],
-                'text': d.find('span', class_='st').text
-            }
-            if d.ul is not None:
-                for i in d.ul.children:
-                    l = parse_qs(urlparse(i.a['href']).query)
-                    if 'webcache.googleusercontent.com' in l['q'][0]:
-                        data['cache'] = l['q'][0]
+            if d.h3:
+                link = parse_qs(urlparse(d.h3.a['href']).query)
+                data = {
+                    'name': d.h3.a.text,
+                    'url': link['q'][0],
+                    'text': d.find('span', class_='st').text
+                }
+                if d.ul:
+                    for i in d.ul.children:
+                        l = parse_qs(urlparse(i.a['href']).query)
+                        if 'webcache.googleusercontent.com' in l['q'][0]:
+                            data['cache'] = l['q'][0]
                 res.append(data)
         return res
 
