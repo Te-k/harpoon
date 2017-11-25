@@ -20,7 +20,8 @@ class CommandConfig(Command):
             help='Config harpoon configuration')
 
     def run(self, conf, args, plugins):
-        configpath = os.path.join(os.path.expanduser('~'), '.harpoon')
+        configdir = os.path.join(os.path.expanduser('~'), '.config/harpoon')
+        configpath = os.path.join(os.path.expanduser('~'), '.config/harpoon/config')
         if args.show:
             if not os.path.isfile(configpath):
                 print('Config file does not exist, use harpoon config to create it')
@@ -48,6 +49,8 @@ class CommandConfig(Command):
                     else:
                         print('-%s\t -> OK' % p)
         else:
+            if not os.path.isdir(configdir):
+                os.makedirs(configdir)
             if not os.path.isfile(configpath):
                 origpath = os.path.join(
                     os.path.realpath(__file__)[:-18],

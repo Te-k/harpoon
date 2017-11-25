@@ -6,8 +6,8 @@ from harpoon.commands.base import Command
 
 def load_config():
         config = configparser.ConfigParser()
-        if os.path.isfile(os.path.join(os.path.expanduser("~"), ".harpoon")):
-            config.read(os.path.join(os.path.expanduser("~"), ".harpoon"))
+        if os.path.isfile(os.path.join(os.path.expanduser("~"), ".config/harpoon/config")):
+            config.read(os.path.join(os.path.expanduser("~"), ".config/harpoon/config"))
         return config
 
 def init_plugins():
