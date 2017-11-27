@@ -18,5 +18,5 @@ virustotal-api
 mispy
 OTXv2
 IPy
-geoip2
 pyasn
+git+https://github.com/maxmind/GeoIP2-python.git

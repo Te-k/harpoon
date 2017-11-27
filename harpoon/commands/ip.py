@@ -97,46 +97,57 @@ class CommandIp(Command):
                 except ValueError:
                     print('Invalid IP format, quitting...')
                     return
-                citydb = geoip2.database.Reader(self.geocity)
-                asndb = geoip2.database.Reader(self.geoasn)
-                res = citydb.city(ip)
-                print('MaxMind: Located in %s, %s' % (
-                        res.city.name,
-                        res.country.name
+                try:
+                    citydb = geoip2.database.Reader(self.geocity)
+                    res = citydb.city(ip)
+                    print('MaxMind: Located in %s, %s' % (
+                            res.city.name,
+                            res.country.name
+                        )
                     )
-                )
-                res = asndb.asn(ip)
-                print('MaxMind: ASN%i, %s' % (
-                        res.autonomous_system_number,
-                        res.autonomous_system_organization
+                except geoip2.errors.AddressNotFoundError:
+                    print("MaxMind: IP not found in the city database")
+                try:
+                    asndb = geoip2.database.Reader(self.geoasn)
+                    res = asndb.asn(ip)
+                    print('MaxMind: ASN%i, %s' % (
+                            res.autonomous_system_number,
+                            res.autonomous_system_organization
+                        )
                     )
-                )
+                except geoip2.errors.AddressNotFoundError:
+                    print("MaxMind: IP not found in the ASN database")
                 asndb2 = pyasn.pyasn(self.asncidr)
                 res = asndb2.lookup(ip)
-                # Search for name
-                f = open(self.asnname, 'r')
-                found = False
-                line = f.readline()
-                name = ''
-                while not found and line != '':
-                    s = line.split('|')
-                    if s[0] == str(res[0]):
-                        name = s[1].strip()
-                        found = True
+                if res[1] is None:
+                    print("IP not found in ASN database")
+                else:
+                    # Search for name
+                    f = open(self.asnname, 'r')
+                    found = False
                     line = f.readline()
+                    name = ''
+                    while not found and line != '':
+                        s = line.split('|')
+                        if s[0] == str(res[0]):
+                            name = s[1].strip()
+                            found = True
+                        line = f.readline()
 
-                print('ASN %i - %s (range %s)' % (
-                        res[0],
-                        name,
-                        res[1]
+                    print('ASN %i - %s (range %s)' % (
+                            res[0],
+                            name,
+                            res[1]
+                        )
                     )
-                )
+                print("")
                 if ipy.iptype() == "PRIVATE":
                     "Private IP"
                 if ipy.version() == 4:
                     print("Censys: https://censys.io/ipv4/%s" % ip)
                     print("Shodan: https://www.shodan.io/host/%s" % ip)
                     print("IP Info: http://ipinfo.io/%s" % ip)
+                    print("BGP HE: https://bgp.he.net/ip/%s" % ip)
 
             else:
                 self.parser.print_help()
