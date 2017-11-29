@@ -44,12 +44,18 @@ class Google(object):
         divs = soup.find_all('div', class_='g')
         for d in divs:
             if d.h3:
-                link = parse_qs(urlparse(d.h3.a['href']).query)
                 data = {
-                    'name': d.h3.a.text,
-                    'url': link['q'][0],
-                    'text': d.find('span', class_='st').text
+                    'name': d.h3.a.text
                 }
+                link = parse_qs(urlparse(d.h3.a['href']).query)
+                if 'q' in link:
+                    data['url'] = link['q'][0]
+                else:
+                    # Abnormal link (for instance Google books)
+                    data['url'] = d.h3.a['href']
+                text = d.find('span', class_='st')
+                if text is not None:
+                    data['text'] = text.text
                 if d.ul:
                     for i in d.ul.children:
                         l = parse_qs(urlparse(i.a['href']).query)
