@@ -144,11 +144,11 @@ class CommandIp(Command):
                 if ipy.iptype() == "PRIVATE":
                     "Private IP"
                 if ipy.version() == 4:
-                    print("Censys: https://censys.io/ipv4/%s" % ip)
-                    print("Shodan: https://www.shodan.io/host/%s" % ip)
-                    print("IP Info: http://ipinfo.io/%s" % ip)
-                    print("BGP HE: https://bgp.he.net/ip/%s" % ip)
-
+                    print("Censys:\t\thttps://censys.io/ipv4/%s" % ip)
+                    print("Shodan:\t\thttps://www.shodan.io/host/%s" % ip)
+                    print("IP Info:\thttp://ipinfo.io/%s" % ip)
+                    print("BGP HE:\t\thttps://bgp.he.net/ip/%s" % ip)
+                    print("IP Location:\thttps://www.iplocation.net/?query=%s" % ip)
             else:
                 self.parser.print_help()
         else:
