@@ -6,21 +6,25 @@ OSINT tool.
 
 ```
 safebrowsing        Check if the given domain is in Google safe Browsing list
-fullcontact         Requests Full Contact API (https://www.fullcontact.com/)
-config              Configure Harpoon
-spyonweb            Search in SpyOnWeb through the API
-shodan              Requests Shodan API
-telegram            Request information from Telegram through the API
+hibp                Request Have I Been Pwned API (https://haveibeenpwned.com/)
 cache               Requests webpage cache from different sources
+misp                Get information from a MISP server through the API
+spyonweb            Search in SpyOnWeb through the API
 censys              Request information from Censys database (https://censys.io/)
-hunter              Request hunter.io information through the API
-crtsh               Search in https://crt.sh/ (Certificate Transparency database)
-twitter             Requests Twitter API
+shodan              Requests Shodan API
 vt                  Request Virus Total API
-bitly               Request bit.ly information through the API
-pt                  Requests Passive Total database
-github              Request Github information through the API
+config              Configure Harpoon
+fullcontact         Requests Full Contact API (https://www.fullcontact.com/)
 googl               Requests Google url shortener API
+ip                  Gather information on an IP address
+twitter             Requests Twitter API
+asn                 Gather information on an ASN
+robtex              Search in Robtex API (https://www.robtex.com/api/)
+hunter              Request hunter.io information through the API
+otx                 Requests information from AlienVault OTX
+crtsh               Search in https://crt.sh/ (Certificate Transparency database)
+github              Request Github information through the API
+bitly               Request bit.ly information through the API
 ```
 
 To configure harpoon, run `harpoon config` and fullfil needed API keys
