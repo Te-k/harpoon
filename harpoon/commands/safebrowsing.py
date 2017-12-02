@@ -21,7 +21,7 @@ class CommandSafeBrowsing(Command):
         parser_c.set_defaults(subcommand='file')
         self.parser = parser
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
         sb = SafeBrowsing(conf['SafeBrowsing']['key'])
         if 'subcommand' in args:
             if args.subcommand == 'url':

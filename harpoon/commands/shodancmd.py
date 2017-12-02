@@ -15,7 +15,7 @@ class CommandShodan(Command):
         parser.add_argument('--search', '-s', help='Search in shodan')
         self.parser = parser
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
         if 'Shodan' not in conf and 'key' not in conf['Shodan']:
             print('Bad configuration for Shodan, quitting...')
             sys.exit(1)

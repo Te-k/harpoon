@@ -14,7 +14,7 @@ class CommandHibp(Command):
         parser.add_argument('--json', '-j', action='store_true', help='Check pastes instead of breaches')
         self.parser = parser
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
         h = HIBP()
         if args.pastes:
             try:

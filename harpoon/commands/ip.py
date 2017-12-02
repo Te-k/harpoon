@@ -12,8 +12,13 @@ import glob
 import shutil
 import pyasn
 from IPy import IP
+from dateutil.parser import parse
 from harpoon.commands.base import Command
 from harpoon.lib.utils import bracket, unbracket
+from harpoon.lib.robtex import Robtex, RobtexError
+from OTXv2 import OTXv2, IndicatorTypes
+from virus_total_apis import PublicApi, PrivateApi
+
 
 class CommandIp(Command):
     name = "ip"
@@ -30,6 +35,9 @@ class CommandIp(Command):
         parser_a = subparsers.add_parser('info', help='Information on an IP')
         parser_a.add_argument('IP', help='IP address')
         parser_a.set_defaults(subcommand='info')
+        parser_b = subparsers.add_parser('intel', help='Gather Threat Intelligence information on an IP')
+        parser_b.add_argument('IP', help='IP address')
+        parser_b.set_defaults(subcommand='intel')
         self.parser = parser
 
     def update(self):
@@ -87,7 +95,7 @@ class CommandIp(Command):
         shutil.move('latest.dat', self.asncidr)
         print('-asncidr.dat')
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
         if 'subcommand' in args:
             if args.subcommand == 'info':
                 # FIXME: move code here in a library
@@ -149,6 +157,138 @@ class CommandIp(Command):
                     print("IP Info:\thttp://ipinfo.io/%s" % ip)
                     print("BGP HE:\t\thttps://bgp.he.net/ip/%s" % ip)
                     print("IP Location:\thttps://www.iplocation.net/?query=%s" % ip)
+            elif args.subcommand == "intel":
+                # Start with MISP and OTX to get Intelligence Reports
+                print('###################### %s ###################' % args.IP)
+                passive_dns = []
+                urls = []
+                malware = []
+                files = []
+                # OTX
+                otx_e = plugins['otx'].test_config(conf)
+                if otx_e:
+                    print('[+] Downloading OTX information....')
+                    otx = OTXv2(conf["AlienVaultOtx"]["key"])
+                    res = otx.get_indicator_details_full(IndicatorTypes.IPv4, args.IP)
+                    otx_pulses =  res["general"]["pulse_info"]["pulses"]
+                    # Get Passive DNS
+                    if "passive_dns" in res:
+                        for r in res["passive_dns"]["passive_dns"]:
+                            passive_dns.append({
+                                "domain": r['hostname'],
+                                "first": parse(r["first"]),
+                                "last": parse(r["last"]),
+                                "source" : "OTX"
+                            })
+                    if "url_list" in res:
+                        for r in res["url_list"]["url_list"]:
+                            urls.append(r)
+                # RobTex
+                print('[+] Downloading Robtex information....')
+                rob = Robtex()
+                res = rob.get_ip_info(args.IP)
+                for d in ["pas", "pash", "act", "acth"]:
+                    if d in res:
+                        for a in res[d]:
+                            passive_dns.append({
+                                'first': a['date'],
+                                'last': a['date'],
+                                'domain': a['o'],
+                                'source': 'Robtex'
+                            })
+                # VT
+                vt_e = plugins['vt'].test_config(conf)
+                if vt_e:
+                    if conf["VirusTotal"]["type"] != "public":
+                        print('[+] Downloading VT information....')
+                        vt = PrivateApi(conf["VirusTotal"]["key"])
+                        res = vt.get_ip_report(args.IP)
+                        if "results" in res:
+                            if "resolutions" in res['results']:
+                                for r in res["results"]["resolutions"]:
+                                    passive_dns.append({
+                                        "first": parse(r["last_resolved"]),
+                                        "last": parse(r["last_resolved"]),
+                                        "domain": r["hostname"],
+                                        "source": "VT"
+                                    })
+                            if "undetected_downloaded_samples" in res['results']:
+                                for r in res['results']['undetected_downloaded_samples']:
+                                    files.append({
+                                        'hash': r['sha256'],
+                                        'date': parse(r['date']),
+                                        'source' : 'VT'
+                                    })
+                            if "undetected_referrer_samples" in res['results']:
+                                for r in res['results']['undetected_referrer_samples']:
+                                    files.append({
+                                        'hash': r['sha256'],
+                                        'date': parse(r['date']),
+                                        'source' : 'VT'
+                                    })
+                            if "detected_downloaded_samples" in res['results']:
+                                for r in res['results']['detected_downloaded_samples']:
+                                    malware.append({
+                                        'hash': r['sha256'],
+                                        'date': parse(r['date']),
+                                        'source' : 'VT'
+                                    })
+                            if "detected_referrer_samples" in res['results']:
+                                for r in res['results']['detected_referrer_samples']:
+                                    malware.append({
+                                        'hash': r['sha256'],
+                                        'date': parse(r['date']),
+                                        'source' : 'VT'
+                                    })
+                    else:
+                        vt_e = False
+
+
+
+                # TODO: MISP
+                print('----------------- Intelligence Report')
+                if otx_e:
+                    if len(otx_pulses) > 0:
+                        print('OTX: Found in %i pulses:' % len(otx_pulses))
+                        for p in otx_pulses:
+                            print('-"%s" (%s - %s)' % (
+                                    p['name'],
+                                    p['created'],
+                                    p['id']
+                                )
+                            )
+                    else:
+                        print('OTX: Not found in any pulse')
+                if len(malware) > 0:
+                    print('----------------- Malware')
+                    for r in sorted(malware, key=lambda x: x["date"]):
+                        print("[%s] %s %s" % (
+                                r["source"],
+                                r["hash"],
+                                r["date"].strftime("%Y-%m-%d")
+                            )
+                        )
+                if len(files) > 0:
+                    print('----------------- Files')
+                    for r in sorted(files, key=lambda x: x["date"]):
+                        print("[%s] %s %s" % (
+                                r["source"],
+                                r["hash"],
+                                r["date"].strftime("%Y-%m-%d")
+                            )
+                        )
+                if len(passive_dns) > 0:
+                    print('----------------- Passive DNS')
+                    for r in sorted(passive_dns, key=lambda x: x["first"]):
+                        print("[+] %-40s (%s -> %s)(%s)" % (
+                                r["domain"],
+                                r["first"].strftime("%Y-%m-%d"),
+                                r["last"].strftime("%Y-%m-%d"),
+                                r["source"]
+                            )
+                        )
+
+
             else:
                 self.parser.print_help()
         else:

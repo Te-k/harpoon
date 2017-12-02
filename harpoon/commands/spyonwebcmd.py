@@ -47,7 +47,7 @@ class CommandSpyonweb(Command):
         self.parser = parser
 
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
         if hasattr(args, 'subcommand'):
             s = SpyOnWeb(conf['SpyOnWeb']['token'])
             if args.subcommand == 'domain':

@@ -17,7 +17,7 @@ class CommandFullContact(Command):
         parser.add_argument('--domain', '-d', help='Search company based on domain')
         self.parser = parser
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
         fc = FullContact(conf['FullContact']['key'])
         if args.twitter:
             res = fc.person(twitter=args.twitter)

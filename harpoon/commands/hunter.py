@@ -20,7 +20,7 @@ class CommandHunter(Command):
         parser_a.set_defaults(subcommand='domain')
         self.parser = parser
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
         if 'subcommand' in args:
             hunter = PyHunter(conf['Hunter']['key'])
             if args.subcommand == 'email':
