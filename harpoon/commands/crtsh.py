@@ -3,14 +3,11 @@ import sys
 import operator
 import json
 from harpoon.commands.base import Command
+from harpoon.lib.utils import json_serial
 from pycrtsh import Crtsh
 from collections import Counter
 from datetime import date, datetime
 
-def json_serial(obj):
-    if isinstance(obj, (datetime, date)):
-        return obj.isoformat()
-    raise TypeError ("Type %s not serializable" % type(obj))
 
 class CommandCert(Command):
     name = "crtsh"
