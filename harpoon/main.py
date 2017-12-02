@@ -46,7 +46,7 @@ def main():
         else:
             if not plugins[args.command].test_config(config):
                 print('Invalid configuration for this plugin, quitting...')
-                sys,exit(1)
+                sys.exit(1)
             plugins[args.command].run(config, args)
     else:
         parser.print_help()

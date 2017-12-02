@@ -17,10 +17,90 @@ class CommandVirusTotal(Command):
         parser_a.add_argument('--raw', '-r', help='Raw data', action='store_true')
         parser_a.add_argument('--extended', '-e', help='Extended info (private API only)', action='store_true')
         parser_a.set_defaults(subcommand='hash')
-        parser_b = subparsers.add_parser('list', help='Request a list of hashes')
+        parser_b = subparsers.add_parser('hashlist', help='Request a list of hashes')
         parser_b.add_argument('FILE',  help='File containing the domains')
-        parser_b.set_defaults(subcommand='file')
+        parser_b.set_defaults(subcommand='hashlist')
+        parser_c = subparsers.add_parser('domain', help='Request info on a domain')
+        parser_c.add_argument('DOMAIN',  help='Domain')
+        parser_c.add_argument('--json', '-j', action='store_true', help='Show raw JSON info')
+        parser_c.set_defaults(subcommand='domain')
+        parser_d = subparsers.add_parser('ip', help='Request info on an IP')
+        parser_d.add_argument('IP',  help='IP')
+        parser_d.set_defaults(subcommand='ip')
+        parser_e = subparsers.add_parser('url', help='Request info on an URL')
+        parser_e.add_argument('URL',  help='URL')
+        parser_e.set_defaults(subcommand='url')
+        parser_f = subparsers.add_parser('domainlist', help='Request info on a list of domains')
+        parser_f.add_argument('FILE',  help='File containing the list of domains')
+        parser_f.set_defaults(subcommand='domainlist')
         self.parser = parser
+        self.parser = parser
+
+    def print_domaininfo(self, res):
+        """Print nicely the domain information"""
+        if "results" in res:
+            if "detected_urls" in res["results"]:
+                print("-Detected urls:")
+                for r in res["results"]["detected_urls"]:
+                    print("\t%s (on %s, %i/%i)" % (
+                            r["url"],
+                            r["scan_date"],
+                            r["positives"],
+                            r["total"]
+                        )
+                    )
+            if "undetected_urls" in res["results"]:
+                print("-Undetected urls:")
+                for r in res["results"]["undetected_urls"]:
+                    print("\t%s (on %s, %i/%i)" % (
+                            r["url"],
+                            r["scan_date"],
+                            r["positives"],
+                            r["total"]
+                        )
+                    )
+            if "resolutions" in res["results"]:
+                print("-Resolutions:")
+                for r in res["results"]["resolutions"]:
+                    print("\t%s (%s)" % (r["ip_address"], r["last_resolved"]))
+            if "detected_referrer_samples" in res["results"]:
+                print("-Detected Referrer Sample:")
+                for r in res["results"]["detected_referrer_samples"]:
+                    print("\t%s (%i/%i)" % (
+                            r["sha256"],
+                            r["positives"],
+                            r["total"]
+                        )
+                    )
+            if "undetected_referrer_samples" in res["results"]:
+                print("-Undetected Referrer Sample:")
+                for r in res["results"]["undetected_referrer_samples"]:
+                    print("\t%s (%i/%i)" (
+                            r["sha256"],
+                            r["positives"],
+                            r["total"]
+                        )
+                    )
+            if "undetected_downloaded_samples" in res["results"]:
+                print("-Undetected Downloaded Sample:")
+                for r in res["results"]["undetected_downloaded_samples"]:
+                    print("\t%s (on %s, %i/%i)" % (
+                            r["sha256"],
+                            r["date"],
+                            r["positives"],
+                            r["total"]
+                        )
+                    )
+            if "detected_downloaded_samples" in res["results"]:
+                print("-Detected Downloaded Sample:")
+                for r in res["results"]["detected_downloaded_samples"]:
+                    print("\t%s (on %s, %i/%i)" % (
+                            r["sha256"],
+                            r["date"],
+                            r["positives"],
+                            r["total"]
+                        )
+                    )
 
     def run(self, conf, args):
         if 'subcommand' in args:
@@ -53,7 +133,7 @@ class CommandVirusTotal(Command):
                         print("[+] First Seen: %s" % response["results"]["first_seen"])
                         print("[+] Last Seen: %s" % response["results"]["last_seen"])
                         print("[+] Link: %s" % response["results"]["permalink"])
-                elif args.subcommand == "list":
+                elif args.subcommand == "hashlist":
                     with open(args.FILE, 'r') as infile:
                         data = infile.read().split()
                     hash_list = list(set([a.strip() for a in data]))
@@ -80,11 +160,30 @@ class CommandVirusTotal(Command):
                                 )
                         else:
                             print("%s;Not found;;;;;" % h)
+                elif args.subcommand == "domainlist":
+                    with open(args.FILE, 'r') as infile:
+                        data = infile.read().split()
+                    for d in data:
+                        print("################ Domain %s" % d.strip())
+                        res = vt.get_domain_report(d.strip())
+                        self.print_domaininfo(res)
+                elif args.subcommand == "domain":
+                    res = vt.get_domain_report(args.DOMAIN)
+                    if args.json:
+                        print(json.dumps(res, sort_keys=False, indent=4))
+                    else:
+                        self.print_domaininfo(res)
+                elif args.subcommand == "ip":
+                    res = vt.get_ip_report(args.IP)
+                    print(json.dumps(res, sort_keys=False, indent=4))
+                elif args.subcommand == "url":
+                    res = vt.get_url_report(args.URL)
+                    print(json.dumps(res, sort_keys=False, indent=4))
                 else:
                     self.parser.print_help()
             else:
                 vt = PublicApi(conf["VirusTotal"]["key"])
-                if args.subdommand == "hash":
+                if args.subcommand == "hash":
                     response = vt.get_file_report(args.HASH)
                     if args.raw:
                         print(json.dumps(response, sort_keys=False, indent=4))
@@ -105,7 +204,7 @@ class CommandVirusTotal(Command):
                         print("[+] SHA256: %s" % response["results"]["sha256"])
                         print("[+] Scan Date: %s" % response["results"]["scan_date"])
                         print("[+] Link: %s" % response["results"]["permalink"])
-                elif args.subcommand == "list":
+                elif args.subcommand == "hashlist":
                     with open(args.FILE, 'r') as infile:
                         data = infile.read().split()
                     hash_list = list(set([a.strip() for a in data]))
@@ -130,6 +229,20 @@ class CommandVirusTotal(Command):
                                 )
                         else:
                             print("%s;Not found;;;" % h)
+                elif args.subcommand == "domain":
+                    res = vt.get_domain_report(args.DOMAIN)
+                    if args.json:
+                        print(json.dumps(res, sort_keys=False, indent=4))
+                    else:
+                        self.print_domaininfo(res)
+                elif args.subcommand == "ip":
+                    res = vt.get_ip_report(args.IP)
+                    print(json.dumps(res, sort_keys=False, indent=4))
+                elif args.subcommand == "url":
+                    res = vt.get_url_report(args.URL)
+                    print(json.dumps(res, sort_keys=False, indent=4))
+                elif args.subcommand == "domainlist":
+                    print("Not implemented yet with public access")
                 else:
                     self.parser.print_help()
         else:
