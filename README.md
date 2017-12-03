@@ -28,7 +28,7 @@ bitly               Request bit.ly information through the API
 screenshot          Takes a screenshot of a webpage
 ```
 
-To configure harpoon, run `harpoon config` and fil needed API keys. Then run `harpoon config -u` to download needed files. Check what plugins are configured with arpoon config -c`.
+To configure harpoon, run `harpoon config` and fil needed API keys. Then run `harpoon config -u` to download needed files. Check what plugins are configured with `harpoon config -c`.
 
 ## Access Keys
 
