@@ -39,68 +39,76 @@ class CommandVirusTotal(Command):
     def print_domaininfo(self, res):
         """Print nicely the domain information"""
         if "results" in res:
+            if "verbose_msg" in res["results"]:
+                print(res["results"]["verbose_msg"])
             if "detected_urls" in res["results"]:
-                print("-Detected urls:")
-                for r in res["results"]["detected_urls"]:
-                    print("\t%s (on %s, %i/%i)" % (
-                            r["url"],
-                            r["scan_date"],
-                            r["positives"],
-                            r["total"]
+                if len(res["results"]["detected_urls"]) > 0:
+                    print("-Detected urls:")
+                    for r in res["results"]["detected_urls"]:
+                        print("\t%s (on %s, %i/%i)" % (
+                                r["url"],
+                                r["scan_date"],
+                                r["positives"],
+                                r["total"]
+                            )
                         )
-                    )
             if "undetected_urls" in res["results"]:
                 print("-Undetected urls:")
                 for r in res["results"]["undetected_urls"]:
                     print("\t%s (on %s, %i/%i)" % (
-                            r["url"],
-                            r["scan_date"],
-                            r["positives"],
-                            r["total"]
+                            r[0],
+                            r[4],
+                            r[2],
+                            r[3]
                         )
                     )
             if "resolutions" in res["results"]:
-                print("-Resolutions:")
-                for r in res["results"]["resolutions"]:
-                    print("\t%s (%s)" % (r["ip_address"], r["last_resolved"]))
+                if len(res["results"]["resolutions"]) > 0:
+                    print("-Resolutions:")
+                    for r in res["results"]["resolutions"]:
+                        print("\t%s (%s)" % (r["ip_address"], r["last_resolved"]))
             if "detected_referrer_samples" in res["results"]:
-                print("-Detected Referrer Sample:")
-                for r in res["results"]["detected_referrer_samples"]:
-                    print("\t%s (%i/%i)" % (
-                            r["sha256"],
-                            r["positives"],
-                            r["total"]
+                if len(res["results"]["detected_referrer_samples"]) > 0:
+                    print("-Detected Referrer Sample:")
+                    for r in res["results"]["detected_referrer_samples"]:
+                        print("\t%s (%i/%i)" % (
+                                r["sha256"],
+                                r["positives"],
+                                r["total"]
+                            )
                         )
-                    )
             if "undetected_referrer_samples" in res["results"]:
-                print("-Undetected Referrer Sample:")
-                for r in res["results"]["undetected_referrer_samples"]:
-                    print("\t%s (%i/%i)" (
-                            r["sha256"],
-                            r["positives"],
-                            r["total"]
+                if len(res["results"]["undetected_referrer_samples"]) > 0:
+                    print("-Undetected Referrer Sample:")
+                    for r in res["results"]["undetected_referrer_samples"]:
+                        print("\t%s (%i/%i)" (
+                                r["sha256"],
+                                r["positives"],
+                                r["total"]
+                            )
                         )
-                    )
             if "undetected_downloaded_samples" in res["results"]:
-                print("-Undetected Downloaded Sample:")
-                for r in res["results"]["undetected_downloaded_samples"]:
-                    print("\t%s (on %s, %i/%i)" % (
-                            r["sha256"],
-                            r["date"],
-                            r["positives"],
-                            r["total"]
+                if len(res["results"]["undetected_downloaded_samples"]) > 0:
+                    print("-Undetected Downloaded Sample:")
+                    for r in res["results"]["undetected_downloaded_samples"]:
+                        print("\t%s (on %s, %i/%i)" % (
+                                r["sha256"],
+                                r["date"],
+                                r["positives"],
+                                r["total"]
+                            )
                         )
-                    )
             if "detected_downloaded_samples" in res["results"]:
-                print("-Detected Downloaded Sample:")
-                for r in res["results"]["detected_downloaded_samples"]:
-                    print("\t%s (on %s, %i/%i)" % (
-                            r["sha256"],
-                            r["date"],
-                            r["positives"],
-                            r["total"]
+                if len(res["results"]["detected_downloaded_samples"]) > 0:
+                    print("-Detected Downloaded Sample:")
+                    for r in res["results"]["detected_downloaded_samples"]:
+                        print("\t%s (on %s, %i/%i)" % (
+                                r["sha256"],
+                                r["date"],
+                                r["positives"],
+                                r["total"]
+                            )
                         )
-                    )
 
     def run(self, conf, args):
         if 'subcommand' in args:
