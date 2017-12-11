@@ -23,7 +23,7 @@ class CommandGithub(Command):
         parser_a.set_defaults(subcommand='search')
         self.parser = parser
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
         g = Github(conf['Github']['token'])
         if 'subcommand' in args:
             if args.subcommand == 'search':

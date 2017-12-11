@@ -23,7 +23,7 @@ class CommandTwitter(Command):
             help='File containing usernames, display user infos in CSV format')
         self.parser = parser
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
         bird = Bird(conf['Twitter'])
 
         if args.user:

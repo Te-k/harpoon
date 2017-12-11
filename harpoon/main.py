@@ -41,13 +41,11 @@ def main():
     config = load_config()
     if hasattr(args, 'command'):
         # Config plugin need plugin list
-        if args.command == 'config':
-            plugins[args.command].run(config, args, plugins)
+        if not plugins[args.command].test_config(config):
+            print('Invalid configuration for this plugin, quitting...')
+            sys.exit(1)
         else:
-            if not plugins[args.command].test_config(config):
-                print('Invalid configuration for this plugin, quitting...')
-                sys.exit(1)
-            plugins[args.command].run(config, args)
+            plugins[args.command].run(config, args, plugins)
     else:
         parser.print_help()
 

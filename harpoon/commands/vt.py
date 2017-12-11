@@ -110,7 +110,7 @@ class CommandVirusTotal(Command):
                             )
                         )
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
         if 'subcommand' in args:
             if conf["VirusTotal"]["type"] != "public":
                 vt = PrivateApi(conf["VirusTotal"]["key"])

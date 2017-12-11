@@ -39,7 +39,7 @@ class CommandOtx(Command):
         parser.add_argument('--type', '-t', help='Type for search', default="guess", choices=["guess", "domain", "IPv4", "IPv6", "url", "md5", "sha1", "sha256", "pehash", "imphash", "cidr", "file_path", "hostname", "mutex", "cve"])
         self.parser = parser
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
         otx = OTXv2(conf["AlienVaultOtx"]["key"])
         if args.pulse:
             try:

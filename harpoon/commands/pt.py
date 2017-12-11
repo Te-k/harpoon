@@ -36,7 +36,7 @@ class CommandPassiveTotal(Command):
         self.parser = parser
 
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
         if 'subcommand' in args:
             if args.subcommand == 'whois':
                 client = WhoisRequest(conf['PassiveTotal']['username'], conf['PassiveTotal']['key'])

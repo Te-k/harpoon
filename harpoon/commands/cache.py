@@ -24,7 +24,7 @@ class CommandCache(Command):
         parser.add_argument('--dump', '-D', action='store_true', help='Dump data')
         self.parser = parser
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
         url = unbracket(args.URL)
         if args.source == 'all':
             if args.dump:

@@ -13,7 +13,7 @@ class CommandGoogl(Command):
         parser.add_argument('--hash', '-H', help='HASH of a link')
         parser.add_argument('--file', '-f', help='File containing list of hashes')
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
         if 'Googl' not in conf:
             print('Invalid configuration file, quitting...')
             sys.exit(1)

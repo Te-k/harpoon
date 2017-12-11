@@ -19,7 +19,8 @@ class CommandMisp(Command):
         parser.add_argument('--no-tls', '-n', help='Do not validate TLS certificate (bad bad bad)', action='store_true')
         self.parser = parser
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
+        # FIXME: have this in conf
         if args.no_tls:
             server = MispServer(url=conf['Misp']['url'], apikey=conf['Misp']['key'], ssl_chain=False)
         else:

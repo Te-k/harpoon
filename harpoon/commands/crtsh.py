@@ -20,7 +20,7 @@ class CommandCert(Command):
                 help='Output format (default is txt)')
         self.parser = parser
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
         crt = Crtsh()
         if args.domain:
             index = crt.search(args.domain)

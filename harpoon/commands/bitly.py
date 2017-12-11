@@ -13,7 +13,7 @@ class CommandBitly(Command):
         parser.add_argument('--file', '-f', help='File containing list of hashes')
         self.parser = parser
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
         bitly = Bitly(access_token=conf['Bitly']["token"])
         if args.hash:
             link = Link(bitly, args.hash)

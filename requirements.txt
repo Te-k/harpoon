@@ -20,3 +20,4 @@ OTXv2
 IPy
 pyasn
 git+https://github.com/maxmind/GeoIP2-python.git
+selenium

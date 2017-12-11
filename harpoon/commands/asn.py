@@ -18,7 +18,7 @@ class CommandAsn(Command):
         parser_a.set_defaults(subcommand='info')
         self.parser = parser
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
         if 'subcommand' in args:
             if args.subcommand == 'info':
                 r = requests.get('https://peeringdb.com/api/net?asn=%i' % args.ASN)
