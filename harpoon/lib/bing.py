@@ -42,19 +42,23 @@ class Bing(object):
         """
         r = requests.get(url)
         if r.status_code == 200:
-            soup = BeautifulSoup(r.text, 'lxml')
-            content = soup.find('div', class_='cacheContent')
-            data = r.text[r.text.find('<div class="cacheContent">')+26:len(r.text)-41]
-            return {
-                "success": True,
-                "date": parse(soup.find_all('strong')[1].text),
-                "data": str(content)[26:-40],
-                'url': soup.strong.a['href'],
-                'cacheurl': url
-            }
+            if "Could not find the requested document in the cache" in r.text:
+                # Bing bug
+                return {"success": False}
+            else:
+                soup = BeautifulSoup(r.text, 'lxml')
+                content = soup.find('div', class_='cacheContent')
+                data = r.text[r.text.find('<div class="cacheContent">')+26:len(r.text)-41]
+                return {
+                    "success": True,
+                    "date": parse(soup.find_all('strong')[1].text),
+                    "data": str(content)[26:-40],
+                    'url': soup.strong.a['href'],
+                    'cacheurl': url
+                }
         else:
             if r.status_code != 404:
-                print('Weird, it should return 200 or 4040')
+                print('Weird, it should return 200 or 404')
             return {"success": False}
 
     @staticmethod
