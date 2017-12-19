@@ -21,11 +21,9 @@ class CommandCensys(Command):
         parser_b = subparsers.add_parser('cert', help='Get information on a certificate')
         parser_b.add_argument('ID', help='ID of the certificate')
         parser_b.set_defaults(subcommand='cert')
-        parser_c = subparsers.add_parser('ipseries', help='list IP series')
-        parser_c.set_defaults(subcommand='ipseries')
         self.parser = parser
 
-    def run(self, conf, args):
+    def run(self, conf, args, plugins):
         if 'subcommand' in args:
             if args.subcommand == 'ip':
                 api = ipv4.CensysIPv4(conf['Censys']['id'], conf['Censys']['secret'])
@@ -56,11 +54,6 @@ class CommandCensys(Command):
                 c = certificates.CensysCertificates(conf['Censys']['id'], conf['Censys']['secret'])
                 res = c.view(args.ID)
                 print(json.dumps(res, sort_keys=True, indent=4, separators=(',', ': ')))
-            elif args.subcommand == 'ipseries':
-                cc = query.CensysQuery(api_id=conf['Censys']['id'], api_secret=conf['Censys']['secret'])
-                series = cc.get_series_details("ipv4")
-                for s in series:
-                    print(s)
             else:
                 self.parser.print_help()
         else:
