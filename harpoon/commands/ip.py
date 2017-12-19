@@ -18,6 +18,7 @@ from harpoon.lib.utils import bracket, unbracket
 from harpoon.lib.robtex import Robtex, RobtexError
 from OTXv2 import OTXv2, IndicatorTypes
 from virus_total_apis import PublicApi, PrivateApi
+from greynoise import GreyNoise, GreyNoiseError
 
 
 class CommandIp(Command):
@@ -243,6 +244,12 @@ class CommandIp(Command):
                     else:
                         vt_e = False
 
+                print('[+] Downloading GreyNoise information....')
+                gn = GreyNoise()
+                try:
+                    greynoise = gn.query_ip(args.IP)
+                except GreyNoiseError:
+                    greynoise = []
 
 
                 # TODO: MISP
@@ -251,7 +258,7 @@ class CommandIp(Command):
                     if len(otx_pulses) > 0:
                         print('OTX: Found in %i pulses:' % len(otx_pulses))
                         for p in otx_pulses:
-                            print('-"%s" (%s - %s)' % (
+                            print('\t %s (%s - %s)' % (
                                     p['name'],
                                     p['created'],
                                     p['id']
@@ -259,6 +266,17 @@ class CommandIp(Command):
                             )
                     else:
                         print('OTX: Not found in any pulse')
+                if len(greynoise) > 0:
+                    print("GreyNoise: IP identified as")
+                    for r in greynoise:
+                        print("\t%s (%s -> %s)" % (
+                                r["name"],
+                                r["first_seen"],
+                                r["last_updated"]
+                            )
+                        )
+                else:
+                    print("GreyNoise: Not found")
                 if len(malware) > 0:
                     print('----------------- Malware')
                     for r in sorted(malware, key=lambda x: x["date"]):
