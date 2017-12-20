@@ -27,6 +27,7 @@ github              Request Github information through the API
 bitly               Request bit.ly information through the API
 screenshot          Takes a screenshot of a webpage
 greynoise           Request Grey Noise API
+telegram            Request information from Telegram through the API
 ```
 
 To configure harpoon, run `harpoon config` and fil needed API keys. Then run `harpoon config -u` to download needed files. Check what plugins are configured with `harpoon config -c`.
