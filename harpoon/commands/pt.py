@@ -98,7 +98,7 @@ class CommandPassiveTotal(Command):
             elif args.subcommand == "dns":
                 client = DnsRequest(conf['PassiveTotal']['username'], conf['PassiveTotal']['key'])
                 raw_results = client.get_passive_dns(
-                    query=args.DOMAIN,
+                    query=unbracket(args.DOMAIN),
                 )
                 print(json.dumps(raw_results,  sort_keys=True, indent=4, separators=(',', ': ')))
             elif args.subcommand == "malware":
