@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 import sys
 from harpoon.commands.base import Command
-from github import Github
+from github import Github, UnknownObjectException
 
 
 class CommandGithub(Command):
@@ -21,6 +21,11 @@ class CommandGithub(Command):
                 help='Result limit')
         parser_a.add_argument('SEARCH')
         parser_a.set_defaults(subcommand='search')
+        parser_b = subparsers.add_parser('repo', help='Information on a github repository')
+        parser_b.add_argument('REPOSITORY')
+        parser_b.add_argument('-o', '--only-emails', action="store_true", help="Only list emails of committers")
+        parser_b.set_defaults(subcommand='repo')
+
         self.parser = parser
 
     def run(self, conf, args, plugins):
@@ -58,6 +63,54 @@ class CommandGithub(Command):
                 elif args.type == 'commit':
                     # Not yet implemented by PyGithub
                     raise Error('Not yet implemented')
+            elif args.subcommand == "repo":
+                # clean input
+                if args.REPOSITORY.startswith("https://github.com"):
+                    rep_name = args.REPOSITORY[19:]
+                else:
+                    rep_name = args.REPOSITORY
+                if rep_name.endswith(".git"):
+                    rep_name = rep_name[:-4]
+                repo = g.get_repo(rep_name)
+                # Check if found
+                try:
+                    idd = repo.id
+                except UnknownObjectException:
+                    print("Repository not found")
+                    return
+                if args.only_emails:
+                    # FIXME: really slow
+                    committers = set()
+                    for c in repo.get_commits():
+                        if c.committer:
+                            if c.committer.email:
+                                committers.add(c.committer.email)
+                    for c in committers:
+                        print(c)
+                else:
+                    print("-Name: %s" % repo.full_name)
+                    print("-Owner: %s %s" % (repo.owner.login, repo.owner.email))
+                    print("-Language: %s" % repo.language)
+                    print("-%i Watchers / %i Stars / %i Forks" % (
+                            repo.watchers,
+                            repo.stargazers_count,
+                            repo.forks_count
+                        )
+                    )
+                    # FIXME: really slow
+                    committers = {}
+                    for c in repo.get_commits():
+                        if c.committer:
+                            if c.committer.email:
+                                if c.committer.email in committers:
+                                    committers[c.committer.email] += 1
+                                else:
+                                    committers[c.committer.email] = 1
+                    print("-Committers:")
+                    for committer in sorted(committers.items()):
+                        print("\t%s %i" % ( committer[0], committer[1]))
+
+
             else:
                 self.parser.print_help()
         else:
