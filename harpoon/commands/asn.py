@@ -19,12 +19,16 @@ class CommandAsn(Command):
         self.parser = parser
 
     def run(self, conf, args, plugins):
-        if args.ASN.lower().startswith("asn"):
-            asn = int(args.ASN[3:])
-        elif args.ASN.lower().startswith("as"):
-            asn = int(args.ASN[2:])
+        if hasattr(args, 'ASN'):
+            if args.ASN.lower().startswith("asn"):
+                asn = int(args.ASN[3:])
+            elif args.ASN.lower().startswith("as"):
+                asn = int(args.ASN[2:])
+            else:
+                asn = int(args.ASN)
         else:
-            asn = int(args.ASN)
+            self.parser.print_help()
+            sys.exit(0)
         if 'subcommand' in args:
             if args.subcommand == 'info':
                 r = requests.get('https://peeringdb.com/api/net?asn=%i' % asn)
