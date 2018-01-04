@@ -43,7 +43,7 @@ setup(
     license='GPLv3',
     packages=['harpoon', 'harpoon.commands', 'harpoon.lib'],
     package_dir={'harpoon.lib': 'harpoon/lib'},
-    package_data={'harpoon': ['harpoon/data/*.conf']},
+    package_data={'harpoon': ['harpoon/data]},
     entry_points= {
         'console_scripts': [ 'harpoon=harpoon.main:main' ]
     }
