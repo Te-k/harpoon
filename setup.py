@@ -8,6 +8,7 @@ setup(
     author='Tek',
     author_email='tek@randhome.io',
     keywords='osint',
+    include_package_data=True,
     dependency_links=[
         'git+https://github.com/Te-k/pycrtsh.git@master#egg=0.1#pycrtsh-0.1', 
         'git+https://github.com/Te-k/pysafe.git@master#egg=pysafe-0.1',
@@ -43,7 +44,7 @@ setup(
     license='GPLv3',
     packages=['harpoon', 'harpoon.commands', 'harpoon.lib', 'harpoon.data'],
     package_dir={'harpoon.lib': 'harpoon/lib'},
-    package_data={'harpoon.data': ['harpoon/data']},
+    package_data={'harpoon': ['harpoon/data']},
     entry_points= {
         'console_scripts': [ 'harpoon=harpoon.main:main' ]
     }
