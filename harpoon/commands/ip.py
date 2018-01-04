@@ -56,10 +56,12 @@ class CommandIp(Command):
             pass
         file_name, headers = urllib.request.urlretrieve('http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz')
         tar = tarfile.open(file_name, 'r')
-        mmdb = tar.extractfile(tar.getmembers()[3])
-        with open(self.geocity, 'wb+') as f:
-            f.write(mmdb.read())
-        mmdb.close()
+        for this_fn in tar.getmembers():
+            if this_fn.name.endswith("GeoLite2-City.mmdb"):
+                mmdb = tar.extractfile(this_fn)
+                with open(self.geocity, 'wb+') as f:
+                    f.write(mmdb.read())
+                mmdb.close()
         print("-GeoLite2-City.mmdb")
         file_name, headers = urllib.request.urlretrieve('http://geolite.maxmind.com/download/geoip/database/GeoLite2-ASN.tar.gz')
         tar = tarfile.open(file_name, 'r')
