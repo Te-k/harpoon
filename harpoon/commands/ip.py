@@ -66,9 +66,9 @@ class CommandIp(Command):
         for this_fn in tar.getmembers():
             if this_fn.name.endswith("GeoLite2-ASN.mmdb"):
                 mmdb = tar.extractfile(this_fn)
-            with open(self.geoasn, 'wb+') as f:
-                f.write(mmdb.read())
-            mmdb.close()
+                with open(self.geoasn, 'wb+') as f:
+                    f.write(mmdb.read())
+                mmdb.close()
         print("-GeoLite2-ASN.mmdb")
         print("Download ASN Name database")
         try:
