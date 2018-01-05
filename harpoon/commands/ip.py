@@ -19,6 +19,8 @@ from harpoon.lib.robtex import Robtex, RobtexError
 from OTXv2 import OTXv2, IndicatorTypes
 from virus_total_apis import PublicApi, PrivateApi
 from greynoise import GreyNoise, GreyNoiseError
+from passivetotal.libs.dns import DnsRequest
+from passivetotal.libs.enrichment import EnrichmentRequest
 
 
 class CommandIp(Command):
@@ -54,17 +56,21 @@ class CommandIp(Command):
             pass
         file_name, headers = urllib.request.urlretrieve('http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz')
         tar = tarfile.open(file_name, 'r')
-        mmdb = tar.extractfile(tar.getmembers()[3])
-        with open(self.geocity, 'wb+') as f:
-            f.write(mmdb.read())
-        mmdb.close()
+        for this_fn in tar.getmembers():
+            if this_fn.name.endswith("GeoLite2-City.mmdb"):
+                mmdb = tar.extractfile(this_fn)
+                with open(self.geocity, 'wb+') as f:
+                    f.write(mmdb.read())
+                mmdb.close()
         print("-GeoLite2-City.mmdb")
         file_name, headers = urllib.request.urlretrieve('http://geolite.maxmind.com/download/geoip/database/GeoLite2-ASN.tar.gz')
         tar = tarfile.open(file_name, 'r')
-        mmdb = tar.extractfile(tar.getmembers()[3])
-        with open(self.geoasn, 'wb+') as f:
-            f.write(mmdb.read())
-        mmdb.close()
+        for this_fn in tar.getmembers():
+            if this_fn.name.endswith("GeoLite2-ASN.mmdb"):
+                mmdb = tar.extractfile(this_fn)
+                with open(self.geoasn, 'wb+') as f:
+                    f.write(mmdb.read())
+                mmdb.close()
         print("-GeoLite2-ASN.mmdb")
         print("Download ASN Name database")
         try:
@@ -170,7 +176,7 @@ class CommandIp(Command):
                 if otx_e:
                     print('[+] Downloading OTX information....')
                     otx = OTXv2(conf["AlienVaultOtx"]["key"])
-                    res = otx.get_indicator_details_full(IndicatorTypes.IPv4, args.IP)
+                    res = otx.get_indicator_details_full(IndicatorTypes.IPv4, unbracket(args.IP))
                     otx_pulses =  res["general"]["pulse_info"]["pulses"]
                     # Get Passive DNS
                     if "passive_dns" in res:
@@ -197,13 +203,41 @@ class CommandIp(Command):
                                 'domain': a['o'],
                                 'source': 'Robtex'
                             })
+
+                # PT
+                pt_e = plugins['pt'].test_config(conf)
+                if pt_e:
+                    print('[+] Downloading Passive Total information....')
+                    client = DnsRequest(conf['PassiveTotal']['username'], conf['PassiveTotal']['key'])
+                    raw_results = client.get_passive_dns(query=unbracket(args.IP))
+                    if "results" in raw_results:
+                        for res in raw_results["results"]:
+                            passive_dns.append({
+                                "first": parse(res["firstSeen"]),
+                                "last": parse(res["lastSeen"]),
+                                "domain": res["resolve"],
+                                "source": "PT"
+                            })
+                    client2 = EnrichmentRequest(conf["PassiveTotal"]["username"], conf["PassiveTotal"]['key'])
+                    # Get OSINT
+                    # TODO: add PT projects here
+                    pt_osint = client2.get_osint(query=unbracket(args.IP))
+                    # Get malware
+                    raw_results = client2.get_malware(query=unbracket(args.IP))
+                    if "results" in raw_results:
+                        for r in raw_results["results"]:
+                            malware.append({
+                                'hash': r["sample"],
+                                'date': parse(r['collectionDate']),
+                                'source' : 'PT (%s)' % r["source"]
+                            })
                 # VT
                 vt_e = plugins['vt'].test_config(conf)
                 if vt_e:
                     if conf["VirusTotal"]["type"] != "public":
                         print('[+] Downloading VT information....')
                         vt = PrivateApi(conf["VirusTotal"]["key"])
-                        res = vt.get_ip_report(args.IP)
+                        res = vt.get_ip_report(unbracket(args.IP))
                         if "results" in res:
                             if "resolutions" in res['results']:
                                 for r in res["results"]["resolutions"]:
@@ -247,21 +281,20 @@ class CommandIp(Command):
                 print('[+] Downloading GreyNoise information....')
                 gn = GreyNoise()
                 try:
-                    greynoise = gn.query_ip(args.IP)
+                    greynoise = gn.query_ip(unbracket(args.IP))
                 except GreyNoiseError:
                     greynoise = []
 
-
-                # TODO: MISP
+                # TODO: Add MISP
                 print('----------------- Intelligence Report')
                 if otx_e:
-                    if len(otx_pulses) > 0:
-                        print('OTX: Found in %i pulses:' % len(otx_pulses))
+                    if len(otx_pulses):
+                        print('OTX:')
                         for p in otx_pulses:
-                            print('\t %s (%s - %s)' % (
+                            print(' -%s (%s - %s)' % (
                                     p['name'],
-                                    p['created'],
-                                    p['id']
+                                    p['created'][:10],
+                                    "https://otx.alienvault.com/pulse/" + p['id']
                                 )
                             )
                     else:
@@ -277,6 +310,21 @@ class CommandIp(Command):
                         )
                 else:
                     print("GreyNoise: Not found")
+                if pt_e:
+                    if "results" in pt_osint:
+                        if len(pt_osint["results"]):
+                            if len(pt_osint["results"]) == 1:
+                                print("PT: %s %s" % (pt_osint["results"][0]["name"], pt_osint["results"][0]["sourceUrl"]))
+                            else:
+                                print("PT:")
+                                for r in pt_osint["results"]:
+                                    print("-%s %s" % (r["name"], r["sourceUrl"]))
+                        else:
+                            print("PT: Nothing found!")
+                    else:
+                        print("PT: Nothing found!")
+
+
                 if len(malware) > 0:
                     print('----------------- Malware')
                     for r in sorted(malware, key=lambda x: x["date"]):
@@ -297,7 +345,7 @@ class CommandIp(Command):
                         )
                 if len(passive_dns) > 0:
                     print('----------------- Passive DNS')
-                    for r in sorted(passive_dns, key=lambda x: x["first"]):
+                    for r in sorted(passive_dns, key=lambda x: x["first"], reverse=True):
                         print("[+] %-40s (%s -> %s)(%s)" % (
                                 r["domain"],
                                 r["first"].strftime("%Y-%m-%d"),

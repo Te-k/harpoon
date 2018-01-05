@@ -151,6 +151,7 @@ class CommandPassiveTotal(Command):
                     self.parser.print_help()
 
             elif args.subcommand == "osint":
+                # FIXME: add research of projects
                 client = EnrichmentRequest(conf["PassiveTotal"]["username"], conf["PassiveTotal"]['key'])
                 if args.domain:
                     raw_results = client.get_osint(query=args.domain)

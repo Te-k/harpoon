@@ -2,7 +2,25 @@
 
 OSINT tool.
 
-## Plugins:
+# Install
+
+You can simply pip install the tool:
+
+```
+pip install git+ssh://git@github.com/Te-k/harpoon#egg=0.1.1  --process-dependency-links
+```
+
+Optionally if you want to use the screenshot plugin, you need phantomjs and npm installed:
+
+```
+npm install -g phantomjs
+```
+
+To configure harpoon, run ```harpoon config``` and fill in the needed API keys. Then run ```harpoon config -u``` to download needed files. Check what plugins are configured with ```harpoon config -c```.
+
+# Usage
+
+After configuration the following plugins are available within the ```harpoon``` command:
 
 ```
 safebrowsing        Check if the given domain is in Google safe Browsing list
@@ -31,16 +49,9 @@ telegram            Request information from Telegram through the API
 pgp                 Search for information in PGP key servers
 ```
 
-To configure harpoon, run `harpoon config` and fil needed API keys. Then run `harpoon config -u` to download needed files. Check what plugins are configured with `harpoon config -c`.
-
 ## Access Keys
 
 * Telegram : [Create an application](https://core.telegram.org/api/obtaining_api_id)
 * Virus Total : for public, create an account and get the API key in the [Settings page](https://www.virustotal.com/#/settings/apikey)
 
-## Install
 
-For the screenshot plugin, you need phantomjs:
-```
-npm install -g phantomjs
-```
