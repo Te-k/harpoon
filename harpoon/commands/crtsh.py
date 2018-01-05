@@ -10,14 +10,21 @@ from datetime import date, datetime
 
 
 class CommandCert(Command):
+    """
+    # Crt.sh
+
+    **Search and download information from https://crt.sh/
+
+    * Search all certificates from a domain: `harpoon crtsh -d www.citizenlab.org`
+    * Search all certificates from a list of domains in a file with CSV output: `harpoon crtsh -l FILE -f CSV`
+    """
     name = "crtsh"
     description = "Search in https://crt.sh/ (Certificate Transparency database)"
 
     def add_arguments(self, parser):
         parser.add_argument('--domain', '-d', help='Search certificates for this domain and list shared alternate domains')
         parser.add_argument('--list', '-l', help='Search certificates for a list of domains in the given file')
-        parser.add_argument('--format', '-f', choices=["csv", "json", "txt"], default="txt",
-                help='Output format (default is txt)')
+        parser.add_argument('--format', '-f', choices=["csv", "json", "txt"], default="txt", help='Output format (default is txt)')
         self.parser = parser
 
     def run(self, conf, args, plugins):

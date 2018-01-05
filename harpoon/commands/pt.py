@@ -8,7 +8,18 @@ from passivetotal.libs.whois import WhoisRequest
 from passivetotal.libs.dns import DnsRequest
 from passivetotal.libs.enrichment import EnrichmentRequest
 
+
 class CommandPassiveTotal(Command):
+    """
+    # Passive Total
+
+    * Get a domain whois: `harpoon pt whois -d example.org`
+    * Search for a domain registered by an email address: `harpoon pt whois -e admin@example.org`
+    * Get whois information for a domain list in a file: `harpoon pt whois -f FILE`
+    * Query DNS information for a domain: `harpoon pt dns example.org`
+    * Check malware related to a domain: `harpoon pt malware -d example.org`
+    * Check report related to a domain: `harpoon pt osint -d example.org`
+    """
     name = "pt"
     description = "Requests Passive Total database"
     config = {'PassiveTotal': ['username', 'key']}

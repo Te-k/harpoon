@@ -6,6 +6,15 @@ from pygreynoise import GreyNoise, GreyNoiseError
 
 
 class CommandGreyNoise(Command):
+    """
+    # GreyNoise
+
+    See https://github.com/Grey-Noise-Intelligence/api.greynoise.io
+
+    * List tags: `harpoon greynoise -l`
+    * Search for an IP: `harpoon greynoise -i IP`
+    * Search for a tag with csv output:  `harpoon greynoise -t CENSYS -f csv`
+    """
     name = "greynoise"
     description = "Request Grey Noise API"
 

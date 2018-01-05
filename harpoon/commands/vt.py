@@ -6,6 +6,14 @@ from virus_total_apis import PublicApi, PrivateApi
 
 
 class CommandVirusTotal(Command):
+    """
+    # Virus Total
+
+    * Search for hash: `harpoon vt hash HASH`
+    * Search for a list of hashes from a file: `harpoon vt hashlist FILE`
+    * Search for a domain: `harpoon vt domain example.org`
+    * Search for an IP: `harpoon vt ip IP`
+    """
     name = "vt"
     description = "Request Virus Total API"
     config = {'VirusTotal': ['key', 'type']}

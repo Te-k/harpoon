@@ -8,6 +8,17 @@ from harpoon.lib.utils import json_serial
 from datetime import date, datetime
 
 class CommandRobtex(Command):
+    """
+    # Robtex
+
+    **Queries Robtex API https://www.robtex.com/api/**
+
+    * Get information on an IP address: `harpoon robtex ip IP`
+    * Get information on an ASN: `harpoon robtex asn 18342`
+    * get information on a domain: `harpoon robtex domain example.org`
+
+    The option `-j` shows raw JSON output.
+    """
     name = "robtex"
     description = "Search in Robtex API (https://www.robtex.com/api/)"
 

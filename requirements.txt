@@ -22,3 +22,4 @@ pyasn
 git+https://github.com/maxmind/GeoIP2-python.git
 selenium
 git+https://github.com/Te-k/pygreynoise.git
+git+https://github.com/kneufeld/consolemd.git

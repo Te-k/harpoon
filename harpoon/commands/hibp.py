@@ -5,6 +5,15 @@ from harpoon.lib.hibp import HIBP, HibpNotFound
 
 
 class CommandHibp(Command):
+    """
+    # Have I Been Pwned
+
+    **Requests Have I Been Pwned API https://haveibeenpwned.com/**
+
+    * Search for an email: `harpoon hibp admin@example.org`
+    * Search for leaks in pasts: `harpoon bibp -p admin@example.org`
+    * See raw JSON output: `harpoon hibp -j admin@example.org`
+    """
     name = "hibp"
     description = "Request Have I Been Pwned API (https://haveibeenpwned.com/)"
 

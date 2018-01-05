@@ -23,6 +23,7 @@ To configure harpoon, run ```harpoon config``` and fill in the needed API keys. 
 After configuration the following plugins are available within the ```harpoon``` command:
 
 ```
+help                Give help on an Harpoon command
 safebrowsing        Check if the given domain is in Google safe Browsing list
 hibp                Request Have I Been Pwned API (https://haveibeenpwned.com/)
 cache               Requests webpage cache from different sources
@@ -48,6 +49,8 @@ greynoise           Request Grey Noise API
 telegram            Request information from Telegram through the API
 pgp                 Search for information in PGP key servers
 ```
+
+You can get information on each command with `harpoon help COMMAND`
 
 ## Access Keys
 

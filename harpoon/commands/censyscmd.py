@@ -7,6 +7,14 @@ from harpoon.commands.base import Command
 
 
 class CommandCensys(Command):
+    """
+    # Censys plugin
+
+    **Query Censys.io API**
+
+    * Query information on an IP: `harpoon censys ip 172.217.2.174`
+    * Query a certificate: `harpoon censys certificate ID`
+    """
     name = "censys"
     description = "Request information from Censys database (https://censys.io/)"
     config = {'Censys': ['id', 'secret']}

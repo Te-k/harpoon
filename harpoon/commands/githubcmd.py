@@ -5,6 +5,15 @@ from github import Github, UnknownObjectException
 
 
 class CommandGithub(Command):
+    """
+    # Github
+
+    **Request Github API**
+
+    * Get information on a repository: `harpoon github repo kneufeld/consolemd`
+    * Search for information in Github code: `harpoon github search randhome.io`
+    * Search for information in Github repo: `harpoon github search -t repo harpoon`
+    """
     name = "github"
     description = "Request Github information through the API"
     config = { 'Github': ['token']}
@@ -62,7 +71,7 @@ class CommandGithub(Command):
                             sys.exit(0)
                 elif args.type == 'commit':
                     # Not yet implemented by PyGithub
-                    raise Error('Not yet implemented')
+                    raise Exception('Not yet implemented')
             elif args.subcommand == "repo":
                 # clean input
                 if args.REPOSITORY.startswith("https://github.com"):

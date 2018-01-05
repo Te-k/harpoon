@@ -8,7 +8,15 @@ from harpoon.commands.base import Command
 
 class CommandConfig(Command):
     """
-    Configuration commange : help creating harpoon conf
+    # Configuration command
+
+    **Help managing Harpoon configuration**
+
+    * Create and update configuration file: `harpoon config`
+    * Test plugins' configuration: `harpoon config -c`
+    * Download or update databases: `harpoon config -u`
+
+    Configuration file is stored in `~/.harpoon/config`
     """
     name = "config"
     description = "Configure Harpoon"

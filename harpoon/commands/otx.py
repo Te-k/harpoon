@@ -24,8 +24,18 @@ OTX_TYPES = {
 }
 
 
-
 class CommandOtx(Command):
+    """
+    # AlienVault Open Threat Exchange
+
+    **Requests information from AlienVault Open Threat Exchange https://www.alienvault.com/open-threat-exchange**
+
+    * Search for an indicator: `harpoon otx -s 127.0.0.1`
+    * Search for a list of indicators from a file: `harpoon otx -f FILE`
+    * Get information on a pulse: `harpoon otx -p PULSE_ID`
+
+    You can get raw JSON output with `-j`, and gives the IOC type with `-t`
+    """
     name = "otx"
     description = "Requests information from AlienVault OTX"
     config = { 'AlienVaultOtx': ['key']}

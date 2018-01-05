@@ -5,6 +5,24 @@ from harpoon.lib.pgp import Pgp
 
 
 class CommandPgp(Command):
+    """
+    # PGP
+
+    **Searches for PGP keys in MIT key servers**
+
+    Example:
+    ```
+    harpoon pgp search lemonde.fr
+    [+] 0x07A0514E0F568618	2017-12-19	Anne Michel anne.michel@lemonde.fr
+    [+] 0xAE95106F1B5A0D7E	2017-11-28	perso maxime.loliee@gmail.com
+					loliee maxime.loliee@gmail.com
+					pro maxime@siliadev.com
+					lemonde loliee@lemonde.fr
+    [SNIP]
+    ```
+
+    Option `-o` just print the list of emails (no information on keys)
+    """
     name = "pgp"
     description = "Search for information in PGP key servers"
     config = {}

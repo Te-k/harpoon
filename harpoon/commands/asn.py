@@ -6,6 +6,21 @@ from harpoon.commands.base import Command
 from harpoon.lib.utils import bracket, unbracket
 
 class CommandAsn(Command):
+    """
+    # ASN command
+
+    **Download ASn information from peeringdb.com**
+
+    Example:
+    ```
+    $ harpoon asn info 18182
+    Name: So-net Entertainment Taiwan Limited
+    Website: http://www.so-net.net.tw
+    Created: 2011-06-15T06:16:44Z
+    ```
+    Option `-j` shows raw JSON data
+
+    """
     name = "asn"
     description = "Gather information on an ASN"
     config = None

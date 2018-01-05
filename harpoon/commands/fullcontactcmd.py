@@ -5,6 +5,15 @@ from fullcontact import FullContact
 from harpoon.commands.base import Command
 
 class CommandFullContact(Command):
+    """
+    # FullContact
+
+    **Request fullcontact.com API**
+
+    * Search for a Twitter account: `harpoon fullcontact -t @tenacioustek`
+    * Search for an email address: `harpoon fullcontact -e admin@example.org`
+    * Search for a domain: `harpoon fullcontact -d github.com`
+    """
     name = "fullcontact"
     description = "Requests Full Contact API (https://www.fullcontact.com/)"
     config = {'FullContact': ['key']}

@@ -6,6 +6,14 @@ from harpoon.commands.base import Command
 
 
 class CommandShodan(Command):
+    """
+    # Shodan
+
+    **Queries information from shodan.io API***
+
+    * Get information on an IP (JSON output): `harpoon -i IP`
+    * Search in the database: `harpoon -s SEARCH`
+    """
     name = "shodan"
     description = "Requests Shodan API"
     config = {'Shodan': ['key']}

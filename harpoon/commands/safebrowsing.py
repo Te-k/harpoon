@@ -4,6 +4,14 @@ from harpoon.commands.base import Command
 from pysafe import SafeBrowsing
 
 class CommandSafeBrowsing(Command):
+    """
+    # Google Safe Browsing
+
+    **Check online Safe Browsing information**
+
+    * Query an url: `harpoon safebrowsing url URL`
+    * Query a list of domains or url from a file with CSV output: `harpoon safebrowsing file FILE -f csv`
+    """
     name = "safebrowsing"
     description = "Check if the given domain is in Google safe Browsing list"
     config = {'SafeBrowsing': ['key']}

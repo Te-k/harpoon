@@ -10,6 +10,16 @@ from harpoon.lib.utils import unbracket
 
 
 class CommandCache(Command):
+    """
+    # Cache
+
+    **Check if a page was cached by archive websites, and download cached page**
+    Supported platforms for now: Yandex, Google, Archive.is, Archive.org, Bing
+
+
+    * Check if a page was archived: `harpoon cache https://www.oreilly.com/'`
+    * Download a cached page: `harpoon cache -s google -D https://www.oreilly.com/`
+    """
     name = "cache"
     description = "Requests webpage cache from different sources"
 

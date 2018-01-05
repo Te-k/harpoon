@@ -19,6 +19,11 @@ def json_serial(obj):
 
 
 class CommandTelegram(Command):
+    """
+    # Telegram
+
+    **Dump information from Telegram**
+    """
     name = "telegram"
     description = "Request information from Telegram through the API"
     config = {'Telegram': ['id', 'hash', 'phone']}

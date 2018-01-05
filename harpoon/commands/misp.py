@@ -5,6 +5,16 @@ from harpoon.commands.base import Command
 from mispy import MispServer, MispEvent
 
 class CommandMisp(Command):
+    """
+    # MISP
+
+    **Queries a MISP (http://www.misp-project.org/) server**
+
+    * List events (maybe a long list): `harpoon misp -l`
+    * Get information on an event: `harpoon misp -e 342`
+    * Search for an attribute: `harpoon misp -a example.org`
+    * Search for a list of indicators in a file: `harpoon misp -s FILE`
+    """
     name = "misp"
     description = "Get information from a MISP server through the API"
     config = { 'Misp': ['url', 'key']}

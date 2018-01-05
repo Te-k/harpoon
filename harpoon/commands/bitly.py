@@ -4,6 +4,14 @@ from harpoon.commands.base import Command
 from harpoon.lib.bitly import Bitly, Link
 
 class CommandBitly(Command):
+    """
+    # Bit.ly plugin
+
+    **Query bit.ly API**
+
+    * Check a has information: `harpoon bitly -H 1234`
+    * Check multiple hashes from a file: `harpoon bitly -f hash.csv`
+    """
     name = "bitly"
     description = "Request bit.ly information through the API"
     config = { 'Bitly': ['token']}

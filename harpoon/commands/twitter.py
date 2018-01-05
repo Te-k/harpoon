@@ -6,6 +6,11 @@ from harpoon.commands.base import Command
 from harpoon.lib.bird import Bird
 
 class CommandTwitter(Command):
+    """
+    # Twitter
+
+    **Dumps information from Twitter**
+    """
     name = "twitter"
     description = "Requests Twitter API"
     config = {'Twitter': ['consumer_secret', 'consumer_key', 'access_token', 'access_token_secret']}

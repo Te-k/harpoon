@@ -24,6 +24,28 @@ from passivetotal.libs.enrichment import EnrichmentRequest
 
 
 class CommandIp(Command):
+    """
+    # IP
+
+    **Gathers information on an IP address**
+
+    Get information on an IP:
+    ```
+harpoon ip info 172.34.127.2
+MaxMind: Located in None, United States
+MaxMind: ASN21928, T-Mobile USA, Inc.
+ASN 21928 - T-MOBILE-AS21928 - T-Mobile USA, Inc., US (range 172.32.0.0/11)
+
+Censys:     https://censys.io/ipv4/172.34.127.2
+Shodan:     https://www.shodan.io/host/172.34.127.2
+IP Info:    http://ipinfo.io/172.34.127.2
+BGP HE:     https://bgp.he.net/ip/172.34.127.2
+IP Location:    https://www.iplocation.net/?query=172.34.127.2
+    ```
+
+    * Get intelligence information on an IP: `harpoon ip intel IP`
+
+    """
     name = "ip"
     description = "Gather information on an IP address"
     config = None

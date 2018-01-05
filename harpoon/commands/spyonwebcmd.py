@@ -7,7 +7,19 @@ import json
 from harpoon.commands.base import Command
 from spyonweb import SpyOnWeb, SpyOnWebNotFound, SpyOnWebInvalidToken, SpyOnWebError
 
+
 class CommandSpyonweb(Command):
+    """
+    # Spy On Web
+
+    **Queries Spy On Web database http://spyonweb.com/**
+
+    * Search for a domain: `harpoon spyonweb domain example.org`
+    * Search for an adsense id: `harpoon spyonweb adsense ID`
+    * Search for a Google Analytics id: `harpoon spyonweb analytics ID`
+    * Search for an IP address: `harpoon spyonweb ip IP`
+    """
+
     name = "spyonweb"
     description = "Search in SpyOnWeb through the API"
     config = {'SpyOnWeb': ['token']}

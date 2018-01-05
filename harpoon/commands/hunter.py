@@ -5,6 +5,14 @@ from harpoon.commands.base import Command
 from pyhunter import PyHunter
 
 class CommandHunter(Command):
+    """
+    # Hunter.io
+
+    **Requests Hunter.io plugin https://hunter.io/**
+
+    * Search for an email: `harpoon hunter email FIRSTNAME LASTNAME DOMAIN`
+    * Search for a domain: `harpoon hunder domain example.org`
+    """
     name = "hunter"
     description = "Request hunter.io information through the API"
     config = { 'Hunter': ['key']}

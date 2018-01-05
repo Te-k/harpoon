@@ -4,6 +4,13 @@ from harpoon.commands.base import Command
 from selenium import webdriver
 
 class CommandScreenshot(Command):
+    """
+    # Screenshot
+
+    **Takes a screenshot of a webpage**
+
+    `harpoon screenshot http://google.com`
+    """
     name = "screenshot"
     description = "Takes a screenshot of a webpage"
 

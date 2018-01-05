@@ -5,6 +5,12 @@ from harpoon.commands.base import Command
 from harpoon.lib.googl import GoogleShortener
 
 class CommandGoogl(Command):
+    """
+    # Goo.gl URL shortener plugin
+
+    * Search for a hash: `harpoon googl -H 12445`
+    * Search for a list of hash from a file: `harpoon googl -f FILE`
+    """
     name = "googl"
     description = "Requests Google url shortener API"
     config = {'Googl': ['token']}
