@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 import sys
 import json
+import hashlib
 from harpoon.commands.base import Command
 from virus_total_apis import PublicApi, PrivateApi
 
@@ -13,6 +14,7 @@ class CommandVirusTotal(Command):
     * Search for a list of hashes from a file: `harpoon vt hashlist FILE`
     * Search for a domain: `harpoon vt domain example.org`
     * Search for an IP: `harpoon vt ip IP`
+    * Check a file in VT: `harpoon vt file FILE` (check for the hash, no upload)
     """
     name = "vt"
     description = "Request Virus Total API"
@@ -41,7 +43,10 @@ class CommandVirusTotal(Command):
         parser_f = subparsers.add_parser('domainlist', help='Request info on a list of domains')
         parser_f.add_argument('FILE',  help='File containing the list of domains')
         parser_f.set_defaults(subcommand='domainlist')
-        self.parser = parser
+        parser_e = subparsers.add_parser('file', help='Request info on a file (no upload)')
+        parser_e.add_argument('FILE', help='File')
+        parser_e.add_argument('--raw', '-r', help='Raw data', action='store_true')
+        parser_e.set_defaults(subcommand='file')
         self.parser = parser
 
     def print_domaininfo(self, res):
@@ -118,6 +123,28 @@ class CommandVirusTotal(Command):
                             )
                         )
 
+    def print_file(self, response):
+        """
+        Print details on a file
+        """
+        if response["response_code"] != 200:
+            print("Error with the request (reponse code %i)" % response["response_code"])
+            sys.exit(1)
+        if response["results"]["response_code"] == 0:
+            print("File not found")
+            sys.exit(0)
+        print("[+] Detection: %i / %i" % (
+                response["results"]["positives"],
+                response["results"]["total"]
+            )
+        )
+        print("[+] MD5: %s" % response["results"]["md5"])
+        print("[+] SHA1: %s" % response["results"]["sha1"])
+        print("[+] SHA256: %s" % response["results"]["sha256"])
+        print("[+] First Seen: %s" % response["results"]["first_seen"])
+        print("[+] Last Seen: %s" % response["results"]["last_seen"])
+        print("[+] Link: %s" % response["results"]["permalink"])
+
     def run(self, conf, args, plugins):
         if 'subcommand' in args:
             if conf["VirusTotal"]["type"] != "public":
@@ -132,23 +159,19 @@ class CommandVirusTotal(Command):
                             response = vt.get_file_behaviour(args.HASH)
                             print(json.dumps(response, sort_keys=False, indent=4))
                     else:
-                        if response["response_code"] != 200:
-                            print("Error with the request (reponse code %i)" % response["response_code"])
-                            sys.exit(1)
-                        if response["results"]["response_code"] == 0:
-                            print("File not found")
-                            sys.exit(0)
-                        print("[+] Detection: %i / %i" % (
-                                response["results"]["positives"],
-                                response["results"]["total"]
-                            )
-                        )
-                        print("[+] MD5: %s" % response["results"]["md5"])
-                        print("[+] SHA1: %s" % response["results"]["sha1"])
-                        print("[+] SHA256: %s" % response["results"]["sha256"])
-                        print("[+] First Seen: %s" % response["results"]["first_seen"])
-                        print("[+] Last Seen: %s" % response["results"]["last_seen"])
-                        print("[+] Link: %s" % response["results"]["permalink"])
+                        self.print_file(response)
+                elif args.subcommand == "file":
+                    with open(args.FILE, "rb") as f:
+                        # FIXME : could be more efficient
+                        data = f.read()
+                    m = hashlib.sha256()
+                    m.update(data)
+                    h = m.hexdigest()
+                    response = vt.get_file_report(h)
+                    if args.raw:
+                        print(json.dumps(response, sort_keys=False, indent=4))
+                    else:
+                        self.print_file(response)
                 elif args.subcommand == "hashlist":
                     with open(args.FILE, 'r') as infile:
                         data = infile.read().split()
@@ -204,22 +227,22 @@ class CommandVirusTotal(Command):
                     if args.raw:
                         print(json.dumps(response, sort_keys=False, indent=4))
                     else:
-                        if response["response_code"] != 200:
-                            print("Error with the request (reponse code %i)" % response["response_code"])
-                            sys.exit(1)
-                        if response["results"]["response_code"] == 0:
-                            print("File not found")
-                            sys.exit(0)
-                        print("[+] Detection: %i / %i" % (
-                                response["results"]["positives"],
-                                response["results"]["total"]
-                            )
-                        )
-                        print("[+] MD5: %s" % response["results"]["md5"])
-                        print("[+] SHA1: %s" % response["results"]["sha1"])
-                        print("[+] SHA256: %s" % response["results"]["sha256"])
-                        print("[+] Scan Date: %s" % response["results"]["scan_date"])
-                        print("[+] Link: %s" % response["results"]["permalink"])
+                        self.print_file(response)
+                elif args.subcommand == "file":
+                    with open(args.FILE, "rb") as f:
+                        # FIXME : could be more efficient
+                        data = f.read()
+                    m = hashlib.sha256()
+                    m.update(data)
+                    response = vt.get_file_report(m.hexdigest())
+                    if args.raw:
+                        print(json.dumps(response, sort_keys=False, indent=4))
+                    else:
+                        self.print_file(response)
+                elif args.subcommand == "hashlist":
+                    with open(args.FILE, 'r') as infile:
+                        data = infile.read().split()
+                    pass
                 elif args.subcommand == "hashlist":
                     with open(args.FILE, 'r') as infile:
                         data = infile.read().split()
