@@ -18,7 +18,7 @@ from harpoon.lib.utils import bracket, unbracket
 from harpoon.lib.robtex import Robtex, RobtexError
 from OTXv2 import OTXv2, IndicatorTypes
 from virus_total_apis import PublicApi, PrivateApi
-from greynoise import GreyNoise, GreyNoiseError
+from pygreynoise import GreyNoise, GreyNoiseError
 from passivetotal.libs.dns import DnsRequest
 from passivetotal.libs.enrichment import EnrichmentRequest
 
