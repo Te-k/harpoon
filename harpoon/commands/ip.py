@@ -124,6 +124,32 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
         shutil.move('latest.dat', self.asncidr)
         print('-asncidr.dat')
 
+    def ipinfo(self, ip):
+        """
+        Return information on an IP address
+        {"asn", "asn_name", "city", "country"}
+        """
+        ipinfo = {}
+        try:
+            citydb = geoip2.database.Reader(self.geocity)
+            res = citydb.city(ip)
+            ipinfo["city"] = res.city.name
+            ipinfo["country"] = res.country.name
+        except geoip2.errors.AddressNotFoundError:
+            ipinfo["city"] = "Unknown"
+            ipinfo["country"] = "Unknown"
+        try:
+            asndb = geoip2.database.Reader(self.geoasn)
+            res = asndb.asn(ip)
+            ipinfo["asn"] = res.autonomous_system_number
+            ipinfo["asn_name"] = res.autonomous_system_organization
+        except geoip2.errors.AddressNotFoundError:
+            ipinfo["asn"] = ""
+            ipinfo["asn_name"] = ""
+            # FIXME: check in text files if not found
+            # TODO: add private
+        return ipinfo
+
     def run(self, conf, args, plugins):
         if 'subcommand' in args:
             if args.subcommand == 'info':
