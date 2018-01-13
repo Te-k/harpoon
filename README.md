@@ -49,6 +49,7 @@ greynoise           Request Grey Noise API
 telegram            Request information from Telegram through the API
 pgp                 Search for information in PGP key servers
 totalhash           Request Total Hash API
+dns                 Map DNS information for a domain or an IP
 ```
 
 You can get information on each command with `harpoon help COMMAND`
