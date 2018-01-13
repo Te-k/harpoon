@@ -17,14 +17,13 @@ class CommandHelp(Command):
     description = "Give help on an Harpoon command"
 
     def add_arguments(self, parser):
-        parser.add_argument('COMMAND', help='Show the help of the given command')
+        parser.add_argument('COMMAND', help='Show the help of the given command', nargs='?')
 
-    def run(self, conf, args, plugins):
+    def run(self, conf, args, plugins, parser):
         if args.COMMAND in plugins:
             renderer = consolemd.Renderer()
             # Remove empty space at the beginning of lines
             content = [item.strip() for item in plugins[args.COMMAND].__doc__.splitlines()]
             renderer.render('\n'.join(content))
         else:
-            print("No such command %s" % args.COMMAND)
-            print("Check harpoon -h")
+            parser.print_help()

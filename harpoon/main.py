@@ -45,7 +45,11 @@ def main():
             print('Invalid configuration for this plugin, quitting...')
             sys.exit(1)
         else:
-            plugins[args.command].run(config, args, plugins)
+            # Ugly
+            if args.command == "help":
+                plugins[args.command].run(config, args, plugins, parser)
+            else:
+                plugins[args.command].run(config, args, plugins)
     else:
         parser.print_help()
 
