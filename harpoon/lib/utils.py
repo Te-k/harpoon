@@ -67,3 +67,16 @@ def typeguess(indicator):
                 return "IPv6"
         except ValueError:
             return "domain"
+
+def is_ip(target):
+    """
+    Test if a string is an IP address
+    """
+    if isinstance(target, str):
+        try:
+            i = IP(target)
+            return True
+        except ValueError:
+            return False
+    else:
+        return False

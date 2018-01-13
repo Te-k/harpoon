@@ -24,7 +24,7 @@ class CommandSafeBrowsing(Command):
         parser_b.set_defaults(subcommand='url')
         parser_c = subparsers.add_parser('file', help='Check domains or urls from a file')
         parser_c.add_argument('FILE', help='File path')
-        parser_c.add_argument('--format', '-f', help='File path',
+        parser_c.add_argument('--format', '-f', help='Output format',
             choices=["json", "csv", "txt"], default="txt")
         parser_c.set_defaults(subcommand='file')
         self.parser = parser

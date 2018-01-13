@@ -40,6 +40,7 @@ setup(
         'selenium',
         'geoip2',
         'pygreynoise',
+        'dnspython'
         ],
 
     python_requires='>=3.5',
