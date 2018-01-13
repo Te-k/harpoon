@@ -112,7 +112,7 @@ class CommandDns(Command):
                         else:
                             try:
                                 ip = [b.address for b in resolver.query(target, 'A')][0]
-                            except resolver.NoAnswer:
+                            except resolver.NXDOMAIN:
                                 # Hostname without IPv4
                                 print(target)
                             else:
