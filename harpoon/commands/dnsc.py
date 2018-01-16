@@ -47,7 +47,7 @@ class CommandDns(Command):
             try:
                 answer = [entry for entry in resolver.query(ptr_n, "PTR")][0]
                 print("%s - %s" % (ptr_n, str(answer)))
-            except resolver.NXDOMAIN:
+            except (resolver.NXDOMAIN, resolver.NoAnswer):
                 print("%s - %s" % (ptr_n, "NXDOMAIN"))
         else:
             cip = plugins['ip']
@@ -64,7 +64,7 @@ class CommandDns(Command):
                 print("# A")
                 try:
                     answers = resolver.query(args.TARGET, 'A')
-                except resolver.NoAnswer:
+                except (resolver.NoAnswer, resolver.NXDOMAIN):
                     print("No A entry")
                 else:
                     for rdata in answers:
@@ -85,14 +85,14 @@ class CommandDns(Command):
                     answers = resolver.query(args.TARGET, 'AAAA')
                     for rdata in answers:
                         print(rdata.address)
-                except resolver.NoAnswer:
+                except (resolver.NoAnswer, resolver.NXDOMAIN):
                     print("No AAAA entry configured")
 
                 # DNS Servers
                 print("\n# NS")
                 try:
                     answers = resolver.query(args.TARGET, 'NS')
-                except resolver.NoAnswer:
+                except (resolver.NoAnswer, resolver.NXDOMAIN):
                     # That's pretty unlikely
                     print("No NS entry configured")
                 else:
@@ -132,7 +132,7 @@ class CommandDns(Command):
                 print("\n# MX:")
                 try:
                     answers = resolver.query(args.TARGET, 'MX')
-                except resolver.NoAnswer:
+                except (resolver.NoAnswer, resolver.NXDOMAIN):
                     print("No MX entry configured")
                 else:
                     for rdata in answers:
@@ -172,7 +172,7 @@ class CommandDns(Command):
                 print("\n# SOA")
                 try:
                     answers = resolver.query(args.TARGET, 'SOA')
-                except resolver.NoAnswer:
+                except (resolver.NoAnswer, resolver.NXDOMAIN):
                     print("No SOA entry configured")
                 else:
                     entry = [b for b in answers][0]
@@ -183,7 +183,7 @@ class CommandDns(Command):
                 print("\n# TXT:")
                 try:
                     answers = resolver.query(args.TARGET, 'TXT')
-                except resolver.NoAnswer:
+                except (resolver.NoAnswer, resolver.NXDOMAIN):
                     print("No TXT entry configured")
                 else:
                     for a in answers:
