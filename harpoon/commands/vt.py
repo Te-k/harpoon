@@ -4,6 +4,7 @@ import json
 import hashlib
 from harpoon.commands.base import Command
 from virus_total_apis import PublicApi, PrivateApi
+from harpoon.lib.utils import unbracket
 
 
 class CommandVirusTotal(Command):
@@ -213,7 +214,7 @@ class CommandVirusTotal(Command):
                     else:
                         self.print_domaininfo(res)
                 elif args.subcommand == "ip":
-                    res = vt.get_ip_report(args.IP)
+                    res = vt.get_ip_report(unbracket(args.IP))
                     print(json.dumps(res, sort_keys=False, indent=4))
                 elif args.subcommand == "url":
                     res = vt.get_url_report(args.URL)
@@ -275,7 +276,7 @@ class CommandVirusTotal(Command):
                     else:
                         self.print_domaininfo(res)
                 elif args.subcommand == "ip":
-                    res = vt.get_ip_report(args.IP)
+                    res = vt.get_ip_report(unbracket(args.IP))
                     print(json.dumps(res, sort_keys=False, indent=4))
                 elif args.subcommand == "url":
                     res = vt.get_url_report(args.URL)
