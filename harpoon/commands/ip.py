@@ -318,11 +318,12 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                                     })
                             if "detected_referrer_samples" in res['results']:
                                 for r in res['results']['detected_referrer_samples']:
-                                    malware.append({
-                                        'hash': r['sha256'],
-                                        'date': parse(r['date']),
-                                        'source' : 'VT'
-                                    })
+                                    if "date" in r:
+                                        malware.append({
+                                            'hash': r['sha256'],
+                                            'date': parse(r['date']),
+                                            'source' : 'VT'
+                                        })
                     else:
                         vt_e = False
 

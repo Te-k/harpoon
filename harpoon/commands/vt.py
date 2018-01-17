@@ -2,6 +2,7 @@
 import sys
 import json
 import hashlib
+import os
 from harpoon.commands.base import Command
 from virus_total_apis import PublicApi, PrivateApi
 from harpoon.lib.utils import unbracket
@@ -16,6 +17,7 @@ class CommandVirusTotal(Command):
     * Search for a domain: `harpoon vt domain example.org`
     * Search for an IP: `harpoon vt ip IP`
     * Check a file in VT: `harpoon vt file FILE` (check for the hash, no upload)
+    * Download a file (private only): `harpoon vt dl HASH`
     """
     name = "vt"
     description = "Request Virus Total API"
@@ -48,6 +50,9 @@ class CommandVirusTotal(Command):
         parser_e.add_argument('FILE', help='File')
         parser_e.add_argument('--raw', '-r', help='Raw data', action='store_true')
         parser_e.set_defaults(subcommand='file')
+        parser_f = subparsers.add_parser('dl', help='Download a file from VT')
+        parser_f.add_argument('HASH', help='Hash of the file')
+        parser_f.set_defaults(subcommand='dl')
         self.parser = parser
 
     def print_domaininfo(self, res):
@@ -161,6 +166,19 @@ class CommandVirusTotal(Command):
                             print(json.dumps(response, sort_keys=False, indent=4))
                     else:
                         self.print_file(response)
+                elif args.subcommand == "dl":
+                    data = vt.get_file(args.HASH)
+                    if isinstance(data, dict):
+                        print("Error: %s" % data["error"])
+                        sys.exit(0)
+                    else:
+                        if os.path.isfile(args.HASH):
+                            print("File %s already exists" % args.HASH)
+                            sys.exit(0)
+                        with open(args.HASH, "wb") as f:
+                            f.write(data)
+                        print("File downloaded as %s" % args.HASH)
+
                 elif args.subcommand == "file":
                     with open(args.FILE, "rb") as f:
                         # FIXME : could be more efficient
@@ -282,7 +300,10 @@ class CommandVirusTotal(Command):
                     res = vt.get_url_report(args.URL)
                     print(json.dumps(res, sort_keys=False, indent=4))
                 elif args.subcommand == "domainlist":
-                    print("Not implemented yet with public access")
+                    print("Not implemented yet with public access, please propose PR if you need it")
+                elif args.subcommand == "dl":
+                    print("VirusTotal does not allow downloading files with a public feed, sorry")
+                    sys.exit(0)
                 else:
                     self.parser.print_help()
         else:
