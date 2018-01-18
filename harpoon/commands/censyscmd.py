@@ -59,9 +59,13 @@ class CommandCensys(Command):
                     except censys.base.CensysNotFoundException:
                         print('IP not found')
             elif args.subcommand == 'cert':
-                c = certificates.CensysCertificates(conf['Censys']['id'], conf['Censys']['secret'])
-                res = c.view(args.ID)
-                print(json.dumps(res, sort_keys=True, indent=4, separators=(',', ': ')))
+                try:
+                    c = certificates.CensysCertificates(conf['Censys']['id'], conf['Censys']['secret'])
+                    res = c.view(args.ID)
+                except censys.base.CensysNotFoundException:
+                    print("Certificate not found")
+                else:
+                    print(json.dumps(res, sort_keys=True, indent=4, separators=(',', ': ')))
             else:
                 self.parser.print_help()
         else:
