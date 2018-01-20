@@ -52,3 +52,12 @@ class HybridAnalysis(object):
         Request the analysis summary
         """
         return self._request('summary/' + hash, data = {'environmentId': envid})
+
+    def get_last_analysis(self, hash):
+        """
+        Get details from the last analysis
+        """
+        # Query the hash and then the analysis
+        res = self.get_report(hash)
+        last = sorted(res, key=lambda x:x['analysis_start_time'], reverse=True)[0]
+        return self.get_summary(hash, last['environmentId'])

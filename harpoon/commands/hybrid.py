@@ -43,7 +43,6 @@ class CommandHybridAnalysis(Command):
         parser_a.set_defaults(subcommand='hash')
         parser_b = subparsers.add_parser('analysis', help='Request details on an analysis')
         parser_b.add_argument('HASH', help='Hash')
-        parser_b.add_argument('ENV', help='Environment id', type=int)
         parser_b.set_defaults(subcommand='analysis')
         parser_c = subparsers.add_parser('help', help='Help on search terms')
         parser_c.set_defaults(subcommand='help')
@@ -76,7 +75,7 @@ class CommandHybridAnalysis(Command):
                     print(json.dumps(res, sort_keys=True, indent=4, separators=(',', ': '), default=json_serial))
             elif args.subcommand == 'analysis':
                 try:
-                    res = ha.get_summary(args.HASH, args.ENV)
+                    res = ha.get_last_analysis(args.HASH)
                 except HybridAnalysisFailed:
                     print("File not found")
                 else:
