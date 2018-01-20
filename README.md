@@ -50,6 +50,7 @@ telegram            Request information from Telegram through the API
 pgp                 Search for information in PGP key servers
 totalhash           Request Total Hash API
 dns                 Map DNS information for a domain or an IP
+hybrid              Requests Hybrid Analysis platform
 ```
 
 You can get information on each command with `harpoon help COMMAND`
@@ -59,5 +60,6 @@ You can get information on each command with `harpoon help COMMAND`
 * Telegram : [Create an application](https://core.telegram.org/api/obtaining_api_id)
 * Virus Total : for public, create an account and get the API key in the [Settings page](https://www.virustotal.com/#/settings/apikey)
 * [Total Hash](https://totalhash.cymru.com/contact-us/)
+* [Hybrid Analysis](https://www.hybrid-analysis.com/apikeys/info)
 
 

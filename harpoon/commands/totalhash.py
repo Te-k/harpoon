@@ -7,7 +7,7 @@ from harpoon.lib.totalhash import TotalHash, TotalHashNotFound
 from harpoon.lib.utils import json_serial
 
 
-class CommandVirusTotal(Command):
+class CommandTotalHash(Command):
     """
     # Total Hash
 
