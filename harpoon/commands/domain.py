@@ -115,9 +115,9 @@ class CommandDomain(Command):
                 for d in res:
                     if d['rrtype'] in ['A', 'AAAA']:
                         passive_dns.append({
-                            'first': parse(d['time_first_o']),
-                            'last': parse(d['time_last_o']),
-                            'ip': a['o'],
+                            'first': d['time_first_o'],
+                            'last': d['time_last_o'],
+                            'ip': d['rrdata'],
                             'source': 'Robtex'
                         })
 
