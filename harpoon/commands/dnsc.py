@@ -2,7 +2,7 @@
 import sys
 from dns import resolver, reversename
 from harpoon.commands.base import Command
-from harpoon.lib.utils import is_ip
+from harpoon.lib.utils import is_ip, unbracket
 
 
 class CommandDns(Command):
@@ -41,9 +41,9 @@ class CommandDns(Command):
         return '.'.join(rev[:-2]) + "@" + ".".join(rev[-2:])
 
     def run(self, conf, args, plugins):
-        if is_ip(args.TARGET):
+        if is_ip(unbracket(args.TARGET)):
             # That's an IP address
-            ptr_n = str(reversename.from_address(args.TARGET))
+            ptr_n = str(reversename.from_address(unbracket(args.TARGET)))
             try:
                 answer = [entry for entry in resolver.query(ptr_n, "PTR")][0]
                 print("%s - %s" % (ptr_n, str(answer)))
@@ -54,16 +54,17 @@ class CommandDns(Command):
             if args.extended:
                 for a in self.all_types:
                     try:
-                        answers = resolver.query(args.TARGET, a)
+                        answers = resolver.query(unbracket(args.TARGET), a)
                         for rdata in answers:
                             print(a, ':', rdata.to_text())
                     except Exception as e:
                         pass
             else:
+                target = unbracket(args.TARGET)
                 # A
                 print("# A")
                 try:
-                    answers = resolver.query(args.TARGET, 'A')
+                    answers = resolver.query(target, 'A')
                 except (resolver.NoAnswer, resolver.NXDOMAIN):
                     print("No A entry")
                 else:
@@ -82,7 +83,7 @@ class CommandDns(Command):
                 print("")
                 print("# AAAA")
                 try:
-                    answers = resolver.query(args.TARGET, 'AAAA')
+                    answers = resolver.query(target, 'AAAA')
                     for rdata in answers:
                         print(rdata.address)
                 except (resolver.NoAnswer, resolver.NXDOMAIN):
@@ -91,18 +92,18 @@ class CommandDns(Command):
                 # DNS Servers
                 print("\n# NS")
                 try:
-                    answers = resolver.query(args.TARGET, 'NS')
+                    answers = resolver.query(target, 'NS')
                 except (resolver.NoAnswer, resolver.NXDOMAIN):
                     # That's pretty unlikely
                     print("No NS entry configured")
                 else:
                     for entry in answers:
-                        target = str(entry.target)
-                        if is_ip(target):
+                        ttarget = str(entry.target)
+                        if is_ip(ttarget):
                             # Pretty unlikely
-                            info = cip.ipinfo(target)
+                            info = cip.ipinfo(ttarget)
                             print("%s - ASN%i %s - %s %s" % (
-                                    target,
+                                    ttarget,
                                     info['asn'],
                                     info['asn_name'],
                                     info['city'],
@@ -111,15 +112,15 @@ class CommandDns(Command):
                             )
                         else:
                             try:
-                                ip = [b.address for b in resolver.query(target, 'A')][0]
+                                ip = [b.address for b in resolver.query(ttarget, 'A')][0]
                             except resolver.NXDOMAIN:
                                 # Hostname without IPv4
-                                print(target)
+                                print(ttarget)
                             else:
                                 # Hostname
                                 info = cip.ipinfo(ip)
                                 print("%s - %s - ASN%i %s - %s %s" % (
-                                        target,
+                                        ttarget,
                                         ip,
                                         info['asn'],
                                         info['asn_name'],
@@ -131,7 +132,7 @@ class CommandDns(Command):
                 # MX
                 print("\n# MX:")
                 try:
-                    answers = resolver.query(args.TARGET, 'MX')
+                    answers = resolver.query(target, 'MX')
                 except (resolver.NoAnswer, resolver.NXDOMAIN):
                     print("No MX entry configured")
                 else:
@@ -171,7 +172,7 @@ class CommandDns(Command):
                 # SOA
                 print("\n# SOA")
                 try:
-                    answers = resolver.query(args.TARGET, 'SOA')
+                    answers = resolver.query(target, 'SOA')
                 except (resolver.NoAnswer, resolver.NXDOMAIN):
                     print("No SOA entry configured")
                 else:
@@ -182,7 +183,7 @@ class CommandDns(Command):
                 # TXT
                 print("\n# TXT:")
                 try:
-                    answers = resolver.query(args.TARGET, 'TXT')
+                    answers = resolver.query(target, 'TXT')
                 except (resolver.NoAnswer, resolver.NXDOMAIN):
                     print("No TXT entry configured")
                 else:
