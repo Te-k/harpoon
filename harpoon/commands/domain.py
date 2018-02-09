@@ -105,7 +105,7 @@ class CommandDomain(Command):
                             urls.append({
                                 "date": parse(r["date"]),
                                 "url": r["url"],
-                                "ip": r["result"]["urlworker"]["ip"],
+                                "ip": r["result"]["urlworker"]["ip"] if "ip" in r["result"]["urlworker"] else "" ,
                                 "source": "OTX"
                             })
                 # RobTex
@@ -226,7 +226,10 @@ class CommandDomain(Command):
                             else:
                                 print("PT:")
                                 for r in pt_osint["results"]:
-                                    print("-%s %s" % (r["name"], r["sourceUrl"]))
+                                    if "name" in r:
+                                        print("-%s %s" % (r["name"], r["sourceUrl"]))
+                                    else:
+                                        print("-%s" % (r["sourceUrl"]))
                         else:
                             print("PT: Nothing found!")
                     else:
