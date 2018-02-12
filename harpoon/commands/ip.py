@@ -21,6 +21,7 @@ from virus_total_apis import PublicApi, PrivateApi
 from pygreynoise import GreyNoise, GreyNoiseError
 from passivetotal.libs.dns import DnsRequest
 from passivetotal.libs.enrichment import EnrichmentRequest
+from pythreatgrid import ThreatGrid, ThreatGridError
 
 
 class CommandIp(Command):
@@ -333,6 +334,25 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                     greynoise = gn.query_ip(unbracket(args.IP))
                 except GreyNoiseError:
                     greynoise = []
+
+                tg_e = plugins['threatgrid'].test_config(conf)
+                if tg_e:
+                    print('[+] Downloading Threat Grid....')
+                    tg = ThreatGrid(conf['ThreatGrid']['key'])
+                    res = tg.search_samples(unbracket(args.IP), type='ip')
+                    already = []
+                    if 'items' in res:
+                        for r in res['items']:
+                            if r['sample_sha256'] not in already:
+                                d = parse(r['ts'])
+                                d = d.replace(tzinfo=None)
+                                malware.append({
+                                    'hash': r["sample_sha256"],
+                                    'date': d,
+                                    'source' : 'TG'
+                                })
+                                already.append(r['sample_sha256'])
+
 
                 # TODO: Add MISP
                 print('----------------- Intelligence Report')

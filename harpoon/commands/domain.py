@@ -21,6 +21,7 @@ from virus_total_apis import PublicApi, PrivateApi
 from pygreynoise import GreyNoise, GreyNoiseError
 from passivetotal.libs.dns import DnsRequest
 from passivetotal.libs.enrichment import EnrichmentRequest
+from pythreatgrid import ThreatGrid, ThreatGridError
 
 
 class CommandDomain(Command):
@@ -203,6 +204,23 @@ class CommandDomain(Command):
                                     })
                     else:
                         vt_e = False
+                tg_e = plugins['threatgrid'].test_config(conf)
+                if tg_e:
+                    print('[+] Downloading Threat Grid....')
+                    tg = ThreatGrid(conf['ThreatGrid']['key'])
+                    res = tg.search_samples(unbracket(args.DOMAIN), type='domain')
+                    already = []
+                    if 'items' in res:
+                        for r in res['items']:
+                            if r['sample_sha256'] not in already:
+                                d = parse(r['ts'])
+                                d = d.replace(tzinfo=None)
+                                malware.append({
+                                    'hash': r["sample_sha256"],
+                                    'date': d,
+                                    'source' : 'ThreatGrid'
+                                })
+                                already.append(r['sample_sha256'])
 
                 # TODO: Add MISP
                 print('----------------- Intelligence Report')
