@@ -14,11 +14,12 @@ class CommandThreatGrid(Command):
     **Search in Threat Grid database through the API**
 
     * Search for a domain: `harpoon threatgrid search domain DOMAIN`
+    * Search for a hash : ``harpoon threatgrid hash HASH`
 
     """
     name = "threatgrid"
     description = "Request Threat Grid API"
-    config = {'TotalHash': ['key', 'user']}
+    config = {'ThreatGrid': ['key']}
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(help='Subcommand')
