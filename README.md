@@ -47,6 +47,7 @@ bitly               Request bit.ly information through the API
 screenshot          Takes a screenshot of a webpage
 greynoise           Request Grey Noise API
 telegram            Request information from Telegram through the API
+threatgrid          Request Threat Grid API
 pgp                 Search for information in PGP key servers
 totalhash           Request Total Hash API
 dns                 Map DNS information for a domain or an IP
@@ -63,5 +64,3 @@ You can get information on each command with `harpoon help COMMAND`
 * [Total Hash](https://totalhash.cymru.com/contact-us/)
 * [Hybrid Analysis](https://www.hybrid-analysis.com/apikeys/info)
 * [MalShare](https://malshare.com/register.php)
-
-
