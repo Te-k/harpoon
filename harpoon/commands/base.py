@@ -6,6 +6,9 @@ class Command(object):
     def config_needed(self):
         return (self.config is not None)
 
+    def update(self):
+        pass
+
     def test_config(self, conf):
         """
         Test that the config params defined are in the conf file

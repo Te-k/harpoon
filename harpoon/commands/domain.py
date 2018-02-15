@@ -103,12 +103,20 @@ class CommandDomain(Command):
                             })
                     if "url_list" in res:
                         for r in res["url_list"]["url_list"]:
-                            urls.append({
-                                "date": parse(r["date"]),
-                                "url": r["url"],
-                                "ip": r["result"]["urlworker"]["ip"] if "ip" in r["result"]["urlworker"] else "" ,
-                                "source": "OTX"
-                            })
+                            if "result" in r:
+                                urls.append({
+                                    "date": parse(r["date"]),
+                                    "url": r["url"],
+                                    "ip": r["result"]["urlworker"]["ip"] if "ip" in r["result"]["urlworker"] else "" ,
+                                    "source": "OTX"
+                                })
+                            else:
+                                urls.append({
+                                    "date": parse(r["date"]),
+                                    "url": r["url"],
+                                    "ip": "",
+                                    "source": "OTX"
+                                })
                 # RobTex
                 print('[+] Downloading Robtex information....')
                 rob = Robtex()
