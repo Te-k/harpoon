@@ -41,12 +41,15 @@ class MementoClient(object):
         else:
             links = self._parselinks(r.text)
             # Get original url
-            original = list(
+            originals = list(
                 filter(
                     lambda x: x['type'] == 'original',
                     links
                 )
-            )[0]['url']
+            )
+            if len(originals) == 0:
+                return []
+            original = originals[0]['url']
             # Sort snapshots
             snapshots = []
             for d in links:
