@@ -3,7 +3,7 @@ import sys
 import operator
 import json
 from harpoon.commands.base import Command
-from harpoon.lib.utils import json_serial
+from harpoon.lib.utils import json_serial, unbracket
 from pycrtsh import Crtsh
 from collections import Counter
 from datetime import date, datetime
@@ -30,7 +30,7 @@ class CommandCert(Command):
     def run(self, conf, args, plugins):
         crt = Crtsh()
         if args.domain:
-            index = crt.search(args.domain)
+            index = crt.search(unbracket(args.domain))
             if args.format == "txt":
                 domains = []
                 print("Certificates")
@@ -123,5 +123,3 @@ class CommandCert(Command):
                 self.parser.print_help()
         else:
             self.parser.print_help()
-
-

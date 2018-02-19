@@ -4,7 +4,7 @@ import operator
 import json
 from harpoon.commands.base import Command
 from harpoon.lib.robtex import Robtex, RobtexError
-from harpoon.lib.utils import json_serial
+from harpoon.lib.utils import json_serial, unbracket
 from datetime import date, datetime
 
 class CommandRobtex(Command):
@@ -82,7 +82,7 @@ class CommandRobtex(Command):
                         print("[+] %s" % n["n"])
             elif args.subcommand == "domain":
                 r = Robtex()
-                res = r.get_pdns_domain(args.DOMAIN)
+                res = r.get_pdns_domain(unbracket(args.DOMAIN))
                 if args.json:
                     print(json.dumps(res, sort_keys=True, indent=4, default=json_serial))
                 else:
