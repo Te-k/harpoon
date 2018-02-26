@@ -41,7 +41,9 @@ setup(
         'selenium',
         'geoip2',
         'pygreynoise',
-        'dnspython'
+        'dnspython',
+        'pythreatgrid',
+        'consolemd'
         ],
 
     python_requires='>=3.5',
