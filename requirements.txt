@@ -13,7 +13,7 @@ pyhunter
 git+https://github.com/Te-k/pysafe.git@v0.1
 git+https://github.com/Te-k/spyonweb.git
 PyGitHub
-telethon
+telethon>=0.17.4.3
 virustotal-api
 mispy
 OTXv2

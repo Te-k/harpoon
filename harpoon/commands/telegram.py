@@ -77,30 +77,33 @@ class CommandTelegram(Command):
                 entity = client.get_entity(args.ID)
                 messages = client.get_message_history(entity, args.limit)
                 if args.format == "text":
-                    print("%i messages downloaded:" % messages[0])
-                    for msg in messages[1]:
-                        if isinstance(msg, telethon.tl.types.MessageService):
-                            print("[%s] Message Service: %s" % (
-                                    msg.date.isoformat(),
-                                    msg.action.message
-                                )
-                            )
-                        else:
-                            if msg.media is None:
-                                print("[%s] %s (%i views)" % (
+                    if len(messages) == 0:
+                        print("No messages in thie channel")
+                    else:
+                        print("%i messages downloaded:" % len(messages))
+                        for msg in messages:
+                            if isinstance(msg, telethon.tl.types.MessageService):
+                                print("[%s] Message Service: %s" % (
                                         msg.date.isoformat(),
-                                        msg.message,
-                                        msg.views
+                                        msg.action.message
                                     )
                                 )
                             else:
-                                print("[%s] Media (%i views)" % (
-                                        msg.date.isoformat(),
-                                        msg.views
+                                if msg.media is None:
+                                    print("[%s] %s (%i views)" % (
+                                            msg.date.isoformat(),
+                                            msg.message,
+                                            msg.views
+                                        )
                                     )
-                                )
+                                else:
+                                    print("[%s] Media (%i views)" % (
+                                            msg.date.isoformat(),
+                                            msg.views
+                                        )
+                                    )
                 elif args.format == "json":
-                    msg = [m.to_dict() for m in messages[1]]
+                    msg = [m.to_dict() for m in messages]
                     print(json.dumps(msg, sort_keys=True, indent=4, default=json_serial))
                 else:
                     print("Not implemented yet, sorry!")
