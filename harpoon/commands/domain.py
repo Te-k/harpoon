@@ -32,7 +32,6 @@ class CommandDomain(Command):
     name = "domain"
     description = "Gather information on a domain"
     config = None
-    update_needed = True
     geocity = os.path.join(os.path.expanduser('~'), '.config/harpoon/GeoLite2-City.mmdb')
     geoasn = os.path.join(os.path.expanduser('~'), '.config/harpoon/GeoLite2-ASN.mmdb')
     asnname = os.path.join(os.path.expanduser('~'), '.config/harpoon/asnnames.csv')

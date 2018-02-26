@@ -73,14 +73,15 @@ class CommandVirusTotal(Command):
                         )
             if "undetected_urls" in res["results"]:
                 print("-Undetected urls:")
-                for r in res["results"]["undetected_urls"]:
-                    print("\t%s (on %s, %i/%i)" % (
-                            r[0],
-                            r[4],
-                            r[2],
-                            r[3]
+                if len(res["results"]["undetected_urls"]) > 0:
+                    for r in res["results"]["undetected_urls"]:
+                        print("\t%s (on %s, %i/%i)" % (
+                                r[0],
+                                r[4],
+                                r[2],
+                                r[3]
+                            )
                         )
-                    )
             if "resolutions" in res["results"]:
                 if len(res["results"]["resolutions"]) > 0:
                     print("-Resolutions:")
@@ -100,7 +101,7 @@ class CommandVirusTotal(Command):
                 if len(res["results"]["undetected_referrer_samples"]) > 0:
                     print("-Undetected Referrer Sample:")
                     for r in res["results"]["undetected_referrer_samples"]:
-                        print("\t%s (%i/%i)" (
+                        print("\t%s (%i/%i)" % (
                                 r["sha256"],
                                 r["positives"],
                                 r["total"]
