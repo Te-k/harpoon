@@ -82,7 +82,7 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
         for this_fn in tar.getmembers():
             if this_fn.name.endswith("GeoLite2-City.mmdb"):
                 mmdb = tar.extractfile(this_fn)
-                with open(self.geocity, 'wb+') as f:
+                with open(self.geocity, 'wb') as f:
                     f.write(mmdb.read())
                 mmdb.close()
         print("-GeoLite2-City.mmdb")
@@ -91,7 +91,7 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
         for this_fn in tar.getmembers():
             if this_fn.name.endswith("GeoLite2-ASN.mmdb"):
                 mmdb = tar.extractfile(this_fn)
-                with open(self.geoasn, 'wb+') as f:
+                with open(self.geoasn, 'wb') as f:
                     f.write(mmdb.read())
                 mmdb.close()
         print("-GeoLite2-ASN.mmdb")
