@@ -7,7 +7,7 @@ OSINT tool.
 You can simply pip install the tool:
 
 ```
-pip install git+ssh://git@github.com/Te-k/harpoon#egg=0.1.1  --process-dependency-links
+pip install git+ssh://git@github.com/Te-k/harpoon  --process-dependency-links
 ```
 
 Optionally if you want to use the screenshot plugin, you need phantomjs and npm installed:

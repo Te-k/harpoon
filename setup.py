@@ -14,8 +14,8 @@ setup(
         'git+https://github.com/Te-k/pysafe.git@master#egg=pysafe-0.1',
         'git+https://github.com/Te-k/spyonweb.git@master#egg=spyonweb-0.1',
         'git+https://github.com/Te-k/pygreynoise.git@master#egg=pygreynoise-0.1',
-        'git+https://github.com/Te-k/pythreatgrid@master',
-        'git+https://github.com/kneufeld/consolemd.git'
+        'git+https://github.com/Te-k/pythreatgrid.git@master#egg=pythreatgrid-0.1',
+        'git+https://github.com/kneufeld/consolemd.git@master#egg=consolemd-0.4.0'
     ],
     install_requires=[
         'requests',
