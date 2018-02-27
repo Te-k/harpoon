@@ -59,6 +59,8 @@ class CommandConfig(Command):
                     else:
                         print('-%s\t -> OK' % p)
         elif args.update:
+            if not os.path.isdir(configdir):
+                os.makedirs(configdir)
             print("Updating all plugins data:")
             for p in plugins:
                 if plugins[p].update_needed:
