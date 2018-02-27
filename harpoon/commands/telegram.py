@@ -83,11 +83,16 @@ class CommandTelegram(Command):
                         print("%i messages downloaded:" % len(messages))
                         for msg in messages:
                             if isinstance(msg, telethon.tl.types.MessageService):
-                                print("[%s] Message Service: %s" % (
-                                        msg.date.isoformat(),
-                                        msg.action.message
+                                if isinstance(msg.action, telethon.tl.types.MessageActionChatEditPhoto):
+                                    print("[%s] Channel Photo Changed" % msg.date.isoformat())
+                                elif isinstance(msg.action, telethon.tl.types.MessageActionChannelCreate):
+                                    print("[%s] Channel Created" % msg.date.isoformat())
+                                else:
+                                    print("[%s] Message Service: %s" % (
+                                            msg.date.isoformat(),
+                                            msg.action.message
+                                        )
                                     )
-                                )
                             else:
                                 if msg.media is None:
                                     print("[%s] %s (%i views)" % (
