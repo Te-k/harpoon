@@ -26,7 +26,7 @@ class CommandGoogl(Command):
         if 'token' not in conf['Googl']:
             print('Invalid configuration file, quitting...')
             sys.exit(1)
-        go = GoogleShortener(config['Googl']['token'])
+        go = GoogleShortener(conf['Googl']['token'])
         if args.hash:
             print(json.dumps(go.get_analytics(args.hash), sort_keys=True, indent=4, separators=(',', ':')))
         else:

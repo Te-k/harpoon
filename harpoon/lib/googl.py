@@ -12,7 +12,7 @@ except ImportError:
 class GoogleShortener(object):
     def __init__(self, token):
         self.host = 'https://www.googleapis.com/urlshortener/v1/url'
-        self.token = config["key"]
+        self.token = token
 
     def get_analytics(self, hash):
         params = {'key': self.token, 'shortUrl': 'http://goo.gl/' + hash, 'projection': 'FULL'}
