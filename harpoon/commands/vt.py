@@ -13,11 +13,13 @@ class CommandVirusTotal(Command):
     # Virus Total
 
     * Search for hash: `harpoon vt hash HASH`
-    * Search for a list of hashes from a file: `harpoon vt hashlist FILE`
     * Search for a domain: `harpoon vt domain example.org`
     * Search for an IP: `harpoon vt ip IP`
     * Check a file in VT: `harpoon vt file FILE` (check for the hash, no upload)
     * Download a file (private only): `harpoon vt dl HASH`
+    * Search for a list of hashes from a file: `harpoon vt hashlist FILE`
+    * Search for a list of domains from a file : `harpoon vt domainlist FILE`
+    * Search for a list of IP addresses from a file : `harpoon vt iplist FILE`
     """
     name = "vt"
     description = "Request Virus Total API"
@@ -53,6 +55,9 @@ class CommandVirusTotal(Command):
         parser_f = subparsers.add_parser('dl', help='Download a file from VT')
         parser_f.add_argument('HASH', help='Hash of the file')
         parser_f.set_defaults(subcommand='dl')
+        parser_g = subparsers.add_parser('iplist', help='Request info on a list of IP addresses')
+        parser_g.add_argument('FILE',  help='File containing the list of IPs')
+        parser_g.set_defaults(subcommand='iplist')
         self.parser = parser
 
     def print_domaininfo(self, res):
@@ -226,6 +231,13 @@ class CommandVirusTotal(Command):
                         print("################ Domain %s" % d.strip())
                         res = vt.get_domain_report(d.strip())
                         self.print_domaininfo(res)
+                elif args.subcommand == "iplist":
+                    with open(args.FILE, 'r') as infile:
+                        data = infile.read().split()
+                    for d in data:
+                        print("################ IP %s" % d.strip())
+                        res = vt.get_ip_report(unbracket(d.strip()))
+                        print(json.dumps(res, sort_keys=False, indent=4))
                 elif args.subcommand == "domain":
                     res = vt.get_domain_report(args.DOMAIN)
                     if args.json:
