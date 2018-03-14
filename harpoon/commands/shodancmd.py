@@ -19,29 +19,41 @@ class CommandShodan(Command):
     config = {'Shodan': ['key']}
 
     def add_arguments(self, parser):
-        parser.add_argument('--ip', '-i', help='Check IP of an host')
-        parser.add_argument('--search', '-s', help='Search in shodan')
+        subparsers = parser.add_subparsers(help='Subcommand')
+        parser_a = subparsers.add_parser('ip', help='Get information on an IP address')
+        parser_a.add_argument('IP', help='IP to be searched')
+        parser_a.set_defaults(subcommand='ip')
+        parser_b = subparsers.add_parser('search', help='Search in shodan')
+        parser_b.add_argument('QUERY', help='Query')
+        parser_b.set_defaults(subcommand='search')
         self.parser = parser
 
     def run(self, conf, args, plugins):
-        if 'Shodan' not in conf and 'key' not in conf['Shodan']:
-            print('Bad configuration for Shodan, quitting...')
-            sys.exit(1)
-        api = shodan.Shodan(conf['Shodan']['key'])
-        if args.ip:
-            res = api.host(args.ip)
-            print(json.dumps(res, sort_keys=True, indent=4))
-        elif args.search:
-            res = api.search(args.search)
-            print('%i results' % res['total'])
-            for r in res['matches']:
-                print('[+] %s (%s): port %s/%i -> %s\n' % (
-                        r['ip_str'],
-                        r['org'],
-                        r['transport'],
-                        r['port'],
-                        r['data'][:1000]
+        if 'subcommand' in args:
+            if 'Shodan' not in conf and 'key' not in conf['Shodan']:
+                print('Bad configuration for Shodan, quitting...')
+                sys.exit(1)
+            api = shodan.Shodan(conf['Shodan']['key'])
+            if args.subcommand == 'ip':
+                try:
+                    res = api.host(args.IP)
+                except shodan.exception.APIError:
+                    print("IP not found in Shodan")
+                else:
+                    print(json.dumps(res, sort_keys=True, indent=4))
+            elif args.subcommand == 'search':
+                res = api.search(args.QUERY)
+                print('%i results' % res['total'])
+                for r in res['matches']:
+                    print('[+] %s (%s): port %s/%i -> %s\n' % (
+                            r['ip_str'],
+                            r['org'],
+                            r['transport'],
+                            r['port'],
+                            r['data'][:1000]
+                        )
                     )
-                )
+            else:
+                self.parser.print_help()
         else:
             self.parser.print_help()
