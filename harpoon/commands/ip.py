@@ -145,7 +145,7 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
             ipinfo["asn"] = res.autonomous_system_number
             ipinfo["asn_name"] = res.autonomous_system_organization
         except geoip2.errors.AddressNotFoundError:
-            ipinfo["asn"] = ""
+            ipinfo["asn"] = 0
             ipinfo["asn_name"] = ""
             # FIXME: check in text files if not found
             # TODO: add private
