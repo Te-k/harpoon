@@ -55,6 +55,7 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
     geoasn = os.path.join(os.path.expanduser('~'), '.config/harpoon/GeoLite2-ASN.mmdb')
     asnname = os.path.join(os.path.expanduser('~'), '.config/harpoon/asnnames.csv')
     asncidr = os.path.join(os.path.expanduser('~'), '.config/harpoon/asncidr.dat')
+    specific_ips = os.path.join(os.path.expanduser('~'), '.config/harpoon/iplist.csv')
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(help='Subcommand')
@@ -145,9 +146,18 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
             ipinfo["asn"] = res.autonomous_system_number
             ipinfo["asn_name"] = res.autonomous_system_organization
         except geoip2.errors.AddressNotFoundError:
+            # FIXME: check in text files if not found
             ipinfo["asn"] = 0
             ipinfo["asn_name"] = ""
-            # FIXME: check in text files if not found
+        ipinfo['specific'] = ''
+        try:
+            with open(self.specific_ips) as f:
+                data = f.read().split('\n')
+            for d in data:
+                if d.strip().startswith(ip):
+                    ipinfo['specific'] = d.split(',')[1].strip()
+        except FileNotFoundError:
+            pass
             # TODO: add private
         return ipinfo
 
@@ -161,26 +171,16 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                 except ValueError:
                     print('Invalid IP format, quitting...')
                     return
-                try:
-                    citydb = geoip2.database.Reader(self.geocity)
-                    res = citydb.city(ip)
-                    print('MaxMind: Located in %s, %s' % (
-                            res.city.name,
-                            res.country.name
-                        )
-                    )
-                except geoip2.errors.AddressNotFoundError:
-                    print("MaxMind: IP not found in the city database")
-                try:
-                    asndb = geoip2.database.Reader(self.geoasn)
-                    res = asndb.asn(ip)
-                    print('MaxMind: ASN%i, %s' % (
-                            res.autonomous_system_number,
-                            res.autonomous_system_organization
-                        )
-                    )
-                except geoip2.errors.AddressNotFoundError:
+                ipinfo = self.ipinfo(ip)
+                print('MaxMind: Located in %s, %s' % (ipinfo['city'], ipinfo['country']))
+                if ipinfo['asn'] == 0:
                     print("MaxMind: IP not found in the ASN database")
+                else:
+                    print('MaxMind: ASN%i, %s' % (
+                            ipinfo['asn'],
+                            ipinfo['asn_name']
+                        )
+                    )
                 asndb2 = pyasn.pyasn(self.asncidr)
                 res = asndb2.lookup(ip)
                 if res[1] is None:
@@ -204,9 +204,11 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                             res[1]
                         )
                     )
-                print("")
+                if ipinfo['specific'] != '':
+                    print("Specific: %s" % ipinfo['specific'])
                 if ipy.iptype() == "PRIVATE":
                     "Private IP"
+                print("")
                 if ipy.version() == 4:
                     print("Censys:\t\thttps://censys.io/ipv4/%s" % ip)
                     print("Shodan:\t\thttps://www.shodan.io/host/%s" % ip)
