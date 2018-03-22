@@ -389,11 +389,17 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                     if "results" in pt_osint:
                         if len(pt_osint["results"]):
                             if len(pt_osint["results"]) == 1:
-                                print("PT: %s %s" % (pt_osint["results"][0]["name"], pt_osint["results"][0]["sourceUrl"]))
+                                if "name" in pt_osint["results"][0]:
+                                    print("PT: %s %s" % (pt_osint["results"][0]["name"], pt_osint["results"][0]["sourceUrl"]))
+                                else:
+                                    print("PT: %s" % pt_osint["results"][0]["sourceUrl"])
                             else:
                                 print("PT:")
                                 for r in pt_osint["results"]:
-                                    print("-%s %s" % (r["name"], r["sourceUrl"]))
+                                    if "name" in r:
+                                        print("-%s %s" % (r["name"], r["sourceUrl"]))
+                                    else:
+                                        print("-%s" % r["sourceUrl"])
                         else:
                             print("PT: Nothing found!")
                     else:
