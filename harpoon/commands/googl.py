@@ -30,19 +30,20 @@ class CommandGoogl(Command):
         if args.hash:
             print(json.dumps(go.get_analytics(args.hash), sort_keys=True, indent=4, separators=(',', ':')))
         else:
-            f = open(args.file, 'r')
-            data = f.read().split()
-            f.close()
-            print("Date;Short URL;Long URL;Analytics;Short URL Clicks;Long URL Clicks")
+            with open(args.file, 'r') as f:
+                data = f.read().split()
+
+            print("Date;Status;Short URL;Long URL;Analytics;Short URL Clicks;Long URL Clicks")
             for d in data:
                 res = go.get_analytics(d.strip())
-                print("%s;%s;%s;https://goo.gl/#analytics/goo.gl/%s/all_time;%s;%s" %
+                print("%s;%s;%s;%s;https://goo.gl/#analytics/goo.gl/%s/all_time;%s;%s" %
                     (
-                        res["created"],
+                        res.get("created", ""),
+                        res.get("status", ""),
                         res["id"],
-                        res["longUrl"],
+                        res.get("longUrl", ""),
                         res["id"][-6:],
-                        res["analytics"]["allTime"]["shortUrlClicks"],
-                        res["analytics"]["allTime"]["longUrlClicks"]
+                        res.get("analytics", {}).get("allTime", {}).get("shortUrlClicks", ""),
+                        res.get("analytics", {}).get("allTime", {}).get("longUrlClicks", ""),
                     )
                 )
