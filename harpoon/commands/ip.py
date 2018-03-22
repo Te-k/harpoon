@@ -11,6 +11,7 @@ import subprocess
 import glob
 import shutil
 import pyasn
+import urllib
 from IPy import IP
 from dateutil.parser import parse
 from harpoon.commands.base import Command
@@ -78,25 +79,28 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
             os.remove(self.geoasn)
         except OSError:
             pass
-        file_name, headers = urllib.request.urlretrieve('http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz')
-        tar = tarfile.open(file_name, 'r')
-        for this_fn in tar.getmembers():
-            if this_fn.name.endswith("GeoLite2-City.mmdb"):
-                mmdb = tar.extractfile(this_fn)
-                with open(self.geocity, 'wb') as f:
-                    f.write(mmdb.read())
-                mmdb.close()
-        print("-GeoLite2-City.mmdb")
-        file_name, headers = urllib.request.urlretrieve('http://geolite.maxmind.com/download/geoip/database/GeoLite2-ASN.tar.gz')
-        tar = tarfile.open(file_name, 'r')
-        for this_fn in tar.getmembers():
-            if this_fn.name.endswith("GeoLite2-ASN.mmdb"):
-                mmdb = tar.extractfile(this_fn)
-                with open(self.geoasn, 'wb') as f:
-                    f.write(mmdb.read())
-                mmdb.close()
-        print("-GeoLite2-ASN.mmdb")
-        print("Download ASN Name database")
+        try:
+            file_name, headers = urllib.request.urlretrieve('http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz')
+            tar = tarfile.open(file_name, 'r')
+            for this_fn in tar.getmembers():
+                if this_fn.name.endswith("GeoLite2-City.mmdb"):
+                    mmdb = tar.extractfile(this_fn)
+                    with open(self.geocity, 'wb') as f:
+                        f.write(mmdb.read())
+                    mmdb.close()
+            print("-GeoLite2-City.mmdb")
+            file_name, headers = urllib.request.urlretrieve('http://geolite.maxmind.com/download/geoip/database/GeoLite2-ASN.tar.gz')
+            tar = tarfile.open(file_name, 'r')
+            for this_fn in tar.getmembers():
+                if this_fn.name.endswith("GeoLite2-ASN.mmdb"):
+                    mmdb = tar.extractfile(this_fn)
+                    with open(self.geoasn, 'wb') as f:
+                        f.write(mmdb.read())
+                    mmdb.close()
+            print("-GeoLite2-ASN.mmdb")
+        except urllib.error.HTTPError:
+            print("Impossible to download GeoIP databases, please check https://github.com/Te-k/harpoon/wiki/Known-bugs#cloudfare-blocking-download-of-maxmind-geoip-databases")
+        print("Downloading ASN Name database")
         try:
             os.remove(self.asnname)
         except OSError:
