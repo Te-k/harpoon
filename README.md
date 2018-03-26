@@ -62,6 +62,7 @@ totalhash           Request Total Hash API
 dns                 Map DNS information for a domain or an IP
 hybrid              Requests Hybrid Analysis platform
 malshare            Requests MalShare database
+certspotter         Get certificates from https://sslmate.com/certspotter
 ```
 
 You can get information on each command with `harpoon help COMMAND`
@@ -73,3 +74,14 @@ You can get information on each command with `harpoon help COMMAND`
 * [Total Hash](https://totalhash.cymru.com/contact-us/)
 * [Hybrid Analysis](https://www.hybrid-analysis.com/apikeys/info)
 * [MalShare](https://malshare.com/register.php)
+* [CertSpotter](https://sslmate.com/certspotter/pricing) : paid plans provide search in expired certificates (little interests imho, just use crtsh or censys). You don't need an account for actual certificates
+* [bit.ly](https://bitly.com/a/sign_up)
+* [Twitter](https://developer.twitter.com/en/docs/ads/general/guides/getting-started)
+* [PassiveTotal](https://community.riskiq.com/registration)
+* [Shodan](https://account.shodan.io/register)
+* [Censys](https://censys.io/register)
+* [SpyOnWeb](https://api.spyonweb.com/)
+* [MalShare](https://malshare.com/register.php)
+* [AlienVault OTX](https://otx.alienvault.com/)
+* [Hunter](https://hunter.io/users/sign_up)
+* [FullContact](https://dashboard.fullcontact.com/register)
