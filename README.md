@@ -16,13 +16,13 @@ Optionally if you want to use the screenshot plugin, you need phantomjs and npm 
 npm install -g phantomjs
 ```
 
-If the above install instructions didn't work, you can build the tool from source by executing the following commands in the terminal:
+If the above install instructions didn't work, you can build the tool from source by executing the following commands in the terminal (this assumes you are using virtualenvs):
 
 ```
 git clone https://github.com/Te-k/harpoon.git
 cd harpoon
-sudo pip3 install -r requirements.txt
-sudo python3 setup.py install
+pip3 install -r requirements.txt
+pip3 install .
 ```
 
 To configure harpoon, run ```harpoon config``` and fill in the needed API keys. Then run ```harpoon config -u``` to download needed files. Check what plugins are configured with ```harpoon config -c```.
