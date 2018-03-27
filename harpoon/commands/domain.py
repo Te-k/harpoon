@@ -176,14 +176,14 @@ class CommandDomain(Command):
                                 for r in res['results']['undetected_downloaded_samples']:
                                     files.append({
                                         'hash': r['sha256'],
-                                        'date': parse(r['date']),
+                                        'date': parse(r['date']) if 'date' in r else '',
                                         'source' : 'VT'
                                     })
                             if "undetected_referrer_samples" in res['results']:
                                 for r in res['results']['undetected_referrer_samples']:
                                     files.append({
                                         'hash': r['sha256'],
-                                        'date': parse(r['date']),
+                                        'date': parse(r['date']) if 'date' in r else '',
                                         'source' : 'VT'
                                     })
                             if "detected_downloaded_samples" in res['results']:
@@ -275,13 +275,20 @@ class CommandDomain(Command):
                         )
                 if len(files) > 0:
                     print('----------------- Files')
-                    for r in sorted(files, key=lambda x: x["date"]):
-                        print("[%s] %s %s" % (
-                                r["source"],
-                                r["hash"],
-                                r["date"].strftime("%Y-%m-%d")
+                    for r in files:
+                        if r['date'] != '':
+                            print("[%s] %s (%s)" % (
+                                    r["source"],
+                                    r["hash"],
+                                    r["date"].strftime("%Y-%m-%d")
+                                )
                             )
-                        )
+                        else:
+                            print("[%s] %s" % (
+                                    r["source"],
+                                    r["hash"],
+                                )
+                            )
                 if len(urls) > 0:
                     print('----------------- Urls')
                     for r in sorted(urls, key=lambda x: x["date"], reverse=True):
