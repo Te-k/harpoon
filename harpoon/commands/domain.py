@@ -132,6 +132,7 @@ class CommandDomain(Command):
                 # PT
                 pt_e = plugins['pt'].test_config(conf)
                 if pt_e:
+                    ptout = False
                     print('[+] Downloading Passive Total information....')
                     client = DnsRequest(conf['PassiveTotal']['username'], conf['PassiveTotal']['key'])
                     raw_results = client.get_passive_dns(query=unbracket(args.DOMAIN))
@@ -143,19 +144,25 @@ class CommandDomain(Command):
                                 "ip": res["resolve"],
                                 "source": "PT"
                             })
-                    client2 = EnrichmentRequest(conf["PassiveTotal"]["username"], conf["PassiveTotal"]['key'])
-                    # Get OSINT
-                    # TODO: add PT projects here
-                    pt_osint = client2.get_osint(query=unbracket(args.DOMAIN))
-                    # Get malware
-                    raw_results = client2.get_malware(query=unbracket(args.DOMAIN))
-                    if "results" in raw_results:
-                        for r in raw_results["results"]:
-                            malware.append({
-                                'hash': r["sample"],
-                                'date': parse(r['collectionDate']),
-                                'source' : 'PT (%s)' % r["source"]
-                            })
+                    if "message" in raw_results:
+                        if "quota_exceeded" in raw_results["message"]:
+                            print("PT quota exceeded")
+                            ptout = True
+                            pt_osint = {}
+                    if not ptout:
+                        client2 = EnrichmentRequest(conf["PassiveTotal"]["username"], conf["PassiveTotal"]['key'])
+                        # Get OSINT
+                        # TODO: add PT projects here
+                        pt_osint = client2.get_osint(query=unbracket(args.DOMAIN))
+                        # Get malware
+                        raw_results = client2.get_malware(query=unbracket(args.DOMAIN))
+                        if "results" in raw_results:
+                            for r in raw_results["results"]:
+                                malware.append({
+                                    'hash': r["sample"],
+                                    'date': parse(r['collectionDate']),
+                                    'source' : 'PT (%s)' % r["source"]
+                                })
                 # VT
                 vt_e = plugins['vt'].test_config(conf)
                 if vt_e:
