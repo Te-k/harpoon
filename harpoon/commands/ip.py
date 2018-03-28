@@ -277,9 +277,9 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                     if "message" in raw_results:
                         if "quota_exceeded" in raw_results["message"]:
                             print("Quota exceeded for Passive Total")
-                            outpt = True
+                            out_pt = True
                             pt_osint = {}
-                    if not outpt:
+                    if not out_pt:
                         client2 = EnrichmentRequest(conf["PassiveTotal"]["username"], conf["PassiveTotal"]['key'])
                         # Get OSINT
                         # TODO: add PT projects here
