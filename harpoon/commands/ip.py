@@ -12,6 +12,7 @@ import glob
 import shutil
 import pyasn
 import urllib
+import socket
 from IPy import IP
 from dateutil.parser import parse
 from harpoon.commands.base import Command
@@ -136,6 +137,11 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
         {"asn", "asn_name", "city", "country"}
         """
         ipinfo = {}
+        ipinfo['hostname'] = ''
+        try:
+            ipinfo['hostname'] = socket.gethostbyaddr(ip)[0]
+        except socket.herror:
+            pass
         try:
             citydb = geoip2.database.Reader(self.geocity)
             res = citydb.city(ip)
@@ -208,6 +214,8 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                             res[1]
                         )
                     )
+                if ipinfo['hostname'] != '':
+                    print('Hostname: %s' % ipinfo['hostname'])
                 if ipinfo['specific'] != '':
                     print("Specific: %s" % ipinfo['specific'])
                 if ipy.iptype() == "PRIVATE":
