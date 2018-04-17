@@ -16,7 +16,7 @@ import socket
 from IPy import IP
 from dateutil.parser import parse
 from harpoon.commands.base import Command
-from harpoon.lib.utils import bracket, unbracket
+from harpoon.lib.utils import bracket, unbracket, is_ip
 from harpoon.lib.robtex import Robtex, RobtexError
 from OTXv2 import OTXv2, IndicatorTypes
 from virus_total_apis import PublicApi, PrivateApi
@@ -174,6 +174,9 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
     def run(self, conf, args, plugins):
         if 'subcommand' in args:
             if args.subcommand == 'info':
+                if not is_ip(unbracket(args.IP)):
+                    print("Invalid IP address")
+                    sys.exit(1)
                 # FIXME: move code here in a library
                 ip = unbracket(args.IP)
                 try:
@@ -228,8 +231,11 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                     print("BGP HE:\t\thttps://bgp.he.net/ip/%s" % ip)
                     print("IP Location:\thttps://www.iplocation.net/?query=%s" % ip)
             elif args.subcommand == "intel":
+                if not is_ip(unbracket(args.IP)):
+                    print("Invalid IP address")
+                    sys.exit(1)
                 # Start with MISP and OTX to get Intelligence Reports
-                print('###################### %s ###################' % args.IP)
+                print('###################### %s ###################' % unbracket(args.IP))
                 passive_dns = []
                 urls = []
                 malware = []
@@ -256,7 +262,7 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                 # RobTex
                 print('[+] Downloading Robtex information....')
                 rob = Robtex()
-                res = rob.get_ip_info(args.IP)
+                res = rob.get_ip_info(unbracket(args.IP))
                 for d in ["pas", "pash", "act", "acth"]:
                     if d in res:
                         for a in res[d]:
