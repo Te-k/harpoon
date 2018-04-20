@@ -131,6 +131,22 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
         shutil.move('latest.dat', self.asncidr)
         print('-asncidr.dat')
 
+    def ip_get_asn(self, ip):
+        """
+        Take an IP address and returns the asn number and name
+        returns {'asn': 1234, 'name': 'FORTUM-AS Fortum, FI'}
+        If not found, returns {'asn': 0, 'name': ''}
+        """
+        try:
+            asndb = geoip2.database.Reader(self.geoasn)
+            res = asndb.asn(ip)
+            asn = res.autonomous_system_number
+            asn_name = res.autonomous_system_organization
+        except geoip2.errors.AddressNotFoundError:
+            # TODO: check in the other ASN db
+            return {'asn': 0, 'name': ''}
+        return {'asn': asn, 'name': asn_name}
+
     def ipinfo(self, ip):
         """
         Return information on an IP address
@@ -150,15 +166,10 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
         except geoip2.errors.AddressNotFoundError:
             ipinfo["city"] = "Unknown"
             ipinfo["country"] = "Unknown"
-        try:
-            asndb = geoip2.database.Reader(self.geoasn)
-            res = asndb.asn(ip)
-            ipinfo["asn"] = res.autonomous_system_number
-            ipinfo["asn_name"] = res.autonomous_system_organization
-        except geoip2.errors.AddressNotFoundError:
-            # FIXME: check in text files if not found
-            ipinfo["asn"] = 0
-            ipinfo["asn_name"] = ""
+
+        asninfo = self.ip_get_asn(ip)
+        ipinfo['asn'] = asninfo['asn']
+        ipinfo['asn_name'] = asninfo['name']
         ipinfo['specific'] = ''
         try:
             with open(self.specific_ips) as f:

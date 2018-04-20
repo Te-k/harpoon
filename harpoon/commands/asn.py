@@ -46,6 +46,12 @@ class CommandAsn(Command):
         self.parser = parser
 
     def asnname(self, asn):
+        """
+        Search for the ASN name based on its number
+        Input: asnnumber (integer)
+        returns: string
+        Returns an empty string if not found
+        """
         # Search for name
         f = open(self.asn_name, 'r')
         line = f.readline()
