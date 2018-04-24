@@ -93,7 +93,7 @@ class CommandDns(Command):
                 print("\n# NS")
                 try:
                     answers = resolver.query(target, 'NS')
-                except (resolver.NoAnswer, resolver.NXDOMAIN):
+                except (resolver.NoAnswer, resolver.NXDOMAIN, resolver.NoNameservers):
                     # That's pretty unlikely
                     print("No NS entry configured")
                 else:
