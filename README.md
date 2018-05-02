@@ -63,6 +63,7 @@ dns                 Map DNS information for a domain or an IP
 hybrid              Requests Hybrid Analysis platform
 malshare            Requests MalShare database
 certspotter         Get certificates from https://sslmate.com/certspotter
+permacc             Request Perma.cc information through the API
 ```
 
 You can get information on each command with `harpoon help COMMAND`
@@ -85,3 +86,4 @@ You can get information on each command with `harpoon help COMMAND`
 * [AlienVault OTX](https://otx.alienvault.com/)
 * [Hunter](https://hunter.io/users/sign_up)
 * [FullContact](https://dashboard.fullcontact.com/register)
+* [Permacc](https://perma.cc/)
