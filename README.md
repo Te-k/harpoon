@@ -64,6 +64,7 @@ hybrid              Requests Hybrid Analysis platform
 malshare            Requests MalShare database
 certspotter         Get certificates from https://sslmate.com/certspotter
 permacc             Request Perma.cc information through the API
+save                Save a webpage in cache platforms
 ```
 
 You can get information on each command with `harpoon help COMMAND`

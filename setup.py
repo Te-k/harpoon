@@ -45,7 +45,8 @@ setup(
         'dnspython',
         'pythreatgrid',
         'consolemd',
-        'pypermacc'
+        'pypermacc',
+        'archiveis'
         ],
 
     python_requires='>=3.5',

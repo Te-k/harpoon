@@ -26,3 +26,4 @@ git+https://github.com/Te-k/pythreatgrid.git
 git+https://github.com/kneufeld/consolemd.git
 git+https://github.com/Te-k/pypermacc.git
 dnspython
+archiveis

@@ -61,3 +61,17 @@ class ArchiveOrg(object):
             return ArchiveOrg.download_cache(last['archive'])
         else:
             return {'success': False}
+
+    @staticmethod
+    def capture(url):
+        """
+        Capture url in Web Archive
+        """
+        # Copied from https://github.com/motherboardgithub/mass_archive/blob/master/mass_archive.py
+        res = requests.get("https://web.archive.org/save/%s" % url)
+        if res.status_code == 200:
+            result = res.headers['Content-Location']
+            internet_archive_url = "https://web.archive.org%s" % result
+            return internet_archive_url
+        else:
+            raise Exception("Capture failed")

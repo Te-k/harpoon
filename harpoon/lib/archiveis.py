@@ -1,4 +1,5 @@
 import requests
+import archiveis
 from dateutil.parser import parse
 from harpoon.lib.memento import MementoClient
 
@@ -51,3 +52,11 @@ class ArchiveIs(object):
                 'success': False
             }
 
+    @staticmethod
+    def capture(url):
+        """
+        Capture an url in archive.is
+        """
+        # Easiest way to do it for now, archive.is API sucks
+        # FIXME replace this lib
+        return archiveis.capture(url)
