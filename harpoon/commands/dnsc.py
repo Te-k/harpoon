@@ -67,6 +67,8 @@ class CommandDns(Command):
                     answers = resolver.query(target, 'A')
                 except (resolver.NoAnswer, resolver.NXDOMAIN):
                     print("No A entry")
+                except resolver.NoNameservers:
+                    print("No A entry: SERVFAIL")
                 else:
                     for rdata in answers:
                         info = cip.ipinfo(rdata.address)
@@ -88,6 +90,8 @@ class CommandDns(Command):
                         print(rdata.address)
                 except (resolver.NoAnswer, resolver.NXDOMAIN):
                     print("No AAAA entry configured")
+                except resolver.NoNameservers:
+                    print("No AAAA entry: SERVFAIL")
 
                 # DNS Servers
                 print("\n# NS")
@@ -135,6 +139,8 @@ class CommandDns(Command):
                     answers = resolver.query(target, 'MX')
                 except (resolver.NoAnswer, resolver.NXDOMAIN):
                     print("No MX entry configured")
+                except resolver.NoNameservers:
+                    print("No MX entry: SERVFAIL")
                 else:
                     for rdata in answers:
                         if is_ip(rdata.exchange):
@@ -175,6 +181,8 @@ class CommandDns(Command):
                     answers = resolver.query(target, 'SOA')
                 except (resolver.NoAnswer, resolver.NXDOMAIN):
                     print("No SOA entry configured")
+                except resolver.NoNameservers:
+                    print("No SOA entry: SERVFAIL")
                 else:
                     entry = [b for b in answers][0]
                     print("NS: %s" % str(entry.mname))
@@ -186,6 +194,8 @@ class CommandDns(Command):
                     answers = resolver.query(target, 'TXT')
                 except (resolver.NoAnswer, resolver.NXDOMAIN):
                     print("No TXT entry configured")
+                except resolver.NoNameservers:
+                    print("No TXT entry: SERVFAIL")
                 else:
                     for a in answers:
                         print(a.to_text())
