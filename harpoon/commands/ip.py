@@ -147,17 +147,18 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
             return {'asn': 0, 'name': ''}
         return {'asn': asn, 'name': asn_name}
 
-    def ipinfo(self, ip):
+    def ipinfo(self, ip, dns=True):
         """
         Return information on an IP address
         {"asn", "asn_name", "city", "country"}
         """
         ipinfo = {}
-        ipinfo['hostname'] = ''
-        try:
-            ipinfo['hostname'] = socket.gethostbyaddr(ip)[0]
-        except socket.herror:
-            pass
+        if dns:
+            ipinfo['hostname'] = ''
+            try:
+                ipinfo['hostname'] = socket.gethostbyaddr(ip)[0]
+            except socket.herror:
+                pass
         try:
             citydb = geoip2.database.Reader(self.geocity)
             res = citydb.city(ip)
