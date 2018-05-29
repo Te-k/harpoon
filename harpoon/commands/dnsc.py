@@ -160,7 +160,7 @@ class CommandDns(Command):
                                 ip = [b.address for b in resolver.query(rdata.exchange, 'A')][0]
                             except (resolver.NoAnswer, resolver.NXDOMAIN):
                                 # Hostname without IPv4
-                                print(rdata.exchange)
+                                print("%i %s" % (rdata.preference, rdata.exchange))
                             else:
                                 # Hostname
                                 info = cip.ipinfo(ip)
