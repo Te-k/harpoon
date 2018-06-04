@@ -19,6 +19,7 @@ mispy
 OTXv2
 IPy
 pyasn
+maxminddb>=1.4.0
 git+https://github.com/maxmind/GeoIP2-python.git
 selenium
 git+https://github.com/Te-k/pygreynoise.git
