@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 import sys
+import requests
 import os
 import json
 import datetime
@@ -132,37 +133,40 @@ class CommandDomain(Command):
                 # PT
                 pt_e = plugins['pt'].test_config(conf)
                 if pt_e:
-                    ptout = False
-                    print('[+] Downloading Passive Total information....')
-                    client = DnsRequest(conf['PassiveTotal']['username'], conf['PassiveTotal']['key'])
-                    raw_results = client.get_passive_dns(query=unbracket(args.DOMAIN))
-                    if "results" in raw_results:
-                        for res in raw_results["results"]:
-                            passive_dns.append({
-                                "first": parse(res["firstSeen"]),
-                                "last": parse(res["lastSeen"]),
-                                "ip": res["resolve"],
-                                "source": "PT"
-                            })
-                    if "message" in raw_results:
-                        if "quota_exceeded" in raw_results["message"]:
-                            print("PT quota exceeded")
-                            ptout = True
-                            pt_osint = {}
-                    if not ptout:
-                        client2 = EnrichmentRequest(conf["PassiveTotal"]["username"], conf["PassiveTotal"]['key'])
-                        # Get OSINT
-                        # TODO: add PT projects here
-                        pt_osint = client2.get_osint(query=unbracket(args.DOMAIN))
-                        # Get malware
-                        raw_results = client2.get_malware(query=unbracket(args.DOMAIN))
+                    try:
+                        pt_osint = {}
+                        ptout = False
+                        print('[+] Downloading Passive Total information....')
+                        client = DnsRequest(conf['PassiveTotal']['username'], conf['PassiveTotal']['key'])
+                        raw_results = client.get_passive_dns(query=unbracket(args.DOMAIN))
                         if "results" in raw_results:
-                            for r in raw_results["results"]:
-                                malware.append({
-                                    'hash': r["sample"],
-                                    'date': parse(r['collectionDate']),
-                                    'source' : 'PT (%s)' % r["source"]
+                            for res in raw_results["results"]:
+                                passive_dns.append({
+                                    "first": parse(res["firstSeen"]),
+                                    "last": parse(res["lastSeen"]),
+                                    "ip": res["resolve"],
+                                    "source": "PT"
                                 })
+                        if "message" in raw_results:
+                            if "quota_exceeded" in raw_results["message"]:
+                                print("PT quota exceeded")
+                                ptout = True
+                        if not ptout:
+                            client2 = EnrichmentRequest(conf["PassiveTotal"]["username"], conf["PassiveTotal"]['key'])
+                            # Get OSINT
+                            # TODO: add PT projects here
+                            pt_osint = client2.get_osint(query=unbracket(args.DOMAIN))
+                            # Get malware
+                            raw_results = client2.get_malware(query=unbracket(args.DOMAIN))
+                            if "results" in raw_results:
+                                for r in raw_results["results"]:
+                                    malware.append({
+                                        'hash': r["sample"],
+                                        'date': parse(r['collectionDate']),
+                                        'source' : 'PT (%s)' % r["source"]
+                                    })
+                    except requests.exceptions.ReadTimeout:
+                        print("PT: Time Out")
                 # VT
                 vt_e = plugins['vt'].test_config(conf)
                 if vt_e:
@@ -220,21 +224,24 @@ class CommandDomain(Command):
                         vt_e = False
                 tg_e = plugins['threatgrid'].test_config(conf)
                 if tg_e:
-                    print('[+] Downloading Threat Grid....')
-                    tg = ThreatGrid(conf['ThreatGrid']['key'])
-                    res = tg.search_samples(unbracket(args.DOMAIN), type='domain')
-                    already = []
-                    if 'items' in res:
-                        for r in res['items']:
-                            if r['sample_sha256'] not in already:
-                                d = parse(r['ts'])
-                                d = d.replace(tzinfo=None)
-                                malware.append({
-                                    'hash': r["sample_sha256"],
-                                    'date': d,
-                                    'source' : 'ThreatGrid'
-                                })
-                                already.append(r['sample_sha256'])
+                    try:
+                        print('[+] Downloading Threat Grid....')
+                        tg = ThreatGrid(conf['ThreatGrid']['key'])
+                        res = tg.search_samples(unbracket(args.DOMAIN), type='domain')
+                        already = []
+                        if 'items' in res:
+                            for r in res['items']:
+                                if r['sample_sha256'] not in already:
+                                    d = parse(r['ts'])
+                                    d = d.replace(tzinfo=None)
+                                    malware.append({
+                                        'hash': r["sample_sha256"],
+                                        'date': d,
+                                        'source' : 'ThreatGrid'
+                                    })
+                                    already.append(r['sample_sha256'])
+                    except ThreatGridError as e:
+                        print("Failed to connect to Threat Grid: %s" % e.message)
 
                 # TODO: Add MISP
                 print('----------------- Intelligence Report')

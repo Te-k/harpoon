@@ -13,6 +13,7 @@ import shutil
 import pyasn
 import urllib
 import socket
+import requests
 from IPy import IP
 from dateutil.parser import parse
 from harpoon.commands.base import Command
@@ -24,6 +25,7 @@ from pygreynoise import GreyNoise, GreyNoiseError
 from passivetotal.libs.dns import DnsRequest
 from passivetotal.libs.enrichment import EnrichmentRequest
 from pythreatgrid import ThreatGrid, ThreatGridError
+from harpoon.commands.asn import CommandAsn
 
 
 class CommandIp(Command):
@@ -181,6 +183,9 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
         except FileNotFoundError:
             pass
             # TODO: add private
+        asnc = CommandAsn()
+        res = asnc.asn_caida(ipinfo['asn'])
+        ipinfo['asn_type'] = res['type']
         return ipinfo
 
     def run(self, conf, args, plugins):
@@ -206,6 +211,7 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                             ipinfo['asn_name']
                         )
                     )
+                    print('CAIDA Type: %s' % ipinfo['asn_type'])
                 asndb2 = pyasn.pyasn(self.asncidr)
                 res = asndb2.lookup(ip)
                 if res[1] is None:
@@ -291,34 +297,40 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                     out_pt = False
                     print('[+] Downloading Passive Total information....')
                     client = DnsRequest(conf['PassiveTotal']['username'], conf['PassiveTotal']['key'])
-                    raw_results = client.get_passive_dns(query=unbracket(args.IP))
-                    if "results" in raw_results:
-                        for res in raw_results["results"]:
-                            passive_dns.append({
-                                "first": parse(res["firstSeen"]),
-                                "last": parse(res["lastSeen"]),
-                                "domain": res["resolve"],
-                                "source": "PT"
-                            })
-                    if "message" in raw_results:
-                        if "quota_exceeded" in raw_results["message"]:
-                            print("Quota exceeded for Passive Total")
-                            out_pt = True
-                            pt_osint = {}
-                    if not out_pt:
-                        client2 = EnrichmentRequest(conf["PassiveTotal"]["username"], conf["PassiveTotal"]['key'])
-                        # Get OSINT
-                        # TODO: add PT projects here
-                        pt_osint = client2.get_osint(query=unbracket(args.IP))
-                        # Get malware
-                        raw_results = client2.get_malware(query=unbracket(args.IP))
+                    try:
+                        raw_results = client.get_passive_dns(query=unbracket(args.IP))
                         if "results" in raw_results:
-                            for r in raw_results["results"]:
-                                malware.append({
-                                    'hash': r["sample"],
-                                    'date': parse(r['collectionDate']),
-                                    'source' : 'PT (%s)' % r["source"]
+                            for res in raw_results["results"]:
+                                passive_dns.append({
+                                    "first": parse(res["firstSeen"]),
+                                    "last": parse(res["lastSeen"]),
+                                    "domain": res["resolve"],
+                                    "source": "PT"
                                 })
+                        if "message" in raw_results:
+                            if "quota_exceeded" in raw_results["message"]:
+                                print("Quota exceeded for Passive Total")
+                                out_pt = True
+                                pt_osint = {}
+                    except requests.exceptions.ReadTimeout:
+                        print("Timeout on Passive Total requests")
+                    if not out_pt:
+                        try:
+                            client2 = EnrichmentRequest(conf["PassiveTotal"]["username"], conf["PassiveTotal"]['key'])
+                            # Get OSINT
+                            # TODO: add PT projects here
+                            pt_osint = client2.get_osint(query=unbracket(args.IP))
+                            # Get malware
+                            raw_results = client2.get_malware(query=unbracket(args.IP))
+                            if "results" in raw_results:
+                                for r in raw_results["results"]:
+                                    malware.append({
+                                        'hash': r["sample"],
+                                        'date': parse(r['collectionDate']),
+                                        'source' : 'PT (%s)' % r["source"]
+                                    })
+                        except requests.exceptions.ReadTimeout:
+                            print("Timeout on Passive Total requests")
                 # VT
                 vt_e = plugins['vt'].test_config(conf)
                 if vt_e:
