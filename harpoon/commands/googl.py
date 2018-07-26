@@ -29,7 +29,7 @@ class CommandGoogl(Command):
         go = GoogleShortener(conf['Googl']['token'])
         if args.hash:
             print(json.dumps(go.get_analytics(args.hash), sort_keys=True, indent=4, separators=(',', ':')))
-        else:
+        elif args.file:
             with open(args.file, 'r') as f:
                 data = f.read().split()
 
@@ -47,3 +47,5 @@ class CommandGoogl(Command):
                         res.get("analytics", {}).get("allTime", {}).get("longUrlClicks", ""),
                     )
                 )
+        else:
+            print("Please provide a file (-f) or a hash (-H)")
