@@ -15,7 +15,6 @@ setup(
         'git+https://github.com/Te-k/spyonweb.git@master#egg=spyonweb-0.1',
         'git+https://github.com/Te-k/pygreynoise.git@master#egg=pygreynoise-0.1',
         'git+https://github.com/Te-k/pythreatgrid.git@master#egg=pythreatgrid-0.1',
-        'git+https://github.com/kneufeld/consolemd.git@master#egg=consolemd-0.4.0',
         'git+https://github.com/Te-k/pypermacc.git@master#egg=pypermacc-0.0.1'
     ],
     install_requires=[
