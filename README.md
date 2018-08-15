@@ -45,6 +45,7 @@ config              Configure Harpoon
 fullcontact         Requests Full Contact API (https://www.fullcontact.com/)
 googl               Requests Google url shortener API
 ip                  Gather information on an IP address
+ipinfo              Request ipinfo.io information
 twitter             Requests Twitter API
 asn                 Gather information on an ASN
 robtex              Search in Robtex API (https://www.robtex.com/api/)
@@ -88,3 +89,4 @@ You can get information on each command with `harpoon help COMMAND`
 * [Hunter](https://hunter.io/users/sign_up)
 * [FullContact](https://dashboard.fullcontact.com/register)
 * [Permacc](https://perma.cc/)
+* [ipinfo.io](https://ipinfo.io/)
