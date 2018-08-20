@@ -280,16 +280,20 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                 # RobTex
                 print('[+] Downloading Robtex information....')
                 rob = Robtex()
-                res = rob.get_ip_info(unbracket(args.IP))
-                for d in ["pas", "pash", "act", "acth"]:
-                    if d in res:
-                        for a in res[d]:
-                            passive_dns.append({
-                                'first': a['date'],
-                                'last': a['date'],
-                                'domain': a['o'],
-                                'source': 'Robtex'
-                            })
+                try:
+                    res = rob.get_ip_info(unbracket(args.IP))
+                except RobtexError:
+                    print("Error with Robtex")
+                else:
+                    for d in ["pas", "pash", "act", "acth"]:
+                        if d in res:
+                            for a in res[d]:
+                                passive_dns.append({
+                                    'first': a['date'],
+                                    'last': a['date'],
+                                    'domain': a['o'],
+                                    'source': 'Robtex'
+                                })
 
                 # PT
                 pt_e = plugins['pt'].test_config(conf)
@@ -356,11 +360,19 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                                     })
                             if "undetected_referrer_samples" in res['results']:
                                 for r in res['results']['undetected_referrer_samples']:
-                                    files.append({
-                                        'hash': r['sha256'],
-                                        'date': parse(r['date']),
-                                        'source' : 'VT'
-                                    })
+                                    if 'date' in r:
+                                        files.append({
+                                            'hash': r['sha256'],
+                                            'date': parse(r['date']),
+                                            'source' : 'VT'
+                                        })
+                                    else:
+                                        #FIXME : should consider data without dates
+                                        files.append({
+                                            'hash': r['sha256'],
+                                            'date': datetime.datetime(1970, 1, 1),
+                                            'source' : 'VT'
+                                        })
                             if "detected_downloaded_samples" in res['results']:
                                 for r in res['results']['detected_downloaded_samples']:
                                     malware.append({

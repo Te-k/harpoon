@@ -65,11 +65,11 @@ class CommandIPInfo(Command):
                                         infos['company']['name'],
                                         infos['company']['domain'],
                                         infos['company']['type'],
-                                        infos['asn']['asn'],
-                                        infos['asn']['name'],
-                                        infos['asn']['domain'],
-                                        infos['asn']['route'],
-                                        infos['asn']['type']
+                                        infos['asn']['asn'] if 'asn' in infos['asn'] else '',
+                                        infos['asn']['name'] if 'name' in infos['asn'] else '',
+                                        infos['asn']['domain'] if 'domain' in infos['asn'] else '',
+                                        infos['asn']['route'] if 'route' in infos['asn'] else '',
+                                        infos['asn']['type'] if 'type' in infos['asn'] else ''
                                     )
                                 )
                             elif "company" in infos and "asn" not in infos:
