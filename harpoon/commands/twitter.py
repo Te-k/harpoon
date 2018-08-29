@@ -2,6 +2,7 @@
 import sys
 import json
 import tweepy
+import time
 from harpoon.commands.base import Command
 from harpoon.lib.bird import Bird
 
@@ -55,11 +56,11 @@ class CommandTwitter(Command):
             f = open(args.file, 'r')
             data = f.read().split()
             f.close()
-            print("Handle;Name;Id;Description;url;Location;Time zone;UTC offset;Created at;Last Tweet;lang;Tweet count;Favourite count;Followers count;Following count;List count;Verified;Geo enabled;Default profile;Default profile image;Contributors Enabled")
+            print("Handle;Status;Name;Id;Description;url;Location;Time zone;UTC offset;Created at;Last Tweet;lang;Tweet count;Favourite count;Followers count;Following count;List count;Verified;Geo enabled;Default profile;Default profile image;Contributors Enabled")
             for d in data:
                 try:
                     user = bird.get_profile_information(d.strip())
-                    print("%s;%s;%i;%s;%s;%s;%s;%i;%s;%s;%s;%i;%i;%i;%i;%i;%s;%s;%s;%s;%s" %
+                    print("%s;Active;%s;%i;%s;%s;%s;%s;%i;%s;%s;%s;%i;%i;%i;%i;%i;%s;%s;%s;%s;%s" %
                         (
                             user.screen_name,
                             user.name,
@@ -90,10 +91,13 @@ class CommandTwitter(Command):
                         sys.stderr.write("Rate Limit exceeded\n")
                         sys.exit(1)
                     elif ex.args[0][0]['code'] == 50:
-                        sys.stderr.write("User %s not found\n" % d.strip())
+                        print("%s;Not Found;;;;;;;;;;;;;;;;;;;;" % d.strip())
+                    elif ex.args[0][0]['code'] == 63:
+                        print("%s;Suspended;;;;;;;;;;;;;;;;;;;;" % d.strip())
                     else:
                         sys.stderr.write("Weird error %i: %s\n" % (ex.args[0][0]['code'], ex.args[0][0]['message']))
                         sys.exit(1)
+                time.sleep(1)
         else:
             print("Please provide a command")
             self.parser.print_help()
