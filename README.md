@@ -68,6 +68,7 @@ malshare            Requests MalShare database
 certspotter         Get certificates from https://sslmate.com/certspotter
 permacc             Request Perma.cc information through the API
 save                Save a webpage in cache platforms
+cybercure           Check if intelligence on an IP exists in cybercure.ai
 ```
 
 You can get information on each command with `harpoon help COMMAND`
