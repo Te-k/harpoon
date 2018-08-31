@@ -4,7 +4,9 @@ OSINT tool.
 
 # Install
 
-You can simply pip install the tool:
+First, you need to have development headers of python 3 installed, on ubuntu/debian just do `sudo apt install python3-dev`
+
+Then, you can simply pip install the tool:
 
 ```
 pip install git+https://github.com/Te-k/harpoon --process-dependency-links
