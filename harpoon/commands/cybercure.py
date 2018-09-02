@@ -11,10 +11,19 @@ class CommandCyberCure(Command):
     """
     # cybercure.ai plugin
 
-    **Query cybercure.ai API**
+    ** check if intelligence on an IP exists **
 
-    * Get threat history on an IP : `harpoon cybercure ip IP`
-    * Get threat history on a list of IPs in a file : `harpoon cybercure file FILE`
+    Query cybercure API:
+    ```
+    harpoon cybercure ip 184.186.250.211
+    {
+    "exists": true,
+    "indicator": "184.186.250.211",
+    "status": 1,
+    "visual": "http://www.cybercure.ai/intel/ip/184.186.250.211"
+    }
+    ```
+
     """
     name = "cybercure"
     description = "Search cybercure.ai intelligence database for specific indicators."
