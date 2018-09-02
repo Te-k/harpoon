@@ -15,5 +15,5 @@ class CyberCure(object):
     def get_infos(self, ip):
         r = requests.get(self.base_url + ip, headers={'User-Agent': 'harpoon (https://github.com/Te-k/harpoon/)'})
         if r.status_code != 200:
-            raise IPInfoError('Invalid HTTP code %i' % r.status_code)
+            raise CyberCureError('Invalid HTTP code %i' % r.status_code)
         return r.json()
