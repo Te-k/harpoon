@@ -69,6 +69,7 @@ certspotter         Get certificates from https://sslmate.com/certspotter
 permacc             Request Perma.cc information through the API
 save                Save a webpage in cache platforms
 cybercure           Check if intelligence on an IP exists in cybercure.ai
+opencage            Forward/Reverse geocoding using OpenCage Geocoder API
 ```
 
 You can get information on each command with `harpoon help COMMAND`
@@ -93,3 +94,4 @@ You can get information on each command with `harpoon help COMMAND`
 * [FullContact](https://dashboard.fullcontact.com/register)
 * [Permacc](https://perma.cc/)
 * [ipinfo.io](https://ipinfo.io/)
+* [OpenCage](https://opencagedata.com/)
