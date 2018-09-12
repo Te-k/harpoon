@@ -34,64 +34,65 @@ To configure harpoon, run ```harpoon config``` and fill in the needed API keys. 
 After configuration the following plugins are available within the ```harpoon``` command:
 
 ```
-help                Give help on an Harpoon command
-safebrowsing        Check if the given domain is in Google safe Browsing list
-hibp                Request Have I Been Pwned API (https://haveibeenpwned.com/)
+asn                 Gather information on an ASN
+bitly               Request bit.ly information through the API
 cache               Requests webpage cache from different sources
-misp                Get information from a MISP server through the API
-spyonweb            Search in SpyOnWeb through the API
 censys              Request information from Censys database (https://censys.io/)
-shodan              Requests Shodan API
-vt                  Request Virus Total API
+certspotter         Get certificates from https://sslmate.com/certspotter
 config              Configure Harpoon
+crtsh               Search in https://crt.sh/ (Certificate Transparency database)
+cybercure           Check if intelligence on an IP exists in cybercure.ai
+dns                 Map DNS information for a domain or an IP
 fullcontact         Requests Full Contact API (https://www.fullcontact.com/)
+github              Request Github information through the API
 googl               Requests Google url shortener API
+greynoise           Request Grey Noise API
+help                Give help on an Harpoon command
+hibp                Request Have I Been Pwned API (https://haveibeenpwned.com/)
+hunter              Request hunter.io information through the API
+hybrid              Requests Hybrid Analysis platform
 ip                  Gather information on an IP address
 ipinfo              Request ipinfo.io information
-twitter             Requests Twitter API
-asn                 Gather information on an ASN
-robtex              Search in Robtex API (https://www.robtex.com/api/)
-hunter              Request hunter.io information through the API
+malshare            Requests MalShare database
+misp                Get information from a MISP server through the API
+opencage            Forward/Reverse geocoding using OpenCage Geocoder API
 otx                 Requests information from AlienVault OTX
-crtsh               Search in https://crt.sh/ (Certificate Transparency database)
-github              Request Github information through the API
-bitly               Request bit.ly information through the API
+permacc             Request Perma.cc information through the API
+pgp                 Search for information in PGP key servers
+robtex              Search in Robtex API (https://www.robtex.com/api/)
+safebrowsing        Check if the given domain is in Google safe Browsing list
+save                Save a webpage in cache platforms
 screenshot          Takes a screenshot of a webpage
-greynoise           Request Grey Noise API
+shodan              Requests Shodan API
+spyonweb            Search in SpyOnWeb through the API
 telegram            Request information from Telegram through the API
 threatgrid          Request Threat Grid API
-pgp                 Search for information in PGP key servers
 totalhash           Request Total Hash API
-dns                 Map DNS information for a domain or an IP
-hybrid              Requests Hybrid Analysis platform
-malshare            Requests MalShare database
-certspotter         Get certificates from https://sslmate.com/certspotter
-permacc             Request Perma.cc information through the API
-save                Save a webpage in cache platforms
-cybercure           Check if intelligence on an IP exists in cybercure.ai
-opencage            Forward/Reverse geocoding using OpenCage Geocoder API
+twitter             Requests Twitter API
+vt                  Request Virus Total API
 ```
 
 You can get information on each command with `harpoon help COMMAND`
 
 ## Access Keys
 
-* Telegram : [Create an application](https://core.telegram.org/api/obtaining_api_id)
-* Virus Total : for public, create an account and get the API key in the [Settings page](https://www.virustotal.com/#/settings/apikey)
-* [Total Hash](https://totalhash.cymru.com/contact-us/)
-* [Hybrid Analysis](https://www.hybrid-analysis.com/apikeys/info)
-* [MalShare](https://malshare.com/register.php)
-* [CertSpotter](https://sslmate.com/certspotter/pricing) : paid plans provide search in expired certificates (little interests imho, just use crtsh or censys). You don't need an account for actual certificates
-* [bit.ly](https://bitly.com/a/sign_up)
-* [Twitter](https://developer.twitter.com/en/docs/ads/general/guides/getting-started)
-* [PassiveTotal](https://community.riskiq.com/registration)
-* [Shodan](https://account.shodan.io/register)
-* [Censys](https://censys.io/register)
-* [SpyOnWeb](https://api.spyonweb.com/)
-* [MalShare](https://malshare.com/register.php)
 * [AlienVault OTX](https://otx.alienvault.com/)
-* [Hunter](https://hunter.io/users/sign_up)
+* [bit.ly](https://bitly.com/a/sign_up)
+* [Censys](https://censys.io/register)
+* [CertSpotter](https://sslmate.com/certspotter/pricing) : paid plans provide search in expired certificates (little interests imho, just use crtsh or censys). You don't need an account for actual certificates
 * [FullContact](https://dashboard.fullcontact.com/register)
-* [Permacc](https://perma.cc/)
+* [Hunter](https://hunter.io/users/sign_up)
+* [Hybrid Analysis](https://www.hybrid-analysis.com/apikeys/info)
 * [ipinfo.io](https://ipinfo.io/)
+* [MalShare](https://malshare.com/register.php)
+* [MalShare](https://malshare.com/register.php)
 * [OpenCage](https://opencagedata.com/)
+* [PassiveTotal](https://community.riskiq.com/registration)
+* [Permacc](https://perma.cc/)
+* [Shodan](https://account.shodan.io/register)
+* [SpyOnWeb](https://api.spyonweb.com/)
+* Telegram : [Create an application](https://core.telegram.org/api/obtaining_api_id)
+* [Total Hash](https://totalhash.cymru.com/contact-us/)
+* [Twitter](https://developer.twitter.com/en/docs/ads/general/guides/getting-started)
+* Virus Total : for public, create an account and get the API key in the [Settings page](https://www.virustotal.com/#/settings/apikey)
+
