@@ -4,11 +4,13 @@ import argparse
 import configparser
 from harpoon.commands.base import Command
 
+
 def load_config():
-        config = configparser.ConfigParser()
-        if os.path.isfile(os.path.join(os.path.expanduser("~"), ".config/harpoon/config")):
-            config.read(os.path.join(os.path.expanduser("~"), ".config/harpoon/config"))
-        return config
+    config = configparser.ConfigParser()
+    if os.path.isfile(os.path.join(os.path.expanduser("~"), ".config/harpoon/config")):
+        config.read(os.path.join(os.path.expanduser("~"), ".config/harpoon/config"))
+    return config
+
 
 def init_plugins():
     plugin_dir = os.path.dirname(os.path.realpath(__file__)) + '/commands'
@@ -29,7 +31,7 @@ def main():
 
     # Init plugins
     plugins = init_plugins()
-    for p in plugins:
+    for p in sorted(plugins.keys()):
         sp = subparsers.add_parser(
             plugins[p].name,
             help=plugins[p].description
