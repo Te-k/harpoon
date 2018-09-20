@@ -14,6 +14,7 @@ class CommandCensys(Command):
 
     * Query information on an IP: `harpoon censys ip 172.217.2.174`
     * Query a certificate: `harpoon censys certificate ID`
+    * Search for subdomains based on certificates : `harpoon censys subdomains DOMAIN`
     """
     name = "censys"
     description = "Request information from Censys database (https://censys.io/)"
@@ -29,7 +30,40 @@ class CommandCensys(Command):
         parser_b = subparsers.add_parser('cert', help='Get information on a certificate')
         parser_b.add_argument('ID', help='ID of the certificate')
         parser_b.set_defaults(subcommand='cert')
+        parser_c = subparsers.add_parser('subdomains', help='Query certificates for a domain looking for subdomains')
+        parser_c.add_argument('DOMAIN', help='Domain')
+        parser_c.add_argument('--verbose', '-v', action='store_true',
+                help='Verbose')
+        parser_c.set_defaults(subcommand='subdomains')
         self.parser = parser
+
+    def get_subdomains(self, conf, domain, verbose, only_sub=False):
+        """
+        Inspired from https://github.com/appsecco/the-art-of-subdomain-enumeration/blob/master/censys_subdomain_enum.py
+        """
+        api = certificates.CensysCertificates(conf['Censys']['id'], conf['Censys']['secret'])
+        subdomains = set()
+        for cert in api.search(domain):
+            if cert['parsed.subject_dn'].endswith(domain):
+                if verbose:
+                    print('Certificate : %s - %s' % (
+                        cert['parsed.subject_dn'],
+                        cert['parsed.fingerprint_sha256']
+                        )
+                    )
+                subdomains.add(cert['parsed.subject_dn'].split('CN=')[1])
+                c = api.view(cert['parsed.fingerprint_sha256'])
+                try:
+                    for name in c['parsed']['names']:
+                        if only_sub:
+                            if name.endswith(domain):
+                                subdomains.add(name)
+                        else:
+                            subdomains.add(name)
+                except KeyError:
+                    pass
+
+        return subdomains
 
     def run(self, conf, args, plugins):
         if 'subcommand' in args:
@@ -66,6 +100,10 @@ class CommandCensys(Command):
                     print("Certificate not found")
                 else:
                     print(json.dumps(res, sort_keys=True, indent=4, separators=(',', ': ')))
+            elif args.subcommand == 'subdomains':
+                subdomains = self.get_subdomains(conf, args.DOMAIN, args.verbose)
+                for d in subdomains:
+                    print(d)
             else:
                 self.parser.print_help()
         else:
