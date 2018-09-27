@@ -2,6 +2,7 @@
 import sys
 import os
 import json
+import time
 from harpoon.commands.base import Command
 from harpoon.lib.utils import unbracket
 from harpoon.lib.ipinfo import IPInfo, IPInfoError
@@ -27,6 +28,7 @@ class CommandIPInfo(Command):
         parser_a.set_defaults(subcommand='ip')
         parser_b = subparsers.add_parser('file', help='Information on a list of IPs')
         parser_b.add_argument('FILE', help='Filename')
+        parser_b.add_argument('--delay', '-d', type=int, default=1, help='Delay between two queries in seconds')
         parser_b.set_defaults(subcommand='file')
         self.parser = parser
 
@@ -112,6 +114,8 @@ class CommandIPInfo(Command):
                                         ' '.join(infos['org'].split(" ")[1:])
                                     )
                                 )
+                        time.sleep(args.delay)
+
                 else:
                     print("This file does not exist")
                     sys.exit(1)
