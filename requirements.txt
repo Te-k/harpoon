@@ -26,4 +26,5 @@ git+https://github.com/Te-k/pythreatgrid.git
 git+https://github.com/Te-k/pypermacc.git
 dnspython
 archiveis
-consolemd>=0.4.3
+click==6.7
+consolemd==0.4.4
