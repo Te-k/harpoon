@@ -26,6 +26,7 @@ from passivetotal.libs.dns import DnsRequest
 from passivetotal.libs.enrichment import EnrichmentRequest
 from pythreatgrid import ThreatGrid, ThreatGridError
 from harpoon.commands.asn import CommandAsn
+from mispy import MispServer
 
 
 class CommandIp(Command):
@@ -258,6 +259,13 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                 urls = []
                 malware = []
                 files = []
+                # MISP
+                misp_e = plugins['misp'].test_config(conf)
+                if misp_e:
+                    print('[+] Downloading MISP information...')
+                    server = MispServer(url=conf['Misp']['url'], apikey=conf['Misp']['key'])
+                    misp_results = server.attributes.search(value=unbracket(args.IP))
+
                 # OTX
                 otx_e = plugins['otx'].test_config(conf)
                 if otx_e:
@@ -416,8 +424,6 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                                 })
                                 already.append(r['sample_sha256'])
 
-
-                # TODO: Add MISP
                 print('----------------- Intelligence Report')
                 if otx_e:
                     if len(otx_pulses):
@@ -431,6 +437,11 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                             )
                     else:
                         print('OTX: Not found in any pulse')
+                if misp_e:
+                    if len(misp_results) > 0:
+                        print('MISP:')
+                        for event in misp_results:
+                            print(" -%i - %s" % (event.id, event.info))
                 if len(greynoise) > 0:
                     print("GreyNoise: IP identified as")
                     for r in greynoise:
