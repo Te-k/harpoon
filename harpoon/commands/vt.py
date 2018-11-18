@@ -153,8 +153,10 @@ class CommandVirusTotal(Command):
         print("[+] MD5: %s" % response["results"]["md5"])
         print("[+] SHA1: %s" % response["results"]["sha1"])
         print("[+] SHA256: %s" % response["results"]["sha256"])
-        print("[+] First Seen: %s" % response["results"]["first_seen"])
-        print("[+] Last Seen: %s" % response["results"]["last_seen"])
+        if "first_seen" in response['results']:
+            print("[+] First Seen: %s" % response["results"]["first_seen"])
+        if "last_seen" in response['results']:
+            print("[+] Last Seen: %s" % response["results"]["last_seen"])
         print("[+] Link: %s" % response["results"]["permalink"])
 
     def run(self, conf, args, plugins):
@@ -239,7 +241,7 @@ class CommandVirusTotal(Command):
                         res = vt.get_ip_report(unbracket(d.strip()))
                         print(json.dumps(res, sort_keys=False, indent=4))
                 elif args.subcommand == "domain":
-                    res = vt.get_domain_report(args.DOMAIN)
+                    res = vt.get_domain_report(unbracket(args.DOMAIN))
                     if args.json:
                         print(json.dumps(res, sort_keys=False, indent=4))
                     else:
@@ -301,7 +303,7 @@ class CommandVirusTotal(Command):
                         else:
                             print("%s;Not found;;;" % h)
                 elif args.subcommand == "domain":
-                    res = vt.get_domain_report(args.DOMAIN)
+                    res = vt.get_domain_report(unbracket(args.DOMAIN))
                     if args.json:
                         print(json.dumps(res, sort_keys=False, indent=4))
                     else:

@@ -105,6 +105,12 @@ class CommandTelegram(Command):
                                             ", ".join([str(a) for a in msg.action.users])
                                         )
                                     )
+                                elif isinstance(msg.action, telethon.tl.types.MessageActionChatDeleteUser):
+                                    print("[%s] Remove User from the chat - %i" % (
+                                            msg.date.isoformat(),
+                                            msg.action.user_id
+                                        )
+                                    )
                                 else:
                                     print("[%s] Message Service: %s" % (
                                             msg.date.isoformat(),
