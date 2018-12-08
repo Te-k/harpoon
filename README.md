@@ -39,6 +39,7 @@ bitly               Request bit.ly information through the API
 cache               Requests webpage cache from different sources
 censys              Request information from Censys database (https://censys.io/)
 certspotter         Get certificates from https://sslmate.com/certspotter
+circl               Request the CIRCL passive DNS database
 config              Configure Harpoon
 crtsh               Search in https://crt.sh/ (Certificate Transparency database)
 cybercure           Check if intelligence on an IP exists in cybercure.ai
@@ -80,6 +81,7 @@ You can get information on each command with `harpoon help COMMAND`
 * [bit.ly](https://bitly.com/a/sign_up)
 * [Censys](https://censys.io/register)
 * [CertSpotter](https://sslmate.com/certspotter/pricing) : paid plans provide search in expired certificates (little interests imho, just use crtsh or censys). You don't need an account for actual certificates
+* [CIRCL Passive DNS](https://www.circl.lu/services/passive-dns/)
 * [FullContact](https://dashboard.fullcontact.com/register)
 * [Hunter](https://hunter.io/users/sign_up)
 * [Hybrid Analysis](https://www.hybrid-analysis.com/apikeys/info)

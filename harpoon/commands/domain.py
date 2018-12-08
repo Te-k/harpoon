@@ -12,6 +12,7 @@ import subprocess
 import glob
 import shutil
 import pyasn
+import pypdns
 from IPy import IP
 from dateutil.parser import parse
 from harpoon.commands.base import Command
@@ -117,6 +118,24 @@ class CommandDomain(Command):
                                     "ip": "",
                                     "source": "OTX"
                                 })
+                # CIRCL
+                circl_e = plugins['circl'].test_config(conf)
+                if circl_e:
+                    print('[+] Downloading CIRCL passive DNS information....')
+                    x = pypdns.PyPDNS(
+                        basic_auth=(
+                            conf['Circl']['user'],
+                            conf['Circl']['pass']
+                        )
+                    )
+                    res = x.query(unbracket(args.DOMAIN))
+                    for answer in res:
+                        passive_dns.append({
+                            "ip": answer['rdata'],
+                            "first": answer['time_first'],
+                            "last": answer['time_last'],
+                            "source" : "CIRCL"
+                        })
                 # RobTex
                 print('[+] Downloading Robtex information....')
                 rob = Robtex()

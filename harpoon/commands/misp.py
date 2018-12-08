@@ -4,6 +4,7 @@ from collections import Counter
 from harpoon.commands.base import Command
 from mispy import MispServer, MispEvent
 
+
 class CommandMisp(Command):
     """
     # MISP

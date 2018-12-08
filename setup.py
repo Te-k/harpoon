@@ -45,7 +45,8 @@ setup(
         'pythreatgrid',
         'consolemd',
         'pypermacc',
-        'archiveis'
+        'archiveis',
+        'pypdns'
         ],
 
     python_requires='>=3.5',

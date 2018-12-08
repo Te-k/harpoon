@@ -28,3 +28,4 @@ dnspython
 archiveis
 click==6.7
 consolemd==0.4.4
+pypdns==1.3
