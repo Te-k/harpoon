@@ -35,6 +35,7 @@ After configuration the following plugins are available within the ```harpoon```
 
 ```
 asn                 Gather information on an ASN
+binaryedge          Request BinaryEdge API
 bitly               Request bit.ly information through the API
 cache               Requests webpage cache from different sources
 censys              Request information from Censys database (https://censys.io/)
@@ -78,6 +79,7 @@ You can get information on each command with `harpoon help COMMAND`
 ## Access Keys
 
 * [AlienVault OTX](https://otx.alienvault.com/)
+* [BinaryEdge](https://www.binaryedge.io/)
 * [bit.ly](https://bitly.com/a/sign_up)
 * [Censys](https://censys.io/register)
 * [CertSpotter](https://sslmate.com/certspotter/pricing) : paid plans provide search in expired certificates (little interests imho, just use crtsh or censys). You don't need an account for actual certificates

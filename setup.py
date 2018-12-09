@@ -46,7 +46,8 @@ setup(
         'consolemd',
         'pypermacc',
         'archiveis',
-        'pypdns'
+        'pypdns',
+        'pybinaryedge'
         ],
 
     python_requires='>=3.5',
