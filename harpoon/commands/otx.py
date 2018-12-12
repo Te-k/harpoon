@@ -140,12 +140,19 @@ class CommandOtx(Command):
                         for u in res['url_list']['url_list']:
                             if "result" in u:
                                 if "urlworker" in u["result"]:
-                                    print("\t[%s] %s on IP %s" % (
-                                            u["date"],
-                                            u["url"],
-                                            u["result"]["urlworker"]["ip"]
+                                    if "ip" in u["result"]["urlworker"] :
+                                        print("\t[%s] %s on IP %s" % (
+                                                u["date"],
+                                                u["url"],
+                                                u["result"]["urlworker"]["ip"]
+                                            )
                                         )
-                                    )
+                                    else:
+                                        print("\t[%s] %s" % (
+                                                u["date"],
+                                                u["url"]
+                                            )
+                                        )
                                 else:
                                     print("\t[%s] %s" % (u["date"], u["url"]))
                             else:
