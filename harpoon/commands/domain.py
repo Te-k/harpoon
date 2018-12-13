@@ -24,6 +24,7 @@ from pygreynoise import GreyNoise, GreyNoiseError
 from passivetotal.libs.dns import DnsRequest
 from passivetotal.libs.enrichment import EnrichmentRequest
 from pythreatgrid import ThreatGrid, ThreatGridError
+from pybinaryedge import BinaryEdge, BinaryEdgeException, BinaryEdgeNotFound
 
 
 class CommandDomain(Command):
@@ -136,6 +137,21 @@ class CommandDomain(Command):
                             "last": answer['time_last'],
                             "source" : "CIRCL"
                         })
+                # BinaryEdge
+                be_e = plugins['binaryedge'].test_config(conf)
+                if be_e:
+                    print('[+] Downloading BinaryEdge information....')
+                    be = BinaryEdge(conf['BinaryEdge']['key'])
+                    res = be.domain_dns(unbracket(args.DOMAIN))
+                    for d in res['events']:
+                        if "A" in d:
+                            for a in d['A']:
+                                passive_dns.append({
+                                    "ip": a,
+                                    "first": parse(d['updated_at']),
+                                    "last": parse(d['updated_at']),
+                                    "source" : "BinaryEdge"
+                                })
                 # RobTex
                 print('[+] Downloading Robtex information....')
                 rob = Robtex()
