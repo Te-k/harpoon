@@ -18,6 +18,7 @@ setup(
         'git+https://github.com/Te-k/pypermacc.git@master#egg=pypermacc-0.0.1'
     ],
     install_requires=[
+        'click==6.7',
         'requests',
         'configparser',
         'tweepy',
@@ -31,11 +32,12 @@ setup(
         'pyhunter',
         'pysafe',
         'PyGitHub',
-        'telethon',
+        'telethon==0.18.3',
         'virustotal-api',
         'mispy',
         'OTXv2',
         'IPy',
+        'maxminddb>=1.4.0',
         'pyasn',
         'spyonweb',
         'selenium',
@@ -43,11 +45,11 @@ setup(
         'pygreynoise',
         'dnspython',
         'pythreatgrid',
-        'consolemd',
+        'consolemd==0.4.4',
         'pypermacc',
         'archiveis',
-        'pypdns',
-        'pybinaryedge'
+        'pypdns==1.3',
+        'pybinaryedge==0.2'
         ],
 
     python_requires='>=3.5',
