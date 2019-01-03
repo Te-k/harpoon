@@ -5,7 +5,6 @@ passivetotal
 beautifulsoup4
 lxml
 censys
-git+https://github.com/Te-k/pycrtsh.git
 shodan
 fullcontact.py
 pyhunter
@@ -22,8 +21,9 @@ maxminddb>=1.4.0
 git+https://github.com/maxmind/GeoIP2-python.git
 selenium
 git+https://github.com/Te-k/pygreynoise.git
-git+https://github.com/Te-k/pythreatgrid.git
 git+https://github.com/Te-k/pypermacc.git
+pythreatgrid2==0.1.1
+pycrtsh==0.1
 dnspython
 archiveis
 click==6.7

@@ -23,7 +23,7 @@ from virus_total_apis import PublicApi, PrivateApi
 from pygreynoise import GreyNoise, GreyNoiseError
 from passivetotal.libs.dns import DnsRequest
 from passivetotal.libs.enrichment import EnrichmentRequest
-from pythreatgrid import ThreatGrid, ThreatGridError
+from pythreatgrid2 import ThreatGrid, ThreatGridError
 from pybinaryedge import BinaryEdge, BinaryEdgeException, BinaryEdgeNotFound
 
 

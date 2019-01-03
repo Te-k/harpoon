@@ -10,10 +10,8 @@ setup(
     keywords='osint',
     include_package_data=True,
     dependency_links=[
-        'git+https://github.com/Te-k/pycrtsh.git@master#egg=0.1#pycrtsh-0.1',
         'git+https://github.com/Te-k/pysafe.git@master#egg=pysafe-0.1',
         'git+https://github.com/Te-k/pygreynoise.git@master#egg=pygreynoise-0.1',
-        'git+https://github.com/Te-k/pythreatgrid.git@master#egg=pythreatgrid-0.1',
         'git+https://github.com/Te-k/pypermacc.git@master#egg=pypermacc-0.0.1'
     ],
     install_requires=[
@@ -49,7 +47,9 @@ setup(
         'archiveis',
         'pypdns==1.3',
         'pybinaryedge==0.2',
-        'spyonweb==0.1'
+        'spyonweb==0.1',
+        'pythreatgrid2==0.1.1',
+        'pycrtsh==0.1'
         ],
 
     python_requires='>=3.5',

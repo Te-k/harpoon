@@ -4,7 +4,7 @@ import json
 import hashlib
 from harpoon.commands.base import Command
 from harpoon.lib.utils import json_serial, typeguess, unbracket
-from pythreatgrid import ThreatGrid, ThreatGridError
+from pythreatgrid2 import ThreatGrid, ThreatGridError
 
 
 class CommandThreatGrid(Command):
