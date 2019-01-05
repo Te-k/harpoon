@@ -43,10 +43,13 @@ class CommandCache(Command):
             # Google
             google = Google.cache(url)
             if google['success']:
-                print('Google: FOUND %s (%s)' % (
-                    google['cacheurl'],
-                    google['date']
-                ))
+                if 'date' in google:
+                    print('Google: FOUND %s (%s)' % (
+                        google['cacheurl'],
+                        google['date']
+                    ))
+                else:
+                    print('Google: FOUND %s' % (google['cacheurl']))
             else:
                 print("Google: NOT FOUND")
             # Yandex
