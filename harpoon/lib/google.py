@@ -79,16 +79,24 @@ class Google(object):
         if r.status_code == 200:
             # Copy code here to avoid doing another request
             mark1 = r.text.find("It is a snapshot of the page as it appeared on ")
-            timestamptext = r.text[mark1+47:mark1+47+24]
-            timestamp = parse(timestamptext)
-            return {
-                    "success": True,
-                    "date": timestamp,
-                    "data": html.unescape(r.text[r.text.find("<pre>")+5:r.text.find("</pre>")]),
-                    'cacheurl': r.url,
-                    'url': url
-
-            }
+            if mark1 > 0:
+                timestamptext = r.text[mark1+47:mark1+47+24]
+                timestamp = parse(timestamptext)
+            if mark1 > 0:
+                return {
+                        "success": True,
+                        "date": timestamp,
+                        "data": html.unescape(r.text[r.text.find("<pre>")+5:r.text.find("</pre>")]),
+                        'cacheurl': r.url,
+                        'url': url
+                }
+            else:
+                return {
+                        "success": True,
+                        "data": html.unescape(r.text[r.text.find("<pre>")+5:r.text.find("</pre>")]),
+                        'cacheurl': r.url,
+                        'url': url
+                }
         else:
             # If not in cache directly, search on google for the cached url
             # Weirdly google does not find well url starting with a scheme

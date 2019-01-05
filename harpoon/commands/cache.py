@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 import sys
+import requests
 from harpoon.commands.base import Command
 from harpoon.lib.google import Google
 from harpoon.lib.yandex import Yandex
@@ -59,13 +60,16 @@ class CommandCache(Command):
             else:
                 print("Yandex: NOT FOUND")
             # Archive.is
-            arch = ArchiveIs.snapshots(url)
-            if len(arch) > 0:
-                print('Archive.is: FOUND')
-                for s in arch:
-                    print('-%s: %s' % (s['date'], s['archive']))
-            else:
-                print('Archive.is: NOT FOUND')
+            try:
+                arch = ArchiveIs.snapshots(url)
+                if len(arch) > 0:
+                    print('Archive.is: FOUND')
+                    for s in arch:
+                        print('-%s: %s' % (s['date'], s['archive']))
+                else:
+                    print('Archive.is: NOT FOUND')
+            except requests.exceptions.ConnectTimeout:
+                print('Archive.is: TIME OUT')
             # Web Archive
             web = ArchiveOrg.snapshots(url)
             if len(web) > 0:

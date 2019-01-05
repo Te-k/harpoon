@@ -35,7 +35,7 @@ class MementoClient(object):
         """
         Download list of snapshots for an url
         """
-        r = requests.get(urljoin(self.base_url + 'timemap/', quote(url, safe='')))
+        r = requests.get(urljoin(self.base_url + 'timemap/', quote(url, safe='')), timeout=3)
         if r.status_code != 200:
             return []
         else:

@@ -16,7 +16,6 @@ class ArchiveOrg(object):
         r = requests.get('http://archive.org/wayback/available?url=%s' %
                 urllib.parse.quote(url))
         data = r.json()
-        print(data)
         res = []
         if 'archived_snapshots' in data:
             for i in data['archived_snapshots']:
