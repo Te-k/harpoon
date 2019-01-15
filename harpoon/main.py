@@ -2,7 +2,13 @@ import os
 import sys
 import argparse
 import configparser
+import signal
 from harpoon.commands.base import Command
+
+
+def handle_stop(sig, frame):
+    print('Okay, Okay, I stop...')
+    sys.exit(1)
 
 
 def load_config():
@@ -28,6 +34,7 @@ def init_plugins():
 def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(help='Commands')
+    signal.signal(signal.SIGINT, handle_stop)
 
     # Init plugins
     plugins = init_plugins()

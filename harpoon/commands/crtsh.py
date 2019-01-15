@@ -96,7 +96,7 @@ class CommandCert(Command):
                         )
             elif args.subcommand == 'list':
                 sha1_list = []
-                with open(args.list, 'r') as f:
+                with open(args.FILE, 'r') as f:
                     domains = [a.strip() for a in f.read().split()]
                 if args.format == "txt":
                     for d in domains:
