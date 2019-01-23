@@ -6,10 +6,15 @@ OSINT tool.
 
 First, you need to have development headers of python 3 installed, on ubuntu/debian just do `sudo apt install python3-dev`
 
+You also need to install the last packages that are not in pypi yet (I am working on this):
+```
+pip install git+https://github.com/Te-k/pygreynoise.git
+pip install git+https://github.com/Te-k/pysafe.git
+
 Then, you can simply pip install the tool:
 
 ```
-pip install git+https://github.com/Te-k/harpoon --process-dependency-links
+pip install git+https://github.com/Te-k/harpoon
 ```
 
 Optionally if you want to use the screenshot plugin, you need phantomjs and npm installed:

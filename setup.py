@@ -12,7 +12,6 @@ setup(
     dependency_links=[
         'git+https://github.com/Te-k/pysafe.git@master#egg=pysafe-0.1',
         'git+https://github.com/Te-k/pygreynoise.git@master#egg=pygreynoise-0.1',
-        'git+https://github.com/Te-k/pypermacc.git@master#egg=pypermacc-0.0.1'
     ],
     install_requires=[
         'click==6.7',
@@ -36,14 +35,14 @@ setup(
         'IPy',
         'maxminddb>=1.4.0',
         'pyasn',
-        'spyonweb',
+        'spyonweb==0.1',
         'selenium',
         'geoip2',
         'pygreynoise',
         'dnspython',
         'pythreatgrid',
         'consolemd==0.4.4',
-        'pypermacc',
+        'pypermacc==0.1.1',
         'archiveis',
         'pypdns==1.3',
         'pybinaryedge==0.2',
