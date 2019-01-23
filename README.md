@@ -10,6 +10,7 @@ You also need to install the last packages that are not in pypi yet (I am workin
 ```
 pip install git+https://github.com/Te-k/pygreynoise.git
 pip install git+https://github.com/Te-k/pysafe.git
+```
 
 Then, you can simply pip install the tool:
 
