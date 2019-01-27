@@ -45,7 +45,7 @@ setup(
         'pypermacc==0.1.1',
         'archiveis',
         'pypdns==1.3',
-        'pybinaryedge==0.2',
+        'pybinaryedge==0.3',
         'spyonweb==0.1',
         'pythreatgrid2==0.1.1',
         'pycrtsh==0.1'
