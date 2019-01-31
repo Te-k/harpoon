@@ -4,13 +4,9 @@ OSINT tool.
 
 # Install
 
-You can simply pip install the tool:
+You can simply install the package from [pypi](https://pypi.org/project/harpoon/) with `pip install harpoon`
 
-```
-pip install git+https://github.com/Te-k/harpoon
-```
-
-Optionally if you want to use the screenshot plugin, you need phantomjs and npm installed:
+If you want to use the screenshot plugin, you need phantomjs and npm installed:
 
 ```
 npm install -g phantomjs
