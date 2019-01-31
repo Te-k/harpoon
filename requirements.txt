@@ -20,7 +20,7 @@ maxminddb>=1.4.0
 geoip2
 selenium
 git+https://github.com/Te-k/pygreynoise.git
-git+https://github.com/Te-k/pysafe.git
+pysafebrowsing==0.1.1
 pypermacc==0.1.1
 pythreatgrid2==0.1.1
 pycrtsh==0.1

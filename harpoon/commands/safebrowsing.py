@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 import sys
 from harpoon.commands.base import Command
-from pysafe import SafeBrowsing
+from pysafebrowsing import SafeBrowsing
 
 class CommandSafeBrowsing(Command):
     """

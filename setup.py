@@ -10,7 +10,6 @@ setup(
     keywords='osint',
     include_package_data=True,
     dependency_links=[
-        'git+https://github.com/Te-k/pysafe.git@master#egg=pysafe-0.1',
         'git+https://github.com/Te-k/pygreynoise.git@master#egg=pygreynoise-0.1',
     ],
     install_requires=[
@@ -26,7 +25,6 @@ setup(
         'shodan',
         'fullcontact.py',
         'pyhunter',
-        'pysafe',
         'PyGitHub',
         'telethon==0.18.3',
         'virustotal-api',
@@ -40,7 +38,6 @@ setup(
         'geoip2',
         'pygreynoise',
         'dnspython',
-        'pythreatgrid',
         'consolemd==0.4.4',
         'pypermacc==0.1.1',
         'archiveis',
@@ -48,7 +45,8 @@ setup(
         'pybinaryedge==0.3',
         'spyonweb==0.1',
         'pythreatgrid2==0.1.1',
-        'pycrtsh==0.1'
+        'pycrtsh==0.1',
+        'pysafebrowsing==0.1.1'
         ],
 
     python_requires='>=3.5',
