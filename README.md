@@ -4,14 +4,7 @@ OSINT tool.
 
 # Install
 
-First, you need to have development headers of python 3 installed, on ubuntu/debian just do `sudo apt install python3-dev`
-
-You also need to install the last packages that are not in pypi yet (I am working on this):
-```
-pip install git+https://github.com/Te-k/pygreynoise.git
-```
-
-Then, you can simply pip install the tool:
+You can simply pip install the tool:
 
 ```
 pip install git+https://github.com/Te-k/harpoon
@@ -28,7 +21,6 @@ If the above install instructions didn't work, you can build the tool from sourc
 ```
 git clone https://github.com/Te-k/harpoon.git
 cd harpoon
-pip3 install -r requirements.txt
 pip3 install .
 ```
 

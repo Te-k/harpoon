@@ -1,17 +1,19 @@
 from setuptools import setup
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 setup(
     name='harpoon',
-    version='0.1.1',
+    version='0.1.2',
     description='Another OSINT CLI tool',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     url='https://github.com/Te-k/harpoon',
     author='Tek',
     author_email='tek@randhome.io',
     keywords='osint',
     include_package_data=True,
-    dependency_links=[
-        'git+https://github.com/Te-k/pygreynoise.git@master#egg=pygreynoise-0.1',
-    ],
     install_requires=[
         'click==6.7',
         'requests',
@@ -36,7 +38,7 @@ setup(
         'spyonweb==0.1',
         'selenium',
         'geoip2',
-        'pygreynoise',
+        'pygreynoisev1==0.1',
         'dnspython',
         'consolemd==0.4.4',
         'pypermacc==0.1.1',
@@ -56,5 +58,10 @@ setup(
     package_data={'harpoon': ['harpoon/data/*.conf']},
     entry_points= {
         'console_scripts': [ 'harpoon=harpoon.main:main' ]
-    }
+    },
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ]
 )

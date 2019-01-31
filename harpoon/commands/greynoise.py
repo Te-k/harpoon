@@ -2,7 +2,7 @@
 import sys
 import json
 from harpoon.commands.base import Command
-from pygreynoise import GreyNoise, GreyNoiseError
+from pygreynoisev1 import GreyNoise, GreyNoiseError
 
 
 class CommandGreyNoise(Command):
