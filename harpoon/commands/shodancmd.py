@@ -3,6 +3,7 @@ import sys
 import json
 import shodan
 from harpoon.commands.base import Command
+from dateutil.parser import parse
 
 
 class CommandShodan(Command):
@@ -34,6 +35,9 @@ class CommandShodan(Command):
         parser_b = subparsers.add_parser('search', help='Search in shodan')
         parser_b.add_argument('QUERY', help='Query')
         parser_b.set_defaults(subcommand='search')
+        parser_c = subparsers.add_parser('ssh', help='Write ssh history from Shodan historical data')
+        parser_c.add_argument('IP', help='IP address')
+        parser_c.set_defaults(subcommand='ssh')
         self.parser = parser
 
     def run(self, conf, args, plugins):
@@ -105,6 +109,36 @@ class CommandShodan(Command):
                             r['data'][:1000]
                         )
                     )
+            elif args.subcommand == 'ssh':
+                data = {}
+                try:
+                    res = api.host(args.IP, history=True)
+                except shodan.exception.APIError:
+                    print("IP not found in Shodan")
+                else:
+                    for event in res['data']:
+                        if event['_shodan']['module'] == 'ssh':
+                            fingerprint = event['ssh']['fingerprint']
+                            date = parse(event['timestamp'])
+                            if fingerprint not in data:
+                                data[fingerprint] = {
+                                    'first': date,
+                                    'last': date,
+                                    'fingerprint': fingerprint
+                                }
+                            else:
+                                if data[fingerprint]['first'] > date:
+                                    data[fingerprint]['first'] = date
+                                if data[fingerprint]['last'] < date:
+                                    data[fingerprint]['last'] = date
+
+                    for val in sorted(data.values(), key=lambda x:x['first']):
+                        print('%s - %s -> %s' % (
+                                val['fingerprint'],
+                                val['first'].strftime('%Y-%m-%d'),
+                                val['last'].strftime('%Y-%m-%d')
+                            )
+                        )
             else:
                 self.parser.print_help()
         else:
