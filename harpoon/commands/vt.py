@@ -276,10 +276,6 @@ class CommandVirusTotal(Command):
                 elif args.subcommand == "hashlist":
                     with open(args.FILE, 'r') as infile:
                         data = infile.read().split()
-                    pass
-                elif args.subcommand == "hashlist":
-                    with open(args.FILE, 'r') as infile:
-                        data = infile.read().split()
                     hash_list = list(set([a.strip() for a in data]))
                     print("Hash;Found;Detection;Total AV;Link")
                     for h in hash_list:
