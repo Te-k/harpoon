@@ -270,17 +270,20 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                 # Binary Edge
                 be_e = plugins['binaryedge'].test_config(conf)
                 if be_e:
-                    print('[+] Downloading BinaryEdge information...')
-                    be = BinaryEdge(conf['BinaryEdge']['key'])
-                    # FIXME: this only get the first page
-                    res = be.domain_ip(unbracket(args.IP))
-                    for d in res["events"]:
-                        passive_dns.append({
-                            "domain": d['domain'],
-                            "first": parse(d['updated_at']),
-                            "last": parse(d['updated_at']),
-                            "source" : "BinaryEdge"
-                        })
+                    try:
+                        print('[+] Downloading BinaryEdge information...')
+                        be = BinaryEdge(conf['BinaryEdge']['key'])
+                        # FIXME: this only get the first page
+                        res = be.domain_ip(unbracket(args.IP))
+                        for d in res["events"]:
+                            passive_dns.append({
+                                "domain": d['domain'],
+                                "first": parse(d['updated_at']),
+                                "last": parse(d['updated_at']),
+                                "source" : "BinaryEdge"
+                            })
+                    except BinaryEdgeException:
+                        print('BinaryEdge request failed, you need a paid subscription')
                 # OTX
                 otx_e = plugins['otx'].test_config(conf)
                 if otx_e:
