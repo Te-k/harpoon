@@ -92,9 +92,9 @@ class CommandShodan(Command):
                                 print("%s/%i" % (d['transport'], d['port']))
                                 print(d['data'])
                                 if 'html' in d:
-                                    print(d['html'])
+                                    print(d['html'][:2000])
                                 if 'http' in d:
-                                    print(json.dumps(d['http']))
+                                    print(json.dumps(d['http'])[:3000])
                                 print('')
 
             elif args.subcommand == 'search':
@@ -118,19 +118,20 @@ class CommandShodan(Command):
                 else:
                     for event in res['data']:
                         if event['_shodan']['module'] == 'ssh':
-                            fingerprint = event['ssh']['fingerprint']
-                            date = parse(event['timestamp'])
-                            if fingerprint not in data:
-                                data[fingerprint] = {
-                                    'first': date,
-                                    'last': date,
-                                    'fingerprint': fingerprint
-                                }
-                            else:
-                                if data[fingerprint]['first'] > date:
-                                    data[fingerprint]['first'] = date
-                                if data[fingerprint]['last'] < date:
-                                    data[fingerprint]['last'] = date
+                            if 'ssh' in event:
+                                fingerprint = event['ssh']['fingerprint']
+                                date = parse(event['timestamp'])
+                                if fingerprint not in data:
+                                    data[fingerprint] = {
+                                        'first': date,
+                                        'last': date,
+                                        'fingerprint': fingerprint
+                                    }
+                                else:
+                                    if data[fingerprint]['first'] > date:
+                                        data[fingerprint]['first'] = date
+                                    if data[fingerprint]['last'] < date:
+                                        data[fingerprint]['last'] = date
 
                     for val in sorted(data.values(), key=lambda x:x['first']):
                         print('%s - %s -> %s' % (
