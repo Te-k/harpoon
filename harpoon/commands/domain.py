@@ -91,34 +91,37 @@ class CommandDomain(Command):
                 otx_e = plugins['otx'].test_config(conf)
                 if otx_e:
                     print('[+] Downloading OTX information....')
-                    otx = OTXv2(conf["AlienVaultOtx"]["key"])
-                    res = otx.get_indicator_details_full(IndicatorTypes.DOMAIN, unbracket(args.DOMAIN))
-                    otx_pulses =  res["general"]["pulse_info"]["pulses"]
-                    # Get Passive DNS
-                    if "passive_dns" in res:
-                        for r in res["passive_dns"]["passive_dns"]:
-                            passive_dns.append({
-                                "ip": r['hostname'],
-                                "first": parse(r["first"]),
-                                "last": parse(r["last"]),
-                                "source" : "OTX"
-                            })
-                    if "url_list" in res:
-                        for r in res["url_list"]["url_list"]:
-                            if "result" in r:
-                                urls.append({
-                                    "date": parse(r["date"]),
-                                    "url": r["url"],
-                                    "ip": r["result"]["urlworker"]["ip"] if "ip" in r["result"]["urlworker"] else "" ,
-                                    "source": "OTX"
+                    try:
+                        otx = OTXv2(conf["AlienVaultOtx"]["key"])
+                        res = otx.get_indicator_details_full(IndicatorTypes.DOMAIN, unbracket(args.DOMAIN))
+                        otx_pulses =  res["general"]["pulse_info"]["pulses"]
+                        # Get Passive DNS
+                        if "passive_dns" in res:
+                            for r in res["passive_dns"]["passive_dns"]:
+                                passive_dns.append({
+                                    "ip": r['hostname'],
+                                    "first": parse(r["first"]),
+                                    "last": parse(r["last"]),
+                                    "source" : "OTX"
                                 })
-                            else:
-                                urls.append({
-                                    "date": parse(r["date"]),
-                                    "url": r["url"],
-                                    "ip": "",
-                                    "source": "OTX"
-                                })
+                        if "url_list" in res:
+                            for r in res["url_list"]["url_list"]:
+                                if "result" in r:
+                                    urls.append({
+                                        "date": parse(r["date"]),
+                                        "url": r["url"],
+                                        "ip": r["result"]["urlworker"]["ip"] if "ip" in r["result"]["urlworker"] else "" ,
+                                        "source": "OTX"
+                                    })
+                                else:
+                                    urls.append({
+                                        "date": parse(r["date"]),
+                                        "url": r["url"],
+                                        "ip": "",
+                                        "source": "OTX"
+                                    })
+                    except AttributeError:
+                        print('OTX crashed  ¯\_(ツ)_/¯')
                 # CIRCL
                 circl_e = plugins['circl'].test_config(conf)
                 if circl_e:
@@ -141,17 +144,20 @@ class CommandDomain(Command):
                 be_e = plugins['binaryedge'].test_config(conf)
                 if be_e:
                     print('[+] Downloading BinaryEdge information....')
-                    be = BinaryEdge(conf['BinaryEdge']['key'])
-                    res = be.domain_dns(unbracket(args.DOMAIN))
-                    for d in res['events']:
-                        if "A" in d:
-                            for a in d['A']:
-                                passive_dns.append({
-                                    "ip": a,
-                                    "first": parse(d['updated_at']),
-                                    "last": parse(d['updated_at']),
-                                    "source" : "BinaryEdge"
-                                })
+                    try:
+                        be = BinaryEdge(conf['BinaryEdge']['key'])
+                        res = be.domain_dns(unbracket(args.DOMAIN))
+                        for d in res['events']:
+                            if "A" in d:
+                                for a in d['A']:
+                                    passive_dns.append({
+                                        "ip": a,
+                                        "first": parse(d['updated_at']),
+                                        "last": parse(d['updated_at']),
+                                        "source" : "BinaryEdge"
+                                    })
+                    except BinaryEdgeException:
+                        print('You need a paid BinaryEdge subscription for this request')
                 # RobTex
                 print('[+] Downloading Robtex information....')
                 rob = Robtex()
