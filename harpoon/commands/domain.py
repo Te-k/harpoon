@@ -13,6 +13,7 @@ import glob
 import shutil
 import pyasn
 import pypdns
+import pytz
 from IPy import IP
 from dateutil.parser import parse
 from harpoon.commands.base import Command
@@ -165,8 +166,8 @@ class CommandDomain(Command):
                 for d in res:
                     if d['rrtype'] in ['A', 'AAAA']:
                         passive_dns.append({
-                            'first': d['time_first_o'],
-                            'last': d['time_last_o'],
+                            'first': d['time_first_o'].astimezone(pytz.utc),
+                            'last': d['time_last_o'].astimezone(pytz.utc),
                             'ip': d['rrdata'],
                             'source': 'Robtex'
                         })
@@ -183,8 +184,8 @@ class CommandDomain(Command):
                         if "results" in raw_results:
                             for res in raw_results["results"]:
                                 passive_dns.append({
-                                    "first": parse(res["firstSeen"]),
-                                    "last": parse(res["lastSeen"]),
+                                    "first": parse(res["firstSeen"]).astimezone(pytz.utc),
+                                    "last": parse(res["lastSeen"]).astimezone(pytz.utc),
                                     "ip": res["resolve"],
                                     "source": "PT"
                                 })
@@ -219,8 +220,8 @@ class CommandDomain(Command):
                             if "resolutions" in res['results']:
                                 for r in res["results"]["resolutions"]:
                                     passive_dns.append({
-                                        "first": parse(r["last_resolved"]),
-                                        "last": parse(r["last_resolved"]),
+                                        "first": parse(r["last_resolved"]).astimezone(pytz.utc),
+                                        "last": parse(r["last_resolved"]).astimezone(pytz.utc),
                                         "ip": r["ip_address"],
                                         "source": "VT"
                                     })
@@ -365,7 +366,6 @@ class CommandDomain(Command):
                                 r["source"]
                             )
                         )
-
 
             else:
                 self.parser.print_help()
