@@ -175,14 +175,19 @@ class CommandVirusTotal(Command):
                     else:
                         self.print_file(response)
                 elif args.subcommand == "dl":
+                    if os.path.isfile(args.HASH):
+                        print("File %s already exists" % args.HASH)
+                        sys.exit(0)
                     data = vt.get_file(args.HASH)
                     if isinstance(data, dict):
-                        print("Error: %s" % data["error"])
-                        sys.exit(0)
+                        if 'results' in data:
+                            with open(args.HASH, "wb") as f:
+                                f.write(data['results'])
+                            print("File downloaded as %s" % args.HASH)
+                        else:
+                            print('Invalid answer format')
+                            sys.exit(1)
                     else:
-                        if os.path.isfile(args.HASH):
-                            print("File %s already exists" % args.HASH)
-                            sys.exit(0)
                         with open(args.HASH, "wb") as f:
                             f.write(data)
                         print("File downloaded as %s" % args.HASH)
