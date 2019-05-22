@@ -101,8 +101,8 @@ class CommandDomain(Command):
                             for r in res["passive_dns"]["passive_dns"]:
                                 passive_dns.append({
                                     "ip": r['hostname'],
-                                    "first": parse(r["first"]),
-                                    "last": parse(r["last"]),
+                                    "first": parse(r["first"]).astimezone(pytz.utc),
+                                    "last": parse(r["last"]).astimezone(pytz.utc),
                                     "source" : "OTX"
                                 })
                         if "url_list" in res:
@@ -137,8 +137,8 @@ class CommandDomain(Command):
                     for answer in res:
                         passive_dns.append({
                             "ip": answer['rdata'],
-                            "first": answer['time_first'],
-                            "last": answer['time_last'],
+                            "first": answer['time_first'].astimezone(pytz.utc),
+                            "last": answer['time_last'].astimezone(pytz.utc),
                             "source" : "CIRCL"
                         })
                 # BinaryEdge
@@ -153,8 +153,8 @@ class CommandDomain(Command):
                                 for a in d['A']:
                                     passive_dns.append({
                                         "ip": a,
-                                        "first": parse(d['updated_at']),
-                                        "last": parse(d['updated_at']),
+                                        "first": parse(d['updated_at']).astimezone(pytz.utc),
+                                        "last": parse(d['updated_at']).astimezone(pytz.utc),
                                         "source" : "BinaryEdge"
                                     })
                     except BinaryEdgeException:
