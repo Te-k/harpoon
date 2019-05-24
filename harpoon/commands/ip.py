@@ -14,6 +14,7 @@ import pyasn
 import urllib
 import socket
 import requests
+import pytz
 from IPy import IP
 from dateutil.parser import parse
 from harpoon.commands.base import Command
@@ -278,8 +279,8 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                         for d in res["events"]:
                             passive_dns.append({
                                 "domain": d['domain'],
-                                "first": parse(d['updated_at']),
-                                "last": parse(d['updated_at']),
+                                "first": parse(d['updated_at']).astimezone(pytz.utc),
+                                "last": parse(d['updated_at']).astimezone(pytz.utc),
                                 "source" : "BinaryEdge"
                             })
                     except BinaryEdgeException:
@@ -296,8 +297,8 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                         for r in res["passive_dns"]["passive_dns"]:
                             passive_dns.append({
                                 "domain": r['hostname'],
-                                "first": parse(r["first"]),
-                                "last": parse(r["last"]),
+                                "first": parse(r["first"]).astimezone(pytz.utc),
+                                "last": parse(r["last"]).astimezone(pytz.utc),
                                 "source" : "OTX"
                             })
                     if "url_list" in res:
@@ -315,8 +316,8 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                         if d in res:
                             for a in res[d]:
                                 passive_dns.append({
-                                    'first': a['date'],
-                                    'last': a['date'],
+                                    'first': a['date'].astimezone(pytz.utc),
+                                    'last': a['date'].astimezone(pytz.utc),
                                     'domain': a['o'],
                                     'source': 'Robtex'
                                 })
@@ -332,8 +333,8 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                         if "results" in raw_results:
                             for res in raw_results["results"]:
                                 passive_dns.append({
-                                    "first": parse(res["firstSeen"]),
-                                    "last": parse(res["lastSeen"]),
+                                    "first": parse(res["firstSeen"]).astimezone(pytz.utc),
+                                    "last": parse(res["lastSeen"]).astimezone(pytz.utc),
                                     "domain": res["resolve"],
                                     "source": "PT"
                                 })
@@ -372,8 +373,8 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                             if "resolutions" in res['results']:
                                 for r in res["results"]["resolutions"]:
                                     passive_dns.append({
-                                        "first": parse(r["last_resolved"]),
-                                        "last": parse(r["last_resolved"]),
+                                        "first": parse(r["last_resolved"]).astimezone(pytz.utc),
+                                        "last": parse(r["last_resolved"]).astimezone(pytz.utc),
                                         "domain": r["hostname"],
                                         "source": "VT"
                                     })
