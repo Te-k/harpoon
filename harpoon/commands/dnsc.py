@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 import sys
-from dns import resolver, reversename
+from dns import resolver, reversename, exception
 from harpoon.commands.base import Command
 from harpoon.lib.utils import is_ip, unbracket
 
@@ -69,6 +69,8 @@ class CommandDns(Command):
                     print("No A entry")
                 except resolver.NoNameservers:
                     print("No A entry: SERVFAIL")
+                except exception.Timeout:
+                    print("Timeout")
                 else:
                     for rdata in answers:
                         info = cip.ipinfo(rdata.address)
@@ -92,6 +94,8 @@ class CommandDns(Command):
                     print("No AAAA entry configured")
                 except resolver.NoNameservers:
                     print("No AAAA entry: SERVFAIL")
+                except exception.Timeout:
+                    print("Timeout")
 
                 # DNS Servers
                 print("\n# NS")
@@ -100,6 +104,8 @@ class CommandDns(Command):
                 except (resolver.NoAnswer, resolver.NXDOMAIN, resolver.NoNameservers):
                     # That's pretty unlikely
                     print("No NS entry configured")
+                except exception.Timeout:
+                    print("Timeout")
                 else:
                     for entry in answers:
                         ttarget = str(entry.target)
@@ -141,6 +147,8 @@ class CommandDns(Command):
                     print("No MX entry configured")
                 except resolver.NoNameservers:
                     print("No MX entry: SERVFAIL")
+                except exception.Timeout:
+                    print("Timeout")
                 else:
                     for rdata in answers:
                         if is_ip(rdata.exchange):
@@ -183,6 +191,8 @@ class CommandDns(Command):
                     print("No SOA entry configured")
                 except resolver.NoNameservers:
                     print("No SOA entry: SERVFAIL")
+                except exception.Timeout:
+                    print("Timeout")
                 else:
                     entry = [b for b in answers][0]
                     print("NS: %s" % str(entry.mname))
@@ -196,6 +206,8 @@ class CommandDns(Command):
                     print("No TXT entry configured")
                 except resolver.NoNameservers:
                     print("No TXT entry: SERVFAIL")
+                except exception.Timeout:
+                    print("Timeout")
                 else:
                     for a in answers:
                         print(a.to_text())
