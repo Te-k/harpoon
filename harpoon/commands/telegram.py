@@ -18,7 +18,7 @@ def json_serial(obj):
     if isinstance(obj, (datetime, date)):
         return obj.isoformat()
     if isinstance(obj, bytes):
-        return obj.decode('utf-8')
+        return obj.decode('utf-8', 'ignore')
     raise TypeError("Type %s not serializable" % type(obj))
 
 
@@ -137,11 +137,14 @@ class CommandTelegram(Command):
                                             )
                                         )
                                 else:
-                                    print("[%s] Media (%i views)" % (
-                                            msg.date.isoformat(),
-                                            msg.views
+                                    if msg.views:
+                                        print("[%s] Media (%i views)" % (
+                                                msg.date.isoformat(),
+                                                msg.views
+                                            )
                                         )
-                                    )
+                                    else:
+                                        print("[%s] Media" % (msg.date.isoformat()))
                                     if args.dump:
                                         if not os.path.exists(os.path.join(args.dump, str(msg.id) + '.jpg')):
                                             client.download_media(msg.media, os.path.join(args.dump, str(msg.id)))
