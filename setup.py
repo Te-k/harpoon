@@ -23,7 +23,6 @@ setup(
         'beautifulsoup4==4.7.0',
         'lxml==4.2.6',
         'censys',
-        'pycrtsh',
         'shodan',
         'fullcontact.py',
         'pyhunter',
@@ -48,7 +47,7 @@ setup(
         'pybinaryedge==0.5',
         'spyonweb==0.1',
         'pythreatgrid2==0.1.1',
-        'pycrtsh==0.1',
+        'pycrtsh==0.2',
         'pysafebrowsing==0.1.1'
         ],
 
