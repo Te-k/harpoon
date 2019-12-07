@@ -54,6 +54,8 @@ opencage            Forward/Reverse geocoding using OpenCage Geocoder API
 otx                 Requests information from AlienVault OTX
 permacc             Request Perma.cc information through the API
 pgp                 Search for information in PGP key servers
+pt                  Requests Passive Total database
+quad9               Check if a domain is blocked by Quad9
 robtex              Search in Robtex API (https://www.robtex.com/api/)
 safebrowsing        Check if the given domain is in Google safe Browsing list
 save                Save a webpage in cache platforms
