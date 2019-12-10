@@ -66,6 +66,7 @@ telegram            Request information from Telegram through the API
 threatgrid          Request Threat Grid API
 totalhash           Request Total Hash API
 twitter             Requests Twitter API
+urlscan             Search and submit urls to urlscan.io
 vt                  Request Virus Total API
 ```
 

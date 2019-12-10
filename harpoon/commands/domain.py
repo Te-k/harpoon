@@ -19,6 +19,7 @@ from dateutil.parser import parse
 from harpoon.commands.base import Command
 from harpoon.lib.utils import bracket, unbracket
 from harpoon.lib.robtex import Robtex, RobtexError
+from harpoon.lib.urlscan import UrlScan
 from OTXv2 import OTXv2, IndicatorTypes
 from virus_total_apis import PublicApi, PrivateApi
 from pygreynoisev1 import GreyNoise, GreyNoiseError
@@ -123,6 +124,18 @@ class CommandDomain(Command):
                                     })
                     except AttributeError:
                         print('OTX crashed  ¯\_(ツ)_/¯')
+                # UrlScan
+                us = UrlScan()
+                print('[+] Downloading UrlScan information....')
+                res = us.search(args.DOMAIN)
+                for r in res['results']:
+                    urls.append({
+                        "date": parse(r["task"]["time"]).astimezone(pytz.utc),
+                        "url": r["page"]["url"],
+                        "ip": r["page"]["ip"],
+                        "source": "UrlScan"
+                    })
+
                 # CIRCL
                 circl_e = plugins['circl'].test_config(conf)
                 if circl_e:
@@ -257,7 +270,7 @@ class CommandDomain(Command):
                             if "detected_urls" in res['results']:
                                 for r in res['results']['detected_urls']:
                                     urls.append({
-                                        'date': parse(r['scan_date']),
+                                        'date': parse(r['scan_date']).astimezone(pytz.utc),
                                         'url': r['url'],
                                         'ip': '',
                                         'source': 'VT'
