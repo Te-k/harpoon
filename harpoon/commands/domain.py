@@ -110,14 +110,14 @@ class CommandDomain(Command):
                             for r in res["url_list"]["url_list"]:
                                 if "result" in r:
                                     urls.append({
-                                        "date": parse(r["date"]),
+                                        "date": parse(r["date"]).astimezone(pytz.utc),
                                         "url": r["url"],
                                         "ip": r["result"]["urlworker"]["ip"] if "ip" in r["result"]["urlworker"] else "" ,
                                         "source": "OTX"
                                     })
                                 else:
                                     urls.append({
-                                        "date": parse(r["date"]),
+                                        "date": parse(r["date"]).astimezone(pytz.utc),
                                         "url": r["url"],
                                         "ip": "",
                                         "source": "OTX"
@@ -217,7 +217,7 @@ class CommandDomain(Command):
                                 for r in raw_results["results"]:
                                     malware.append({
                                         'hash': r["sample"],
-                                        'date': parse(r['collectionDate']),
+                                        'date': parse(r['collectionDate']).astimezone(pytz.utc),
                                         'source' : 'PT (%s)' % r["source"]
                                     })
                     except requests.exceptions.ReadTimeout:
@@ -242,21 +242,21 @@ class CommandDomain(Command):
                                 for r in res['results']['undetected_downloaded_samples']:
                                     files.append({
                                         'hash': r['sha256'],
-                                        'date': parse(r['date']) if 'date' in r else '',
+                                        'date': parse(r['date']).astimezone(pytz.utc) if 'date' in r else '',
                                         'source' : 'VT'
                                     })
                             if "undetected_referrer_samples" in res['results']:
                                 for r in res['results']['undetected_referrer_samples']:
                                     files.append({
                                         'hash': r['sha256'],
-                                        'date': parse(r['date']) if 'date' in r else '',
+                                        'date': parse(r['date']).astimezone(pytz.utc) if 'date' in r else '',
                                         'source' : 'VT'
                                     })
                             if "detected_downloaded_samples" in res['results']:
                                 for r in res['results']['detected_downloaded_samples']:
                                     malware.append({
                                         'hash': r['sha256'],
-                                        'date': parse(r['date']),
+                                        'date': parse(r['date']).astimezone(pytz.utc),
                                         'source' : 'VT'
                                     })
                             if "detected_referrer_samples" in res['results']:
@@ -264,7 +264,7 @@ class CommandDomain(Command):
                                     if "date" in r:
                                         malware.append({
                                             'hash': r['sha256'],
-                                            'date': parse(r['date']),
+                                            'date': parse(r['date']).astimezone(pytz.utc),
                                             'source' : 'VT'
                                         })
                             if "detected_urls" in res['results']:
@@ -287,7 +287,7 @@ class CommandDomain(Command):
                         if 'items' in res:
                             for r in res['items']:
                                 if r['sample_sha256'] not in already:
-                                    d = parse(r['ts'])
+                                    d = parse(r['ts']).astimezone(pytz.utc)
                                     d = d.replace(tzinfo=None)
                                     malware.append({
                                         'hash': r["sample_sha256"],
