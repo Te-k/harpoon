@@ -16,6 +16,7 @@ class CommandHibp(Command):
     """
     name = "hibp"
     description = "Request Have I Been Pwned API (https://haveibeenpwned.com/)"
+    config = {'hibp': ['key']}
 
     def add_arguments(self, parser):
         parser.add_argument('EMAIL',  help='Email to check')
@@ -24,7 +25,7 @@ class CommandHibp(Command):
         self.parser = parser
 
     def run(self, conf, args, plugins):
-        h = HIBP()
+        h = HIBP(conf['hibp']['key'])
         if args.pastes:
             try:
                 res = h.get_pastes(args.EMAIL)

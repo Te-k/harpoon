@@ -81,6 +81,7 @@ You can get information on each command with `harpoon help COMMAND`
 * [CertSpotter](https://sslmate.com/certspotter/pricing) : paid plans provide search in expired certificates (little interests imho, just use crtsh or censys). You don't need an account for actual certificates
 * [CIRCL Passive DNS](https://www.circl.lu/services/passive-dns/)
 * [FullContact](https://dashboard.fullcontact.com/register)
+* [Have I Been Pwned](https://haveibeenpwned.com/)
 * [Hunter](https://hunter.io/users/sign_up)
 * [Hybrid Analysis](https://www.hybrid-analysis.com/apikeys/info)
 * [ipinfo.io](https://ipinfo.io/)
