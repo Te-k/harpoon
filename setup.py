@@ -47,7 +47,7 @@ setup(
         'pybinaryedge==0.5',
         'spyonweb==0.1',
         'pythreatgrid2==0.1.1',
-        'pycrtsh==0.2',
+        'pycrtsh==0.3.0',
         'pysafebrowsing==0.1.1'
         ],
 

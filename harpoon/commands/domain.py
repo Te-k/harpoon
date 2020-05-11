@@ -132,7 +132,7 @@ class CommandDomain(Command):
                     urls.append({
                         "date": parse(r["task"]["time"]).astimezone(pytz.utc),
                         "url": r["page"]["url"],
-                        "ip": r["page"]["ip"],
+                        "ip": r["page"]["ip"] if "ip" in r["page"] else "",
                         "source": "UrlScan"
                     })
 
@@ -288,7 +288,6 @@ class CommandDomain(Command):
                             for r in res['items']:
                                 if r['sample_sha256'] not in already:
                                     d = parse(r['ts']).astimezone(pytz.utc)
-                                    d = d.replace(tzinfo=None)
                                     malware.append({
                                         'hash': r["sample_sha256"],
                                         'date': d,

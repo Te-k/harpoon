@@ -52,6 +52,6 @@ class CommandUrlscan(Command):
             elif args.subcommand == 'view':
                 print(json.dumps(us.view(args.UID), sort_keys=True, indent=4))
             else:
-                parser.print_help()
+                self.parser.print_help()
         else:
-            parser.print_help()
+            self.parser.print_help()
