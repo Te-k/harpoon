@@ -48,9 +48,9 @@ setup(
         'spyonweb==0.1',
         'pythreatgrid2==0.1.1',
         'pycrtsh==0.3.0',
-        'pysafebrowsing==0.1.1'
+        'pysafebrowsing==0.1.1',
+        'dnsdb==0.2.5'
         ],
-
     python_requires='>=3.5',
     license='GPLv3',
     packages=['harpoon', 'harpoon.commands', 'harpoon.lib', 'harpoon.data'],

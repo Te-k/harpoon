@@ -38,6 +38,7 @@ config              Configure Harpoon
 crtsh               Search in https://crt.sh/ (Certificate Transparency database)
 cybercure           Check if intelligence on an IP exists in cybercure.ai
 dns                 Map DNS information for a domain or an IP
+dnsdb               Requests Farsight DNSDB
 fullcontact         Requests Full Contact API (https://www.fullcontact.com/)
 github              Request Github information through the API
 googl               Requests Google url shortener API
@@ -80,6 +81,7 @@ You can get information on each command with `harpoon help COMMAND`
 * [Censys](https://censys.io/register)
 * [CertSpotter](https://sslmate.com/certspotter/pricing) : paid plans provide search in expired certificates (little interests imho, just use crtsh or censys). You don't need an account for actual certificates
 * [CIRCL Passive DNS](https://www.circl.lu/services/passive-dns/)
+* [Farsight Dnsdb](https://www.farsightsecurity.com/dnsdb-community-edition/)
 * [FullContact](https://dashboard.fullcontact.com/register)
 * [Have I Been Pwned](https://haveibeenpwned.com/)
 * [Hunter](https://hunter.io/users/sign_up)
