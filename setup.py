@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='harpoon',
-    version='0.1.3',
+    version='0.1.4',
     description='Another OSINT CLI tool',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -47,7 +47,7 @@ setup(
         'pybinaryedge==0.5',
         'spyonweb==0.1',
         'pythreatgrid2==0.1.1',
-        'pycrtsh==0.3.0',
+        'pycrtsh==0.3.1',
         'pysafebrowsing==0.1.1',
         'dnsdb==0.2.5'
         ],

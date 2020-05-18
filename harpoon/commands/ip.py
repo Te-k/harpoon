@@ -58,8 +58,8 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
     description = "Gather information on an IP address"
     config = None
     update_needed = True
-    geocity = os.path.join(os.path.expanduser('~'), '.config/harpoon/GeoLite2-City.mmdb')
-    geoasn = os.path.join(os.path.expanduser('~'), '.config/harpoon/GeoLite2-ASN.mmdb')
+    geocity = "/usr/share/GeoIP/GeoLite2-City.mmdb"
+    geoasn = "/usr/share/GeoIP/GeoLite2-ASN.mmdb"
     asnname = os.path.join(os.path.expanduser('~'), '.config/harpoon/asnnames.csv')
     asncidr = os.path.join(os.path.expanduser('~'), '.config/harpoon/asncidr.dat')
     specific_ips = os.path.join(os.path.expanduser('~'), '.config/harpoon/iplist.csv')
@@ -75,42 +75,6 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
         self.parser = parser
 
     def update(self):
-        # Download Maxmind
-        print("Downloading MaxMind GeoIP Database")
-        try:
-            os.remove(self.geocity)
-        except OSError:
-            pass
-        try:
-            os.remove(self.geoasn)
-        except OSError:
-            pass
-        try:
-            file_name, headers = urllib.request.urlretrieve('http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz')
-            tar = tarfile.open(file_name, 'r')
-            for this_fn in tar.getmembers():
-                if this_fn.name.endswith("GeoLite2-City.mmdb"):
-                    mmdb = tar.extractfile(this_fn)
-                    with open(self.geocity, 'wb') as f:
-                        f.write(mmdb.read())
-                    mmdb.close()
-            print("-GeoLite2-City.mmdb")
-            file_name, headers = urllib.request.urlretrieve('http://geolite.maxmind.com/download/geoip/database/GeoLite2-ASN.tar.gz')
-            tar = tarfile.open(file_name, 'r')
-            for this_fn in tar.getmembers():
-                if this_fn.name.endswith("GeoLite2-ASN.mmdb"):
-                    mmdb = tar.extractfile(this_fn)
-                    with open(self.geoasn, 'wb') as f:
-                        f.write(mmdb.read())
-                    mmdb.close()
-            print("-GeoLite2-ASN.mmdb")
-        except urllib.error.HTTPError:
-            print("Impossible to download GeoIP databases, please check https://github.com/Te-k/harpoon/wiki/Known-bugs#cloudfare-blocking-download-of-maxmind-geoip-databases")
-        print("Downloading ASN Name database")
-        try:
-            os.remove(self.asnname)
-        except OSError:
-            pass
         file_name, headers = urllib.request.urlretrieve('http://www.cidr-report.org/as2.0/autnums.html')
         fin = open(file_name, 'r', encoding="latin-1", errors='ignore')
         fout = open(self.asnname, 'w+')

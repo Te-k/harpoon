@@ -33,7 +33,7 @@ class CommandAsn(Command):
     update_needed = True
     asn_name = os.path.join(os.path.expanduser('~'), '.config/harpoon/asnnames.csv')
     asncidr = os.path.join(os.path.expanduser('~'), '.config/harpoon/asncidr.dat')
-    asncaida = os.path.join(os.path.expanduser('~'), '.config/harpoon/2015_caida.csv')
+    asncaida = os.path.join(os.path.realpath(__file__)[:-16], 'data/caida.txt')
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(help='Subcommand')
@@ -48,23 +48,6 @@ class CommandAsn(Command):
         parser_c.add_argument('ASN', help='ASN Number')
         parser_c.set_defaults(subcommand='subnet')
         self.parser = parser
-
-    def update(self):
-        # Download CAIDA AS Classification
-        print("Downloading CAIDA AS Classification (https://www.caida.org/data/as-classification/)")
-        try:
-            os.remove(self.asncaida)
-        except OSError:
-            pass
-        try:
-            file_name, headers = urllib.request.urlretrieve('http://data.caida.org/datasets/as-classification/20150801.as2types.txt.gz')
-            with gzip.open(file_name, 'rb') as fin:
-                with open(self.asncaida, 'w') as fout:
-                    fout.write(fin.read().decode('utf-8'))
-        except urllib.error.HTTPError:
-            print("HTTP Error when downloading the CAIDA database")
-        else:
-            print('-%s' % self.asncaida)
 
     def asn_caida(self, asn):
         """

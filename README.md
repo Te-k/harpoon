@@ -1,16 +1,24 @@
 # Harpoon
 
-OSINT tool.
+OSINT / Threat Intel CLI tool.
 
 # Install
 
-You can simply install the package from [pypi](https://pypi.org/project/harpoon/) with `pip install harpoon`
+## Requirements
+
+As a pre-requesite for Harpoon, you need to install [lxml](https://lxml.de/installation.html) requirements, on Debian/Ubuntu : `sudo apt-get install libxml2-dev libxslt-dev python-dev`.
+
+You need to have [geoipupdate](https://github.com/maxmind/geoipupdate) installed and [correctly configured](https://dev.maxmind.com/geoip/geoipupdate/) to use geolocation correctly (make sure you to have `GeoLite2-Country GeoLite2-City GeoLite2-ASN` as `EditionIDs`).
 
 If you want to use the screenshot plugin, you need phantomjs and npm installed:
 
 ```
 npm install -g phantomjs
 ```
+
+## Installing harpoon
+
+You can simply install the package from [pypi](https://pypi.org/project/harpoon/) with `pip install harpoon`
 
 If the above install instructions didn't work, you can build the tool from source by executing the following commands in the terminal (this assumes you are using virtualenvs):
 
@@ -20,11 +28,15 @@ cd harpoon
 pip3 install .
 ```
 
-To configure harpoon, run ```harpoon config``` and fill in the needed API keys. Then run ```harpoon config -u``` to download needed files. Check what plugins are configured with ```harpoon config -c```.
+## Configuration
+
+To configure harpoon, run `harpoon config` and fill in the needed API keys.
+
+Then run `harpoon config -u` to download needed files. Check what plugins are configured with `harpoon config -c`.
 
 # Usage
 
-After configuration the following plugins are available within the ```harpoon``` command:
+After configuration the following plugins are available within the `harpoon` command:
 
 ```
 asn                 Gather information on an ASN
