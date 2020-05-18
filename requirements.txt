@@ -32,3 +32,4 @@ pybinaryedge==0.5
 pygreynoisev1==0.1
 pytz
 dnsdb==0.2.5
+pysecuritytrails==0.1.3

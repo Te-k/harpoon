@@ -75,6 +75,7 @@ robtex              Search in Robtex API (https://www.robtex.com/api/)
 safebrowsing        Check if the given domain is in Google safe Browsing list
 save                Save a webpage in cache platforms
 screenshot          Takes a screenshot of a webpage
+securitytrails      Requests SecurityTrails database
 shodan              Requests Shodan API
 spyonweb            Search in SpyOnWeb through the API
 telegram            Request information from Telegram through the API
@@ -106,6 +107,7 @@ You can get information on each command with `harpoon help COMMAND`
 * [OpenCage](https://opencagedata.com/)
 * [PassiveTotal](https://community.riskiq.com/registration)
 * [Permacc](https://perma.cc/)
+* [Security Trails](https://securitytrails.com/)
 * [Shodan](https://account.shodan.io/register)
 * [SpyOnWeb](https://api.spyonweb.com/)
 * Telegram : [Create an application](https://core.telegram.org/api/obtaining_api_id)

@@ -49,7 +49,8 @@ setup(
         'pythreatgrid2==0.1.1',
         'pycrtsh==0.3.1',
         'pysafebrowsing==0.1.1',
-        'dnsdb==0.2.5'
+        'dnsdb==0.2.5',
+        'pysecuritytrails==0.1.3'
         ],
     python_requires='>=3.5',
     license='GPLv3',
