@@ -15,7 +15,6 @@ setup(
     keywords='osint',
     include_package_data=True,
     install_requires=[
-        'click==6.7',
         'requests',
         'configparser',
         'tweepy',
@@ -39,7 +38,7 @@ setup(
         'geoip2',
         'pygreynoisev1==0.1',
         'dnspython',
-        'consolemd==0.4.4',
+        'consolemd==0.5.1',
         'pypermacc==0.1.1',
         'archiveis',
         'pytz',
