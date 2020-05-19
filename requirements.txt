@@ -2,8 +2,8 @@ requests
 configparser
 tweepy
 passivetotal
-beautifulsoup4==4.7.0
-lxml==4.2.6
+beautifulsoup4==4.9.1
+lxml==4.5.1
 censys
 shodan
 fullcontact.py
