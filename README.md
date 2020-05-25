@@ -65,6 +65,7 @@ ip                  Gather information on an IP address
 ipinfo              Request ipinfo.io information
 malshare            Requests MalShare database
 misp                Get information from a MISP server through the API
+numverify           Query phone number information from NumVerify
 opencage            Forward/Reverse geocoding using OpenCage Geocoder API
 otx                 Requests information from AlienVault OTX
 permacc             Request Perma.cc information through the API
@@ -103,7 +104,7 @@ You can get information on each command with `harpoon help COMMAND`
 * [Hybrid Analysis](https://www.hybrid-analysis.com/apikeys/info)
 * [ipinfo.io](https://ipinfo.io/)
 * [MalShare](https://malshare.com/register.php)
-* [MalShare](https://malshare.com/register.php)
+* [NumVerify](https://numverify.com/)
 * [OpenCage](https://opencagedata.com/)
 * [PassiveTotal](https://community.riskiq.com/registration)
 * [Permacc](https://perma.cc/)

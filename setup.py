@@ -49,7 +49,8 @@ setup(
         'pycrtsh==0.3.1',
         'pysafebrowsing==0.1.1',
         'dnsdb==0.2.5',
-        'pysecuritytrails==0.1.3'
+        'pysecuritytrails==0.1.3',
+        'phonenumbers==8.12.4'
         ],
     python_requires='>=3.5',
     license='GPLv3',

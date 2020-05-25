@@ -32,3 +32,4 @@ pygreynoisev1==0.1
 pytz
 dnsdb==0.2.5
 pysecuritytrails==0.1.3
+phonenumbers==8.12.4
