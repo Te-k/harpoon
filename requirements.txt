@@ -22,7 +22,7 @@ selenium
 pysafebrowsing==0.1.1
 pypermacc==0.1.1
 pythreatgrid2==0.1.1
-pycrtsh==0.3.1
+pycrtsh==0.3.2
 dnspython
 archiveis
 consolemd==0.5.1
