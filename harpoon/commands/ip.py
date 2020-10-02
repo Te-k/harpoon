@@ -392,20 +392,23 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                 tg_e = plugins['threatgrid'].test_config(conf)
                 if tg_e:
                     print('[+] Downloading Threat Grid....')
-                    tg = ThreatGrid(conf['ThreatGrid']['key'])
-                    res = tg.search_samples(unbracket(args.IP), type='ip')
-                    already = []
-                    if 'items' in res:
-                        for r in res['items']:
-                            if r['sample_sha256'] not in already:
-                                d = parse(r['ts'])
-                                d = d.replace(tzinfo=None)
-                                malware.append({
-                                    'hash': r["sample_sha256"],
-                                    'date': d,
-                                    'source' : 'TG'
-                                })
-                                already.append(r['sample_sha256'])
+                    try:
+                        tg = ThreatGrid(conf['ThreatGrid']['key'])
+                        res = tg.search_samples(unbracket(args.IP), type='ip')
+                        already = []
+                        if 'items' in res:
+                            for r in res['items']:
+                                if r['sample_sha256'] not in already:
+                                    d = parse(r['ts'])
+                                    d = d.replace(tzinfo=None)
+                                    malware.append({
+                                        'hash': r["sample_sha256"],
+                                        'date': d,
+                                        'source' : 'TG'
+                                    })
+                                    already.append(r['sample_sha256'])
+                    except ThreatGridError as e:
+                        print("Error with threat grid: {}".format(e.message))
 
                 print('----------------- Intelligence Report')
                 if otx_e:
