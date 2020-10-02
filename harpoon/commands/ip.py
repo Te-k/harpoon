@@ -29,6 +29,7 @@ from pythreatgrid2 import ThreatGrid, ThreatGridError
 from harpoon.commands.asn import CommandAsn
 from mispy import MispServer
 from pybinaryedge import BinaryEdge, BinaryEdgeException, BinaryEdgeNotFound
+from threatminer import ThreatMiner
 
 
 class CommandIp(Command):
@@ -410,12 +411,33 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                     except ThreatGridError as e:
                         print("Error with threat grid: {}".format(e.message))
 
+                # ThreatMiner
+                print('[+] Downloading ThreatMiner....')
+                tm = ThreatMiner()
+                response = tm.get_report(unbracket(args.IP))
+                if response['status_code'] == '200':
+                    tmm = response['results']
+                else:
+                    tmm = []
+                    if response['status_code'] != '404':
+                        print("Request to ThreatMiner failed: {}".format(response['status_message']))
+                response = tm.get_related_samples(unbracket(args.IP))
+                if response['status_code'] == '200':
+                    for r in response['results']:
+                        malware.append({
+                            'hash': r,
+                            'date': None,
+                            'source': 'ThreatMiner'
+                        })
+
+
+
                 print('----------------- Intelligence Report')
                 if otx_e:
                     if len(otx_pulses):
                         print('OTX:')
                         for p in otx_pulses:
-                            print(' -%s (%s - %s)' % (
+                            print('- %s (%s - %s)' % (
                                     p['name'],
                                     p['created'][:10],
                                     "https://otx.alienvault.com/pulse/" + p['id']
@@ -427,7 +449,7 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                     if len(misp_results) > 0:
                         print('MISP:')
                         for event in misp_results:
-                            print(" -%i - %s" % (event.id, event.info))
+                            print("- %i - %s" % (event.id, event.info))
                 if len(greynoise) > 0:
                     print("GreyNoise: IP identified as")
                     for r in greynoise:
@@ -458,15 +480,23 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                             print("PT: Nothing found!")
                     else:
                         print("PT: Nothing found!")
-
+                # ThreatMiner
+                if len(tmm) > 0:
+                    print("ThreatMiner:")
+                    for r in tmm:
+                        print("- {} {} - {}".format(
+                            r['year'],
+                            r['filename'],
+                            r['URL']
+                        ))
 
                 if len(malware) > 0:
                     print('----------------- Malware')
-                    for r in sorted(malware, key=lambda x: x["date"]):
+                    for r in malware:
                         print("[%s] %s %s" % (
                                 r["source"],
                                 r["hash"],
-                                r["date"].strftime("%Y-%m-%d")
+                                r["date"].strftime("%Y-%m-%d") if r["date"] else ""
                             )
                         )
                 if len(files) > 0:

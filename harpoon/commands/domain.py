@@ -27,6 +27,7 @@ from passivetotal.libs.dns import DnsRequest
 from passivetotal.libs.enrichment import EnrichmentRequest
 from pythreatgrid2 import ThreatGrid, ThreatGridError
 from pybinaryedge import BinaryEdge, BinaryEdgeException, BinaryEdgeNotFound
+from threatminer import ThreatMiner
 
 
 class CommandDomain(Command):
@@ -124,6 +125,7 @@ class CommandDomain(Command):
                                     })
                     except AttributeError:
                         print('OTX crashed  ¯\_(ツ)_/¯')
+
                 # UrlScan
                 us = UrlScan()
                 print('[+] Downloading UrlScan information....')
@@ -296,6 +298,24 @@ class CommandDomain(Command):
                                     already.append(r['sample_sha256'])
                     except ThreatGridError as e:
                         print("Failed to connect to Threat Grid: %s" % e.message)
+                print('[+] Downloading ThreatMiner....')
+                tm = ThreatMiner()
+                response = tm.get_report(unbracket(args.DOMAIN))
+                if response['status_code'] == '200':
+                    tmm = response['results']
+                else:
+                    tmm = []
+                    if response['status_code'] == '404':
+                        print("Request to ThreatMiner failed: {}".format(response['status_message']))
+                response = tm.get_related_samples(unbracket(args.DOMAIN))
+                if response['status_code'] == '200':
+                    for r in response['results']:
+                        malware.append({
+                            'hash': r,
+                            'date': None,
+                            'source': 'ThreatMiner'
+                        })
+
 
                 # TODO: Add MISP
                 print('----------------- Intelligence Report')
@@ -303,7 +323,7 @@ class CommandDomain(Command):
                     if len(otx_pulses):
                         print('OTX:')
                         for p in otx_pulses:
-                            print(' -%s (%s - %s)' % (
+                            print('- %s (%s - %s)' % (
                                     p['name'],
                                     p['created'][:10],
                                     "https://otx.alienvault.com/pulse/" + p['id']
@@ -323,22 +343,30 @@ class CommandDomain(Command):
                                 print("PT:")
                                 for r in pt_osint["results"]:
                                     if "name" in r:
-                                        print("-%s %s" % (r["name"], r["sourceUrl"]))
+                                        print("- %s %s" % (r["name"], r["sourceUrl"]))
                                     else:
-                                        print("-%s" % (r["sourceUrl"]))
+                                        print("- %s" % (r["sourceUrl"]))
                         else:
                             print("PT: Nothing found!")
                     else:
                         print("PT: Nothing found!")
-
+                # ThreatMiner
+                if len(tmm) > 0:
+                    print("ThreatMiner:")
+                    for r in tmm:
+                        print("- {} {} - {}".format(
+                            r['year'],
+                            r['filename'],
+                            r['URL']
+                        ))
 
                 if len(malware) > 0:
                     print('----------------- Malware')
-                    for r in sorted(malware, key=lambda x: x["date"]):
+                    for r in malware:
                         print("[%s] %s %s" % (
                                 r["source"],
                                 r["hash"],
-                                r["date"].strftime("%Y-%m-%d")
+                                r["date"].strftime("%Y-%m-%d") if r["date"] else ""
                             )
                         )
                 if len(files) > 0:

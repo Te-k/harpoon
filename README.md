@@ -81,6 +81,7 @@ shodan              Requests Shodan API
 spyonweb            Search in SpyOnWeb through the API
 telegram            Request information from Telegram through the API
 threatgrid          Request Threat Grid API
+threatminer         Requests TreatMiner database https://www.threatminer.org/
 totalhash           Request Total Hash API
 twitter             Requests Twitter API
 urlscan             Search and submit urls to urlscan.io

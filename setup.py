@@ -50,7 +50,8 @@ setup(
         'pysafebrowsing==0.1.1',
         'dnsdb==0.2.5',
         'pysecuritytrails==0.1.3',
-        'phonenumbers==8.12.4'
+        'phonenumbers==8.12.4',
+        'threatminer==1.0'
         ],
     python_requires='>=3.5',
     license='GPLv3',
