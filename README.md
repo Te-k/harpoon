@@ -30,6 +30,8 @@ cd harpoon
 pip3 install .
 ```
 
+You may want to install [harpoontools](https://github.com/Te-k/harpoontools) to have additional commands using harpoon features.
+
 ## Configuration
 
 To configure harpoon, run `harpoon config` and fill in the needed API keys.
@@ -117,3 +119,10 @@ You can get information on each command with `harpoon help COMMAND`
 * [Twitter](https://developer.twitter.com/en/docs/ads/general/guides/getting-started)
 * Virus Total : for public, create an account and get the API key in the [Settings page](https://www.virustotal.com/#/settings/apikey)
 
+## Similar tools
+
+* [malwoverview](https://github.com/alexandreborges/malwoverview)
+
+## License
+
+This code is released under [GPLv3](LICENSE.md) license.
