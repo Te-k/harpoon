@@ -2,7 +2,7 @@
 
 OSINT / Threat Intel CLI tool.
 
-![PyPI](https://img.shields.io/pypi/v/harpoon) ![PyPI - Downloads](https://img.shields.io/pypi/dm/harpoon) ![PyPI - License](https://img.shields.io/pypi/l/harpoon) ![GitHub issues](https://img.shields.io/github/issues/te-k/harpoon)
+[![PyPI](https://img.shields.io/pypi/v/harpoon)](https://pypi.org/project/harpoon/) [![PyPI - Downloads](https://img.shields.io/pypi/dm/harpoon)](https://pypistats.org/packages/harpoon) [![PyPI - License](https://img.shields.io/pypi/l/harpoon)](LICENSE) [![GitHub issues](https://img.shields.io/github/issues/te-k/harpoon)](https://github.com/Te-k/harpoon/issues)
 
 # Install
 
@@ -126,4 +126,4 @@ You can get information on each command with `harpoon help COMMAND`
 
 ## License
 
-This code is released under [GPLv3](LICENSE.md) license.
+This code is released under [GPLv3](LICENSE) license.
