@@ -176,17 +176,19 @@ class CommandDomain(Command):
                         print('You need a paid BinaryEdge subscription for this request')
                 # RobTex
                 print('[+] Downloading Robtex information....')
-                rob = Robtex()
-                res = rob.get_pdns_domain(args.DOMAIN)
-                for d in res:
-                    if d['rrtype'] in ['A', 'AAAA']:
-                        passive_dns.append({
-                            'first': d['time_first_o'].astimezone(pytz.utc),
-                            'last': d['time_last_o'].astimezone(pytz.utc),
-                            'ip': d['rrdata'],
-                            'source': 'Robtex'
-                        })
-
+                try:
+                    rob = Robtex()
+                    res = rob.get_pdns_domain(args.DOMAIN)
+                    for d in res:
+                        if d['rrtype'] in ['A', 'AAAA']:
+                            passive_dns.append({
+                                'first': d['time_first_o'].astimezone(pytz.utc),
+                                'last': d['time_last_o'].astimezone(pytz.utc),
+                                'ip': d['rrdata'],
+                                'source': 'Robtex'
+                            })
+                except RobtexError:
+                    print("Robtex query failed")
                 # PT
                 pt_e = plugins['pt'].test_config(conf)
                 if pt_e:
