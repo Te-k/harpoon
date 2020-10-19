@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='harpoon',
-    version='0.1.4',
+    version='0.1.5',
     description='Another OSINT CLI tool',
     long_description=long_description,
     long_description_content_type="text/markdown",
