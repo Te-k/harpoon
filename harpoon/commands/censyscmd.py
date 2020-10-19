@@ -2,7 +2,7 @@
 import sys
 import json
 import censys
-from censys import ipv4, certificates, query
+from censys import ipv4, certificates
 from harpoon.commands.base import Command
 
 
@@ -35,6 +35,8 @@ class CommandCensys(Command):
         parser_c.add_argument('--verbose', '-v', action='store_true',
                 help='Verbose')
         parser_c.set_defaults(subcommand='subdomains')
+        parser_d = subparsers.add_parser('account', help='Get account information including quota')
+        parser_d.set_defaults(subcommand='account')
         self.parser = parser
 
     def get_subdomains(self, conf, domain, verbose, only_sub=False):
@@ -104,6 +106,11 @@ class CommandCensys(Command):
                 subdomains = self.get_subdomains(conf, args.DOMAIN, args.verbose)
                 for d in subdomains:
                     print(d)
+            elif args.subcommand == 'account':
+                api = ipv4.CensysIPv4(conf['Censys']['id'], conf['Censys']['secret'])
+                # Gets account data
+                account = api.account()
+                print(json.dumps(account, sort_keys=True, indent=4))
             else:
                 self.parser.print_help()
         else:
