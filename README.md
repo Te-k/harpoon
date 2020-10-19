@@ -84,6 +84,7 @@ spyonweb            Search in SpyOnWeb through the API
 telegram            Request information from Telegram through the API
 threatgrid          Request Threat Grid API
 threatminer         Requests TreatMiner database https://www.threatminer.org/
+tor                 Check if an IP is a Tor exit node listed in the public list
 totalhash           Request Total Hash API
 twitter             Requests Twitter API
 urlscan             Search and submit urls to urlscan.io

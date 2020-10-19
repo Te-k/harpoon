@@ -18,6 +18,7 @@ import pytz
 from IPy import IP
 from dateutil.parser import parse
 from harpoon.commands.base import Command
+from harpoon.commands.tor import CommandTor
 from harpoon.lib.utils import bracket, unbracket, is_ip
 from harpoon.lib.robtex import Robtex, RobtexError
 from OTXv2 import OTXv2, IndicatorTypes
@@ -433,6 +434,13 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
 
 
                 print('----------------- Intelligence Report')
+                ctor = CommandTor()
+                tor_list = ctor.get_list()
+                if tor_list:
+                    if unbracket(args.IP) in tor_list:
+                        print("{} is a Tor Exit node".format(unbracket(args.IP)))
+                else:
+                    print("Impossible to reach the Tor Exit Node list")
                 if otx_e:
                     if len(otx_pulses):
                         print('OTX:')
