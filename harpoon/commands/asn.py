@@ -30,7 +30,6 @@ class CommandAsn(Command):
     name = "asn"
     description = "Gather information on an ASN"
     config = None
-    update_needed = True
     asn_name = os.path.join(os.path.expanduser('~'), '.config/harpoon/asnnames.csv')
     asncidr = os.path.join(os.path.expanduser('~'), '.config/harpoon/asncidr.dat')
     asncaida = os.path.join(os.path.realpath(__file__)[:-16], 'data/caida.txt')
