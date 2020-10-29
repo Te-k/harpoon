@@ -28,7 +28,7 @@ from passivetotal.libs.dns import DnsRequest
 from passivetotal.libs.enrichment import EnrichmentRequest
 from pythreatgrid2 import ThreatGrid, ThreatGridError
 from harpoon.commands.asn import CommandAsn
-from mispy import MispServer
+from pymisp import ExpandedPyMISP
 from pybinaryedge import BinaryEdge, BinaryEdgeException, BinaryEdgeNotFound
 from threatminer import ThreatMiner
 
@@ -231,9 +231,8 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                 misp_e = plugins['misp'].test_config(conf)
                 if misp_e:
                     print('[+] Downloading MISP information...')
-                    server = MispServer(url=conf['Misp']['url'], apikey=conf['Misp']['key'])
-                    misp_results = server.attributes.search(value=unbracket(args.IP))
-
+                    server = ExpandedPyMISP(conf['Misp']['url'], conf['Misp']['key'])
+                    misp_results = server.search('attributes', value=unbracket(args.IP))
                 # Binary Edge
                 be_e = plugins['binaryedge'].test_config(conf)
                 if be_e:
@@ -454,10 +453,13 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                     else:
                         print('OTX: Not found in any pulse')
                 if misp_e:
-                    if len(misp_results) > 0:
+                    if len(misp_results['Attribute']) > 0:
                         print('MISP:')
-                        for event in misp_results:
-                            print("- %i - %s" % (event.id, event.info))
+                        for event in misp_results['Attribute']:
+                            print("- {} - {}".format(
+                                event['Event']['id'],
+                                event['Event']['info']
+                            ))
                 if len(greynoise) > 0:
                     print("GreyNoise: IP identified as")
                     for r in greynoise:
@@ -526,8 +528,6 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                                 r["source"]
                             )
                         )
-
-
             else:
                 self.parser.print_help()
         else:

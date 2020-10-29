@@ -28,6 +28,7 @@ from passivetotal.libs.enrichment import EnrichmentRequest
 from pythreatgrid2 import ThreatGrid, ThreatGridError
 from pybinaryedge import BinaryEdge, BinaryEdgeException, BinaryEdgeNotFound
 from threatminer import ThreatMiner
+from pymisp import ExpandedPyMISP
 
 
 class CommandDomain(Command):
@@ -90,6 +91,12 @@ class CommandDomain(Command):
                 urls = []
                 malware = []
                 files = []
+                # MISP
+                misp_e = plugins['misp'].test_config(conf)
+                if misp_e:
+                    print('[+] Downloading MISP information...')
+                    server = ExpandedPyMISP(conf['Misp']['url'], conf['Misp']['key'])
+                    misp_results = server.search('attributes', value=unbracket(args.DOMAIN))
                 # OTX
                 otx_e = plugins['otx'].test_config(conf)
                 if otx_e:
@@ -319,8 +326,15 @@ class CommandDomain(Command):
                         })
 
 
-                # TODO: Add MISP
                 print('----------------- Intelligence Report')
+                if misp_e:
+                    if len(misp_results['Attribute']) > 0:
+                        print('MISP:')
+                        for event in misp_results['Attribute']:
+                            print("- {} - {}".format(
+                                event['Event']['id'],
+                                event['Event']['info']
+                            ))
                 if otx_e:
                     if len(otx_pulses):
                         print('OTX:')
