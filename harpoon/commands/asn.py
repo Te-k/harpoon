@@ -48,6 +48,15 @@ class CommandAsn(Command):
         parser_c.set_defaults(subcommand='subnet')
         self.parser = parser
 
+    def check_update(self):
+        """
+        Check if files obtained through updates are on the system
+        """
+        if not os.path.isfile(self.asn_name) or not os.path.isfile(self.asncidr) or not os.path.isfile(self.asncaida):
+            print("ASN files not downloaded on the system")
+            print("Please run harpoon update before using harpoon")
+            sys.exit(1)
+
     def asn_caida(self, asn):
         """
         Read the 2015 CAIDA database and returns the classification for the given ASN
@@ -98,12 +107,14 @@ class CommandAsn(Command):
             sys.exit(0)
         if 'subcommand' in args:
             if args.subcommand == 'info':
+                self.check_update()
                 info = self.asnname(asn)
                 if len(info):
                     print("ASN%i - %s" % (asn, info))
                 else:
                     print("Unknown ASN")
             elif args.subcommand == "subnet":
+                self.check_update()
                 asndb = pyasn.pyasn(self.asncidr)
                 subnets = asndb.get_as_prefixes(asn)
                 for s in subnets:

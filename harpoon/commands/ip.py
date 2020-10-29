@@ -108,6 +108,7 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
         returns {'asn': 1234, 'name': 'FORTUM-AS Fortum, FI'}
         If not found, returns {'asn': 0, 'name': ''}
         """
+        self.check_geoipdb()
         try:
             asndb = geoip2.database.Reader(self.geoasn)
             res = asndb.asn(ip)
@@ -118,11 +119,39 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
             return {'asn': 0, 'name': ''}
         return {'asn': asn, 'name': asn_name}
 
+    def check_geoipdb(self):
+        """
+        Check if the GeoIP database is present on the system
+        Depending on geoipupdate version it can be stored in:
+        /usr/share/GeoIP/
+        /var/lib/GeoIP
+        """
+        if os.path.isfile('/usr/share/GeoIP/GeoLite2-City.mmdb'):
+            self.geocity = "/usr/share/GeoIP/GeoLite2-City.mmdb"
+        elif os.path.isfile('/var/lib/GeoIP/GeoLite2-City.mmdb'):
+            self.geocity = "/var/lib/GeoIP/GeoLite2-City.mmdb"
+        else:
+            print("Impossible to find GeoIP db")
+            print("Make sure you have geoipupdate correctly configured")
+            sys.exit(1)
+
+        if os.path.isfile("/usr/share/GeoIP/GeoLite2-ASN.mmdb"):
+            self.geoasn = "/usr/share/GeoIP/GeoLite2-ASN.mmdb"
+        elif os.path.isfile("/var/lib/GeoIP/GeoLite2-ASN.mmdb"):
+            self.geoasn = "/var/lib/GeoIP/GeoLite2-ASN.mmdb"
+        else:
+            print("Impossible to find GeoIP ASN db")
+            print("Make sure you have geoipupdate correctly configured")
+            print("It should include this configuration")
+            print("EditionIDs GeoLite2-Country GeoLite2-City GeoLite2-ASN")
+            sys.exit(1)
+
     def ipinfo(self, ip, dns=True):
         """
         Return information on an IP address
         {"asn", "asn_name", "city", "country"}
         """
+        self.check_geoipdb()
         ipinfo = {}
         if dns:
             ipinfo['hostname'] = ''
@@ -138,6 +167,9 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
         except geoip2.errors.AddressNotFoundError:
             ipinfo["city"] = "Unknown"
             ipinfo["country"] = "Unknown"
+        except FileNotFoundError:
+            print("GeoIP database not found, make sure you have correctly installed geoipupdate")
+            sys.exit(1)
 
         asninfo = self.ip_get_asn(ip)
         ipinfo['asn'] = asninfo['asn']
@@ -181,8 +213,13 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                         )
                     )
                     print('CAIDA Type: %s' % ipinfo['asn_type'])
-                asndb2 = pyasn.pyasn(self.asncidr)
-                res = asndb2.lookup(ip)
+                try:
+                    asndb2 = pyasn.pyasn(self.asncidr)
+                    res = asndb2.lookup(ip)
+                except OSError:
+                    print("Configuration files are not available")
+                    print("Please run harpoon update before using harpoon")
+                    sys.exit(1)
                 if res[1] is None:
                     print("IP not found in ASN database")
                 else:
