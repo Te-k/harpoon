@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
 import re
-
 import requests
 from dateutil.parser import parse
 
@@ -22,9 +21,11 @@ class UrlHaus(object):
     def __init__(self, key):
         self.key = key
         self.base_url = "https://urlhaus-api.abuse.ch/v1/"
+        self.ua = "Harpoon (https://github.com/Te-k/harpoon)"
 
     def _query(self, query):
-        return requests.get(self.base_url + query)
+        headers={"User-Agent": self.ua},
+        return requests.get(self.base_url + query, headers=headers)
 
     def launch_post_query(self, url, key, query):
         """
@@ -33,7 +34,7 @@ class UrlHaus(object):
         try:
             r = requests.post(
                 url,
-                headers={"User-Agent": "urlhaus-harpoon"},
+                headers={"User-Agent": self.ua},
                 data={key: query},
             )
             if r.ok:
@@ -50,18 +51,16 @@ class UrlHaus(object):
         try:
             r = requests.get(
                 url,
-                headers={"User-Agent": "urlhaus-harpoon"},
+                headers={"User-Agent": self.ua},
                 data=query,
             )
             if r.ok:
                 try:
-                    open(query, "wb").write(r.content)
-                    print("File saved to " + query)
-                    return True
-                except Exception as e:
+                    return r.content
+                except:
                     raise UrlHausError()
             else:
-                print("File not found")
+                return None
         except Exception as e:
             raise UrlHausError()
 
@@ -69,9 +68,8 @@ class UrlHaus(object):
         """
         Retrieve information about a given URL
         """
-
         url = "{}url/".format(self.base_url)
-        print(self.launch_post_query(url, "url", query))
+        return self.launch_post_query(url, "url", query)
 
     def get_host(self, query):
         """
@@ -79,21 +77,18 @@ class UrlHaus(object):
         """
 
         url = "{}host/".format(self.base_url)
-        print(self.launch_post_query(url, "host", query))
+        return self.launch_post_query(url, "host", query)
 
     def get_payload(self, query):
         """
         Retrieve information about a md5 or sh256 payload
         """
-
-        # check if the hash is md5 or sha256
-        md5 = re.findall(r"([a-fA-F\d]{32})", query)
-        sha256 = re.findall(r"\b[A-Fa-f0-9]{64}\b", query)
         url = "{}payload/".format(self.base_url)
-        if len(md5) != 0 and len(sha256) == 0:
-            print(self.launch_post_query(url, "md5_hash", query))
-        elif len(md5) == 0 and len(sha256) != 0:
-            print(self.launch_post_query(url, "sha256_hash", query))
+        # check if the hash is md5 or sha256
+        if re.match("[A-Fa-f0-9]{64}", query.strip()):
+            return self.launch_post_query(url, "sha256_hash", query.strip())
+        elif re.match("[a-fA-F\d]{32}", query.strip()):
+            return self.launch_post_query(url, "md5_hash", query.strip())
         else:
             raise UrlHausError()
 
@@ -101,22 +96,19 @@ class UrlHaus(object):
         """
         Retrieve information about a tag
         """
-
         url = "{}tag/".format(self.base_url)
-        print(self.launch_post_query(url, "tag", query))
+        return self.launch_post_query(url, "tag", query)
 
     def get_signature(self, query):
         """
         Retrieve information about a signature
         """
-
         url = "{}signature/".format(self.base_url)
-        print(self.launch_post_query(url, "signature", query))
+        return self.launch_post_query(url, "signature", query)
 
     def get_sample(self, query):
         """
         Retrieve a malware sample
         """
-
         url = "{}/download".format(self.base_url)
-        self.download_sample(url, query)
+        return self.download_sample(url, query)
