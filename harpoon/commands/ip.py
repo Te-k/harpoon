@@ -31,6 +31,7 @@ from harpoon.commands.asn import CommandAsn
 from pymisp import ExpandedPyMISP
 from pybinaryedge import BinaryEdge, BinaryEdgeException, BinaryEdgeNotFound
 from threatminer import ThreatMiner
+from harpoon.lib.urlhaus import UrlHaus, UrlHausError
 
 
 class CommandIp(Command):
@@ -305,7 +306,20 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                             })
                     if "url_list" in res:
                         for r in res["url_list"]["url_list"]:
-                            urls.append(r)
+                            if "result" in r:
+                                urls.append({
+                                    "date": parse(r["date"]).astimezone(pytz.utc),
+                                    "url": r["url"],
+                                    "ip": r["result"]["urlworker"]["ip"] if "ip" in r["result"]["urlworker"] else "" ,
+                                    "source": "OTX"
+                                })
+                            else:
+                                urls.append({
+                                    "date": parse(r["date"]).astimezone(pytz.utc),
+                                    "url": r["url"],
+                                    "ip": "",
+                                    "source": "OTX"
+                                })
                 # RobTex
                 print('[+] Downloading Robtex information....')
                 rob = Robtex()
@@ -364,6 +378,23 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                                     })
                         except requests.exceptions.ReadTimeout:
                             print("Timeout on Passive Total requests")
+                # Urlhaus
+                uh_e = plugins['urlhaus'].test_config(conf)
+                if uh_e:
+                    print("[+] Checking urlhaus...")
+                    try:
+                        urlhaus = UrlHaus(conf["UrlHaus"]["key"])
+                        res = urlhaus.get_host(unbracket(args.IP))
+                    except UrlHausError:
+                        print("Error with the query")
+                    else:
+                        if "urls" in res:
+                            for r in res['urls']:
+                                urls.append({
+                                    "date": parse(r["date_added"]).astimezone(pytz.utc),
+                                    "url": r["url"],
+                                    "source": "UrlHaus"
+                                })
                 # VT
                 vt_e = plugins['vt'].test_config(conf)
                 if vt_e:
@@ -563,6 +594,15 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                                 r["first"].strftime("%Y-%m-%d"),
                                 r["last"].strftime("%Y-%m-%d"),
                                 r["source"]
+                            )
+                        )
+                if len(urls) > 0:
+                    print('----------------- Urls')
+                    for r in sorted(urls, key=lambda x: x["date"], reverse=True):
+                        print("[%s] %s - %s" % (
+                                r["source"],
+                                r["url"],
+                                r["date"].strftime("%Y-%m-%d")
                             )
                         )
             else:

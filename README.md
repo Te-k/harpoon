@@ -90,6 +90,7 @@ tor                 Check if an IP is a Tor exit node listed in the public list
 totalhash           Request Total Hash API
 twitter             Requests Twitter API
 update              Update Harpoon data
+urlhaus             Request urlhaus.abuse.ch API
 urlscan             Search and submit urls to urlscan.io
 vt                  Request Virus Total API
 ```
@@ -121,6 +122,7 @@ You can get information on each command with `harpoon help COMMAND`
 * Telegram : [Create an application](https://core.telegram.org/api/obtaining_api_id)
 * [Total Hash](https://totalhash.cymru.com/contact-us/)
 * [Twitter](https://developer.twitter.com/en/docs/ads/general/guides/getting-started)
+* [UrlHaus](https://urlhaus.abuse.ch/api/#account)
 * Virus Total : for public, create an account and get the API key in the [Settings page](https://www.virustotal.com/#/settings/apikey)
 
 ## License

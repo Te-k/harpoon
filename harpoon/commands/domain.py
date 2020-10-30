@@ -29,6 +29,7 @@ from pythreatgrid2 import ThreatGrid, ThreatGridError
 from pybinaryedge import BinaryEdge, BinaryEdgeException, BinaryEdgeNotFound
 from threatminer import ThreatMiner
 from pymisp import ExpandedPyMISP
+from harpoon.lib.urlhaus import UrlHaus, UrlHausError
 
 
 class CommandDomain(Command):
@@ -145,6 +146,24 @@ class CommandDomain(Command):
                         "source": "UrlScan"
                     })
 
+                # UrlHaus
+                uh_e = plugins['urlhaus'].test_config(conf)
+                if uh_e:
+                    print("[+] Checking urlhaus...")
+                    try:
+                        urlhaus = UrlHaus(conf["UrlHaus"]["key"])
+                        res = urlhaus.get_host(unbracket(args.DOMAIN))
+                    except UrlHausError:
+                        print("Error with the query")
+                    else:
+                        if "urls" in res:
+                            for r in res['urls']:
+                                urls.append({
+                                    "date": parse(r["date_added"]).astimezone(pytz.utc),
+                                    "url": r["url"],
+                                    "ip":"",
+                                    "source": "UrlHaus"
+                                })
                 # CIRCL
                 circl_e = plugins['circl'].test_config(conf)
                 if circl_e:
