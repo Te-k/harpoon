@@ -125,6 +125,10 @@ You can get information on each command with `harpoon help COMMAND`
 * [UrlHaus](https://urlhaus.abuse.ch/api/#account)
 * Virus Total : for public, create an account and get the API key in the [Settings page](https://www.virustotal.com/#/settings/apikey)
 
+## Contributions
+
+Thanks to people who helped improving Harpoon : [@jakubd](https://github.com/jakubd) [@marrouchi](https://github.com/marrouchi) [@grispan56](https://github.com/grispan56) [@christalib](https://github.com/christalib)
+
 ## License
 
 This code is released under [GPLv3](LICENSE) license.
