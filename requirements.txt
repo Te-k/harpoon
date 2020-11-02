@@ -12,7 +12,7 @@ spyonweb==0.1
 PyGitHub
 telethon==0.18.3
 virustotal-api
-pymisp==2.4.133
+pymisp==2.4.134
 OTXv2
 IPy
 pyasn
@@ -34,3 +34,4 @@ dnsdb==0.2.5
 pysecuritytrails==0.1.3
 phonenumbers==8.12.4
 threatminer==1.0
+zetalytics-api==1.0.1
