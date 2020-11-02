@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 
+import json
 from harpoon.commands.base import Command
+from harpoon.lib.utils import unbracket
 from harpoon.lib.urlhaus import UrlHaus, UrlHausError
 
 
@@ -55,27 +57,36 @@ class CommandUrlhaus(Command):
 
         self.parser = parser
 
-    def check_config(self):
-        if self.config is not "":
-            return True
-        return False
-
     def run(self, conf, args, plugins):
         urlhaus = UrlHaus(conf["UrlHaus"]["key"])
         if "subcommand" in args:
-            if args.subcommand == "get-url":
-                urlhaus.get_url(args.url)
-            elif args.subcommand == "get-host":
-                urlhaus.get_host(args.host)
-            elif args.subcommand == "get-payload":
-                urlhaus.get_payload(args.payload)
-            elif args.subcommand == "get-tag":
-                urlhaus.get_tag(args.tag)
-            elif args.subcommand == "get-signature":
-                urlhaus.get_signature(args.signature)
-            elif args.subcommand == "get-sample":
-                urlhaus.get_sample(args.hash)
-            else:
-                self.parser.print_help()
+            try:
+                if args.subcommand == "get-url":
+                    res = urlhaus.get_url(args.url)
+                    print(json.dumps(res, sort_keys=False, indent=4))
+                elif args.subcommand == "get-host":
+                    res = urlhaus.get_host(unbracket(args.host))
+                    print(json.dumps(res, sort_keys=False, indent=4))
+                elif args.subcommand == "get-payload":
+                    res = urlhaus.get_payload(args.payload)
+                    print(json.dumps(res, sort_keys=False, indent=4))
+                elif args.subcommand == "get-tag":
+                    res = urlhaus.get_tag(args.tag)
+                    print(json.dumps(res, sort_keys=False, indent=4))
+                elif args.subcommand == "get-signature":
+                    res = urlhaus.get_signature(args.signature)
+                    print(json.dumps(res, sort_keys=False, indent=4))
+                elif args.subcommand == "get-sample":
+                    data = urlhaus.get_sample(args.hash)
+                    if data:
+                        with open(args.hash, "wb") as f:
+                            f.write(data)
+                        print("Sample saved as {}".format(args.hash))
+                    else:
+                        print("Sample not found")
+                else:
+                    self.parser.print_help()
+            except UrlHausError:
+                print("UrlHaus : query failed ¯\_(ツ)_/¯")
         else:
             self.parser.print_help()

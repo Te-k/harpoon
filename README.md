@@ -36,7 +36,9 @@ You may want to install [harpoontools](https://github.com/Te-k/harpoontools) to 
 
 To configure harpoon, run `harpoon config` and fill in the needed API keys.
 
-Then run `harpoon config -u` to download needed files. Check what plugins are configured with `harpoon config -c`.
+Then run `harpoon update` to download needed files. Check what plugins are configured with `harpoon config -c`.
+
+See the [wiki](https://github.com/Te-k/harpoon/wiki) for more information.
 
 # Usage
 
@@ -87,6 +89,8 @@ threatminer         Requests TreatMiner database https://www.threatminer.org/
 tor                 Check if an IP is a Tor exit node listed in the public list
 totalhash           Request Total Hash API
 twitter             Requests Twitter API
+update              Update Harpoon data
+urlhaus             Request urlhaus.abuse.ch API
 urlscan             Search and submit urls to urlscan.io
 vt                  Request Virus Total API
 ```
@@ -118,11 +122,12 @@ You can get information on each command with `harpoon help COMMAND`
 * Telegram : [Create an application](https://core.telegram.org/api/obtaining_api_id)
 * [Total Hash](https://totalhash.cymru.com/contact-us/)
 * [Twitter](https://developer.twitter.com/en/docs/ads/general/guides/getting-started)
+* [UrlHaus](https://urlhaus.abuse.ch/api/#account)
 * Virus Total : for public, create an account and get the API key in the [Settings page](https://www.virustotal.com/#/settings/apikey)
 
-## Similar tools
+## Contributions
 
-* [malwoverview](https://github.com/alexandreborges/malwoverview)
+Thanks to people who helped improving Harpoon : [@jakubd](https://github.com/jakubd) [@marrouchi](https://github.com/marrouchi) [@grispan56](https://github.com/grispan56) [@christalib](https://github.com/christalib)
 
 ## License
 

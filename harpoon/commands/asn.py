@@ -30,7 +30,6 @@ class CommandAsn(Command):
     name = "asn"
     description = "Gather information on an ASN"
     config = None
-    update_needed = True
     asn_name = os.path.join(os.path.expanduser('~'), '.config/harpoon/asnnames.csv')
     asncidr = os.path.join(os.path.expanduser('~'), '.config/harpoon/asncidr.dat')
     asncaida = os.path.join(os.path.realpath(__file__)[:-16], 'data/caida.txt')
@@ -48,6 +47,15 @@ class CommandAsn(Command):
         parser_c.add_argument('ASN', help='ASN Number')
         parser_c.set_defaults(subcommand='subnet')
         self.parser = parser
+
+    def check_update(self):
+        """
+        Check if files obtained through updates are on the system
+        """
+        if not os.path.isfile(self.asn_name) or not os.path.isfile(self.asncidr) or not os.path.isfile(self.asncaida):
+            print("ASN files not downloaded on the system")
+            print("Please run harpoon update before using harpoon")
+            sys.exit(1)
 
     def asn_caida(self, asn):
         """
@@ -99,12 +107,14 @@ class CommandAsn(Command):
             sys.exit(0)
         if 'subcommand' in args:
             if args.subcommand == 'info':
+                self.check_update()
                 info = self.asnname(asn)
                 if len(info):
                     print("ASN%i - %s" % (asn, info))
                 else:
                     print("Unknown ASN")
             elif args.subcommand == "subnet":
+                self.check_update()
                 asndb = pyasn.pyasn(self.asncidr)
                 subnets = asndb.get_as_prefixes(asn)
                 for s in subnets:

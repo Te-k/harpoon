@@ -28,9 +28,10 @@ from passivetotal.libs.dns import DnsRequest
 from passivetotal.libs.enrichment import EnrichmentRequest
 from pythreatgrid2 import ThreatGrid, ThreatGridError
 from harpoon.commands.asn import CommandAsn
-from mispy import MispServer
+from pymisp import ExpandedPyMISP
 from pybinaryedge import BinaryEdge, BinaryEdgeException, BinaryEdgeNotFound
 from threatminer import ThreatMiner
+from harpoon.lib.urlhaus import UrlHaus, UrlHausError
 
 
 class CommandIp(Command):
@@ -108,6 +109,7 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
         returns {'asn': 1234, 'name': 'FORTUM-AS Fortum, FI'}
         If not found, returns {'asn': 0, 'name': ''}
         """
+        self.check_geoipdb()
         try:
             asndb = geoip2.database.Reader(self.geoasn)
             res = asndb.asn(ip)
@@ -118,11 +120,39 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
             return {'asn': 0, 'name': ''}
         return {'asn': asn, 'name': asn_name}
 
+    def check_geoipdb(self):
+        """
+        Check if the GeoIP database is present on the system
+        Depending on geoipupdate version it can be stored in:
+        /usr/share/GeoIP/
+        /var/lib/GeoIP
+        """
+        if os.path.isfile('/usr/share/GeoIP/GeoLite2-City.mmdb'):
+            self.geocity = "/usr/share/GeoIP/GeoLite2-City.mmdb"
+        elif os.path.isfile('/var/lib/GeoIP/GeoLite2-City.mmdb'):
+            self.geocity = "/var/lib/GeoIP/GeoLite2-City.mmdb"
+        else:
+            print("Impossible to find GeoIP db")
+            print("Make sure you have geoipupdate correctly configured")
+            sys.exit(1)
+
+        if os.path.isfile("/usr/share/GeoIP/GeoLite2-ASN.mmdb"):
+            self.geoasn = "/usr/share/GeoIP/GeoLite2-ASN.mmdb"
+        elif os.path.isfile("/var/lib/GeoIP/GeoLite2-ASN.mmdb"):
+            self.geoasn = "/var/lib/GeoIP/GeoLite2-ASN.mmdb"
+        else:
+            print("Impossible to find GeoIP ASN db")
+            print("Make sure you have geoipupdate correctly configured")
+            print("It should include this configuration")
+            print("EditionIDs GeoLite2-Country GeoLite2-City GeoLite2-ASN")
+            sys.exit(1)
+
     def ipinfo(self, ip, dns=True):
         """
         Return information on an IP address
         {"asn", "asn_name", "city", "country"}
         """
+        self.check_geoipdb()
         ipinfo = {}
         if dns:
             ipinfo['hostname'] = ''
@@ -138,6 +168,9 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
         except geoip2.errors.AddressNotFoundError:
             ipinfo["city"] = "Unknown"
             ipinfo["country"] = "Unknown"
+        except FileNotFoundError:
+            print("GeoIP database not found, make sure you have correctly installed geoipupdate")
+            sys.exit(1)
 
         asninfo = self.ip_get_asn(ip)
         ipinfo['asn'] = asninfo['asn']
@@ -181,8 +214,13 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                         )
                     )
                     print('CAIDA Type: %s' % ipinfo['asn_type'])
-                asndb2 = pyasn.pyasn(self.asncidr)
-                res = asndb2.lookup(ip)
+                try:
+                    asndb2 = pyasn.pyasn(self.asncidr)
+                    res = asndb2.lookup(ip)
+                except OSError:
+                    print("Configuration files are not available")
+                    print("Please run harpoon update before using harpoon")
+                    sys.exit(1)
                 if res[1] is None:
                     print("IP not found in ASN database")
                 else:
@@ -231,9 +269,8 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                 misp_e = plugins['misp'].test_config(conf)
                 if misp_e:
                     print('[+] Downloading MISP information...')
-                    server = MispServer(url=conf['Misp']['url'], apikey=conf['Misp']['key'])
-                    misp_results = server.attributes.search(value=unbracket(args.IP))
-
+                    server = ExpandedPyMISP(conf['Misp']['url'], conf['Misp']['key'])
+                    misp_results = server.search('attributes', value=unbracket(args.IP))
                 # Binary Edge
                 be_e = plugins['binaryedge'].test_config(conf)
                 if be_e:
@@ -269,7 +306,20 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                             })
                     if "url_list" in res:
                         for r in res["url_list"]["url_list"]:
-                            urls.append(r)
+                            if "result" in r:
+                                urls.append({
+                                    "date": parse(r["date"]).astimezone(pytz.utc),
+                                    "url": r["url"],
+                                    "ip": r["result"]["urlworker"]["ip"] if "ip" in r["result"]["urlworker"] else "" ,
+                                    "source": "OTX"
+                                })
+                            else:
+                                urls.append({
+                                    "date": parse(r["date"]).astimezone(pytz.utc),
+                                    "url": r["url"],
+                                    "ip": "",
+                                    "source": "OTX"
+                                })
                 # RobTex
                 print('[+] Downloading Robtex information....')
                 rob = Robtex()
@@ -328,6 +378,23 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                                     })
                         except requests.exceptions.ReadTimeout:
                             print("Timeout on Passive Total requests")
+                # Urlhaus
+                uh_e = plugins['urlhaus'].test_config(conf)
+                if uh_e:
+                    print("[+] Checking urlhaus...")
+                    try:
+                        urlhaus = UrlHaus(conf["UrlHaus"]["key"])
+                        res = urlhaus.get_host(unbracket(args.IP))
+                    except UrlHausError:
+                        print("Error with the query")
+                    else:
+                        if "urls" in res:
+                            for r in res['urls']:
+                                urls.append({
+                                    "date": parse(r["date_added"]).astimezone(pytz.utc),
+                                    "url": r["url"],
+                                    "source": "UrlHaus"
+                                })
                 # VT
                 vt_e = plugins['vt'].test_config(conf)
                 if vt_e:
@@ -454,10 +521,13 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                     else:
                         print('OTX: Not found in any pulse')
                 if misp_e:
-                    if len(misp_results) > 0:
+                    if len(misp_results['Attribute']) > 0:
                         print('MISP:')
-                        for event in misp_results:
-                            print("- %i - %s" % (event.id, event.info))
+                        for event in misp_results['Attribute']:
+                            print("- {} - {}".format(
+                                event['Event']['id'],
+                                event['Event']['info']
+                            ))
                 if len(greynoise) > 0:
                     print("GreyNoise: IP identified as")
                     for r in greynoise:
@@ -526,8 +596,15 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                                 r["source"]
                             )
                         )
-
-
+                if len(urls) > 0:
+                    print('----------------- Urls')
+                    for r in sorted(urls, key=lambda x: x["date"], reverse=True):
+                        print("[%s] %s - %s" % (
+                                r["source"],
+                                r["url"],
+                                r["date"].strftime("%Y-%m-%d")
+                            )
+                        )
             else:
                 self.parser.print_help()
         else:

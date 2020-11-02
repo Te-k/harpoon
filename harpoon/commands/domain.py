@@ -28,6 +28,8 @@ from passivetotal.libs.enrichment import EnrichmentRequest
 from pythreatgrid2 import ThreatGrid, ThreatGridError
 from pybinaryedge import BinaryEdge, BinaryEdgeException, BinaryEdgeNotFound
 from threatminer import ThreatMiner
+from pymisp import ExpandedPyMISP
+from harpoon.lib.urlhaus import UrlHaus, UrlHausError
 
 
 class CommandDomain(Command):
@@ -90,6 +92,12 @@ class CommandDomain(Command):
                 urls = []
                 malware = []
                 files = []
+                # MISP
+                misp_e = plugins['misp'].test_config(conf)
+                if misp_e:
+                    print('[+] Downloading MISP information...')
+                    server = ExpandedPyMISP(conf['Misp']['url'], conf['Misp']['key'])
+                    misp_results = server.search('attributes', value=unbracket(args.DOMAIN))
                 # OTX
                 otx_e = plugins['otx'].test_config(conf)
                 if otx_e:
@@ -138,6 +146,24 @@ class CommandDomain(Command):
                         "source": "UrlScan"
                     })
 
+                # UrlHaus
+                uh_e = plugins['urlhaus'].test_config(conf)
+                if uh_e:
+                    print("[+] Checking urlhaus...")
+                    try:
+                        urlhaus = UrlHaus(conf["UrlHaus"]["key"])
+                        res = urlhaus.get_host(unbracket(args.DOMAIN))
+                    except UrlHausError:
+                        print("Error with the query")
+                    else:
+                        if "urls" in res:
+                            for r in res['urls']:
+                                urls.append({
+                                    "date": parse(r["date_added"]).astimezone(pytz.utc),
+                                    "url": r["url"],
+                                    "ip":"",
+                                    "source": "UrlHaus"
+                                })
                 # CIRCL
                 circl_e = plugins['circl'].test_config(conf)
                 if circl_e:
@@ -319,8 +345,15 @@ class CommandDomain(Command):
                         })
 
 
-                # TODO: Add MISP
                 print('----------------- Intelligence Report')
+                if misp_e:
+                    if len(misp_results['Attribute']) > 0:
+                        print('MISP:')
+                        for event in misp_results['Attribute']:
+                            print("- {} - {}".format(
+                                event['Event']['id'],
+                                event['Event']['info']
+                            ))
                 if otx_e:
                     if len(otx_pulses):
                         print('OTX:')
