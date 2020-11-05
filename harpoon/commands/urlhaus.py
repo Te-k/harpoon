@@ -1,9 +1,10 @@
 #! /usr/bin/env python3
 
 import json
+
 from harpoon.commands.base import Command
-from harpoon.lib.utils import unbracket
 from harpoon.lib.urlhaus import UrlHaus, UrlHausError
+from harpoon.lib.utils import unbracket
 
 
 class CommandUrlhaus(Command):
