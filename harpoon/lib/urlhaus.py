@@ -1,8 +1,8 @@
 #! /usr/bin/env python3
 
 import re
+
 import requests
-from dateutil.parser import parse
 
 
 class UrlHausError(Exception):
@@ -24,7 +24,7 @@ class UrlHaus(object):
         self.ua = "Harpoon (https://github.com/Te-k/harpoon)"
 
     def _query(self, query):
-        headers={"User-Agent": self.ua},
+        headers = ({"User-Agent": self.ua},)
         return requests.get(self.base_url + query, headers=headers)
 
     def launch_post_query(self, url, key, query):
@@ -62,7 +62,7 @@ class UrlHaus(object):
             else:
                 return None
         except Exception as e:
-            raise UrlHausError()
+            raise UrlHausError(e)
 
     def get_url(self, query):
         """
