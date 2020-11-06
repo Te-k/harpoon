@@ -14,7 +14,7 @@ class CommandGreyNoise(Command):
 
     * List tags: `harpoon greynoise -l`
     * Search for an IP: `harpoon greynoise -i IP`
-    * Search for a tag with csv output:  `harpoon greynoise -t CENSYS -f csv`
+    * Run a GNQL query: `harpoon greynoise -q "classification:malicious tags:'emotet'"`
     """
 
     name = "greynoise"
@@ -24,7 +24,11 @@ class CommandGreyNoise(Command):
     def add_arguments(self, parser):
         parser.add_argument("--list", "-l", help="List tags", action="store_true")
         parser.add_argument("--ip", "-i", help="Query an IP address")
-        parser.add_argument("--tag", "-t", help="Query a tag")
+        parser.add_argument(
+            "--query",
+            "-q",
+            help="Run a gnql query. Example: \"classification:malicious tags:'emotet'\" ",
+        )
         parser.add_argument(
             "--format",
             "-f",
@@ -34,6 +38,14 @@ class CommandGreyNoise(Command):
         )
         self.parser = parser
 
+    def print_results(self, res, args):
+        if args.format == "json":
+            print(json.dumps(res, indent=4, sort_keys=True))
+        else:
+            for k, v in res.items():
+                print(k, ",", v)
+        return
+
     def run(self, conf, args, plugins):
         if conf["GreyNoise"]["key"] == "":
             print("You need to set your API key with GreyNoise")
@@ -41,10 +53,9 @@ class CommandGreyNoise(Command):
         gn = GreyNoise(api_key=conf["GreyNoise"]["key"])
         if args.ip:
             res = gn.ip(args.ip)
-            if args.format == "json":
-                print(json.dumps(res, indent=4, sort_keys=True))
-            else:
-                for k, v in res.items():
-                    print(k, ",", v)
+            self.print_results(res, args)
+        elif args.query:
+            res = gn.query(args.query)
+            self.print_results(res, args)
         else:
             self.parser.print_help()
