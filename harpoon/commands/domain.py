@@ -155,18 +155,17 @@ class CommandDomain(Command):
 
                 # UrlScan
                 us = UrlScan()
-                print("[+] Downloading UrlScan information....")
-                res = us.search(args.DOMAIN)
-                for r in res["results"]:
-                    urls.append(
-                        {
+                print('[+] Downloading UrlScan information....')
+                res = us.search(unbracket(args.DOMAIN))
+                if 'results' in r:
+                    for r in res['results']:
+                        urls.append({
                             "date": parse(r["task"]["time"]).astimezone(pytz.utc),
                             "url": r["page"]["url"],
                             "ip": r["page"]["ip"] if "ip" in r["page"] else "",
-                            "source": "UrlScan",
-                        }
-                    )
-
+                            "source": "UrlScan"
+                        })
+                        
                 # UrlHaus
                 uh_e = plugins["urlhaus"].test_config(conf)
                 if uh_e:
@@ -236,7 +235,7 @@ class CommandDomain(Command):
                 print("[+] Downloading Robtex information....")
                 try:
                     rob = Robtex()
-                    res = rob.get_pdns_domain(args.DOMAIN)
+                    res = rob.get_pdns_domain(unbracket(args.DOMAIN))
                     for d in res:
                         if d["rrtype"] in ["A", "AAAA"]:
                             passive_dns.append(
