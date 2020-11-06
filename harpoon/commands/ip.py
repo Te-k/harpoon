@@ -381,7 +381,7 @@ IP Location:    https://www.iplocation.net/?query=172.34.127.2
                 # Urlhaus
                 uh_e = plugins['urlhaus'].test_config(conf)
                 if uh_e:
-                    print("[+] Checking urlhaus...")
+                    print("[+] Checking urlhaus data...")
                     try:
                         urlhaus = UrlHaus(conf["UrlHaus"]["key"])
                         res = urlhaus.get_host(unbracket(args.IP))

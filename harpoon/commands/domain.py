@@ -36,6 +36,9 @@ class CommandDomain(Command):
     """
     # Domain
 
+    Gather all information possible on a domain.
+
+    * **harpoon domain intel DOMAIN**
     """
     name = "domain"
     description = "Gather information on a domain"
@@ -47,9 +50,6 @@ class CommandDomain(Command):
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(help='Subcommand')
-        parser_a = subparsers.add_parser('info', help='Information on an domain')
-        parser_a.add_argument('DOMAIN', help='Domain')
-        parser_a.set_defaults(subcommand='info')
         parser_b = subparsers.add_parser('intel', help='Gather Threat Intelligence information on a domain')
         parser_b.add_argument('DOMAIN', help='Domain')
         parser_b.set_defaults(subcommand='intel')
@@ -83,9 +83,7 @@ class CommandDomain(Command):
 
     def run(self, conf, args, plugins):
         if 'subcommand' in args:
-            if args.subcommand == 'info':
-                print("Not implemented yet")
-            elif args.subcommand == "intel":
+            if args.subcommand == "intel":
                 # Start with MISP and OTX to get Intelligence Reports
                 print('###################### %s ###################' % args.DOMAIN)
                 passive_dns = []

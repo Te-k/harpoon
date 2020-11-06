@@ -93,6 +93,8 @@ update              Update Harpoon data
 urlhaus             Request urlhaus.abuse.ch API
 urlscan             Search and submit urls to urlscan.io
 vt                  Request Virus Total API
+xforce              Query IBM Xforce Exchange API
+zetalytics          Requests Zetalytics API
 ```
 
 You can get information on each command with `harpoon help COMMAND`
@@ -110,6 +112,7 @@ You can get information on each command with `harpoon help COMMAND`
 * [Have I Been Pwned](https://haveibeenpwned.com/)
 * [Hunter](https://hunter.io/users/sign_up)
 * [Hybrid Analysis](https://www.hybrid-analysis.com/apikeys/info)
+* [IBM Xforce Exchange](https://exchange.xforce.ibmcloud.com/settings/api)
 * [ipinfo.io](https://ipinfo.io/)
 * [MalShare](https://malshare.com/register.php)
 * [NumVerify](https://numverify.com/)
@@ -124,6 +127,7 @@ You can get information on each command with `harpoon help COMMAND`
 * [Twitter](https://developer.twitter.com/en/docs/ads/general/guides/getting-started)
 * [UrlHaus](https://urlhaus.abuse.ch/api/#account)
 * Virus Total : for public, create an account and get the API key in the [Settings page](https://www.virustotal.com/#/settings/apikey)
+* [Zetalytics](https://zetalytics.com/)
 
 ## Contributions
 

@@ -28,7 +28,7 @@ setup(
         'PyGitHub',
         'telethon==0.18.3',
         'virustotal-api',
-        'pymisp==2.4.133',
+        'pymisp==2.4.134',
         'OTXv2',
         'IPy',
         'maxminddb>=1.4.0',
@@ -51,7 +51,8 @@ setup(
         'dnsdb==0.2.5',
         'pysecuritytrails==0.1.3',
         'phonenumbers==8.12.4',
-        'threatminer==1.0'
+        'threatminer==1.0',
+        'zetalytics-api==1.0.1'
         ],
     python_requires='>=3.5',
     license='GPLv3',
