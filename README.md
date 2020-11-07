@@ -47,7 +47,6 @@ After configuration the following plugins are available within the `harpoon` com
 ```
 asn                 Gather information on an ASN
 binaryedge          Request BinaryEdge API
-bitly               Request bit.ly information through the API
 cache               Requests webpage cache from different sources
 censys              Request information from Censys database (https://censys.io/)
 certspotter         Get certificates from https://sslmate.com/certspotter
@@ -103,12 +102,12 @@ You can get information on each command with `harpoon help COMMAND`
 
 * [AlienVault OTX](https://otx.alienvault.com/)
 * [BinaryEdge](https://www.binaryedge.io/)
-* [bit.ly](https://bitly.com/a/sign_up)
 * [Censys](https://censys.io/register)
 * [CertSpotter](https://sslmate.com/certspotter/pricing) : paid plans provide search in expired certificates (little interests imho, just use crtsh or censys). You don't need an account for actual certificates
 * [CIRCL Passive DNS](https://www.circl.lu/services/passive-dns/)
 * [Farsight Dnsdb](https://www.farsightsecurity.com/dnsdb-community-edition/)
 * [FullContact](https://dashboard.fullcontact.com/register)
+* [GreyNoise](https://greynoise.io/)
 * [Have I Been Pwned](https://haveibeenpwned.com/)
 * [Hunter](https://hunter.io/users/sign_up)
 * [Hybrid Analysis](https://www.hybrid-analysis.com/apikeys/info)

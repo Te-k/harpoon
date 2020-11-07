@@ -1,35 +1,35 @@
 #! /usr/bin/env python
-import sys
-import requests
-import os
-import json
 import datetime
-import urllib.request
-import tarfile
-import geoip2.database
-import re
-import subprocess
 import glob
+import json
+import os
+import re
 import shutil
+import subprocess
+import sys
+import tarfile
+import urllib.request
+
+import geoip2.database
 import pyasn
 import pypdns
 import pytz
-from IPy import IP
+import requests
 from dateutil.parser import parse
 from harpoon.commands.base import Command
-from harpoon.lib.utils import bracket, unbracket
 from harpoon.lib.robtex import Robtex, RobtexError
+from harpoon.lib.urlhaus import UrlHaus, UrlHausError
 from harpoon.lib.urlscan import UrlScan
-from OTXv2 import OTXv2, IndicatorTypes
-from virus_total_apis import PublicApi, PrivateApi
-from pygreynoisev1 import GreyNoise, GreyNoiseError
+from harpoon.lib.utils import bracket, unbracket
+from IPy import IP
+from OTXv2 import IndicatorTypes, OTXv2
 from passivetotal.libs.dns import DnsRequest
 from passivetotal.libs.enrichment import EnrichmentRequest
-from pythreatgrid2 import ThreatGrid, ThreatGridError
 from pybinaryedge import BinaryEdge, BinaryEdgeException, BinaryEdgeNotFound
-from threatminer import ThreatMiner
 from pymisp import ExpandedPyMISP
-from harpoon.lib.urlhaus import UrlHaus, UrlHausError
+from pythreatgrid2 import ThreatGrid, ThreatGridError
+from threatminer import ThreatMiner
+from virus_total_apis import PrivateApi, PublicApi
 
 
 class CommandDomain(Command):
@@ -40,19 +40,24 @@ class CommandDomain(Command):
 
     * **harpoon domain intel DOMAIN**
     """
+
     name = "domain"
     description = "Gather information on a domain"
     config = None
-    geocity = os.path.join(os.path.expanduser('~'), '.config/harpoon/GeoLite2-City.mmdb')
-    geoasn = os.path.join(os.path.expanduser('~'), '.config/harpoon/GeoLite2-ASN.mmdb')
-    asnname = os.path.join(os.path.expanduser('~'), '.config/harpoon/asnnames.csv')
-    asncidr = os.path.join(os.path.expanduser('~'), '.config/harpoon/asncidr.dat')
+    geocity = os.path.join(
+        os.path.expanduser("~"), ".config/harpoon/GeoLite2-City.mmdb"
+    )
+    geoasn = os.path.join(os.path.expanduser("~"), ".config/harpoon/GeoLite2-ASN.mmdb")
+    asnname = os.path.join(os.path.expanduser("~"), ".config/harpoon/asnnames.csv")
+    asncidr = os.path.join(os.path.expanduser("~"), ".config/harpoon/asncidr.dat")
 
     def add_arguments(self, parser):
-        subparsers = parser.add_subparsers(help='Subcommand')
-        parser_b = subparsers.add_parser('intel', help='Gather Threat Intelligence information on a domain')
-        parser_b.add_argument('DOMAIN', help='Domain')
-        parser_b.set_defaults(subcommand='intel')
+        subparsers = parser.add_subparsers(help="Subcommand")
+        parser_b = subparsers.add_parser(
+            "intel", help="Gather Threat Intelligence information on a domain"
+        )
+        parser_b.add_argument("DOMAIN", help="Domain")
+        parser_b.set_defaults(subcommand="intel")
         self.parser = parser
 
     def ipinfo(self, ip):
@@ -82,70 +87,87 @@ class CommandDomain(Command):
         return ipinfo
 
     def run(self, conf, args, plugins):
-        if 'subcommand' in args:
+        if "subcommand" in args:
             if args.subcommand == "intel":
                 # Start with MISP and OTX to get Intelligence Reports
-                print('###################### %s ###################' % args.DOMAIN)
+                print("###################### %s ###################" % args.DOMAIN)
                 passive_dns = []
                 urls = []
                 malware = []
                 files = []
                 # MISP
-                misp_e = plugins['misp'].test_config(conf)
+                misp_e = plugins["misp"].test_config(conf)
                 if misp_e:
-                    print('[+] Downloading MISP information...')
-                    server = ExpandedPyMISP(conf['Misp']['url'], conf['Misp']['key'])
-                    misp_results = server.search('attributes', value=unbracket(args.DOMAIN))
+                    print("[+] Downloading MISP information...")
+                    server = ExpandedPyMISP(conf["Misp"]["url"], conf["Misp"]["key"])
+                    misp_results = server.search(
+                        "attributes", value=unbracket(args.DOMAIN)
+                    )
                 # OTX
-                otx_e = plugins['otx'].test_config(conf)
+                otx_e = plugins["otx"].test_config(conf)
                 if otx_e:
-                    print('[+] Downloading OTX information....')
+                    print("[+] Downloading OTX information....")
                     try:
                         otx = OTXv2(conf["AlienVaultOtx"]["key"])
-                        res = otx.get_indicator_details_full(IndicatorTypes.DOMAIN, unbracket(args.DOMAIN))
-                        otx_pulses =  res["general"]["pulse_info"]["pulses"]
+                        res = otx.get_indicator_details_full(
+                            IndicatorTypes.DOMAIN, unbracket(args.DOMAIN)
+                        )
+                        otx_pulses = res["general"]["pulse_info"]["pulses"]
                         # Get Passive DNS
                         if "passive_dns" in res:
                             for r in res["passive_dns"]["passive_dns"]:
-                                passive_dns.append({
-                                    "ip": r['hostname'],
-                                    "first": parse(r["first"]).astimezone(pytz.utc),
-                                    "last": parse(r["last"]).astimezone(pytz.utc),
-                                    "source" : "OTX"
-                                })
+                                passive_dns.append(
+                                    {
+                                        "ip": r["hostname"],
+                                        "first": parse(r["first"]).astimezone(pytz.utc),
+                                        "last": parse(r["last"]).astimezone(pytz.utc),
+                                        "source": "OTX",
+                                    }
+                                )
                         if "url_list" in res:
                             for r in res["url_list"]["url_list"]:
                                 if "result" in r:
-                                    urls.append({
-                                        "date": parse(r["date"]).astimezone(pytz.utc),
-                                        "url": r["url"],
-                                        "ip": r["result"]["urlworker"]["ip"] if "ip" in r["result"]["urlworker"] else "" ,
-                                        "source": "OTX"
-                                    })
+                                    urls.append(
+                                        {
+                                            "date": parse(r["date"]).astimezone(
+                                                pytz.utc
+                                            ),
+                                            "url": r["url"],
+                                            "ip": r["result"]["urlworker"]["ip"]
+                                            if "ip" in r["result"]["urlworker"]
+                                            else "",
+                                            "source": "OTX",
+                                        }
+                                    )
                                 else:
-                                    urls.append({
-                                        "date": parse(r["date"]).astimezone(pytz.utc),
-                                        "url": r["url"],
-                                        "ip": "",
-                                        "source": "OTX"
-                                    })
+                                    urls.append(
+                                        {
+                                            "date": parse(r["date"]).astimezone(
+                                                pytz.utc
+                                            ),
+                                            "url": r["url"],
+                                            "ip": "",
+                                            "source": "OTX",
+                                        }
+                                    )
                     except AttributeError:
-                        print('OTX crashed  ¯\_(ツ)_/¯')
+                        print("OTX crashed  ¯\_(ツ)_/¯")
 
                 # UrlScan
                 us = UrlScan()
                 print('[+] Downloading UrlScan information....')
-                res = us.search(args.DOMAIN)
-                for r in res['results']:
-                    urls.append({
-                        "date": parse(r["task"]["time"]).astimezone(pytz.utc),
-                        "url": r["page"]["url"],
-                        "ip": r["page"]["ip"] if "ip" in r["page"] else "",
-                        "source": "UrlScan"
-                    })
+                res = us.search(unbracket(args.DOMAIN))
+                if 'results' in res:
+                    for r in res['results']:
+                        urls.append({
+                            "date": parse(r["task"]["time"]).astimezone(pytz.utc),
+                            "url": r["page"]["url"],
+                            "ip": r["page"]["ip"] if "ip" in r["page"] else "",
+                            "source": "UrlScan"
+                        })
 
                 # UrlHaus
-                uh_e = plugins['urlhaus'].test_config(conf)
+                uh_e = plugins["urlhaus"].test_config(conf)
                 if uh_e:
                     print("[+] Checking urlhaus...")
                     try:
@@ -155,223 +177,302 @@ class CommandDomain(Command):
                         print("Error with the query")
                     else:
                         if "urls" in res:
-                            for r in res['urls']:
-                                urls.append({
-                                    "date": parse(r["date_added"]).astimezone(pytz.utc),
-                                    "url": r["url"],
-                                    "ip":"",
-                                    "source": "UrlHaus"
-                                })
+                            for r in res["urls"]:
+                                urls.append(
+                                    {
+                                        "date": parse(r["date_added"]).astimezone(
+                                            pytz.utc
+                                        ),
+                                        "url": r["url"],
+                                        "ip": "",
+                                        "source": "UrlHaus",
+                                    }
+                                )
                 # CIRCL
-                circl_e = plugins['circl'].test_config(conf)
+                circl_e = plugins["circl"].test_config(conf)
                 if circl_e:
-                    print('[+] Downloading CIRCL passive DNS information....')
+                    print("[+] Downloading CIRCL passive DNS information....")
                     x = pypdns.PyPDNS(
-                        basic_auth=(
-                            conf['Circl']['user'],
-                            conf['Circl']['pass']
-                        )
+                        basic_auth=(conf["Circl"]["user"], conf["Circl"]["pass"])
                     )
                     res = x.query(unbracket(args.DOMAIN))
                     for answer in res:
-                        passive_dns.append({
-                            "ip": answer['rdata'],
-                            "first": answer['time_first'].astimezone(pytz.utc),
-                            "last": answer['time_last'].astimezone(pytz.utc),
-                            "source" : "CIRCL"
-                        })
+                        passive_dns.append(
+                            {
+                                "ip": answer["rdata"],
+                                "first": answer["time_first"].astimezone(pytz.utc),
+                                "last": answer["time_last"].astimezone(pytz.utc),
+                                "source": "CIRCL",
+                            }
+                        )
                 # BinaryEdge
-                be_e = plugins['binaryedge'].test_config(conf)
+                be_e = plugins["binaryedge"].test_config(conf)
                 if be_e:
-                    print('[+] Downloading BinaryEdge information....')
+                    print("[+] Downloading BinaryEdge information....")
                     try:
-                        be = BinaryEdge(conf['BinaryEdge']['key'])
+                        be = BinaryEdge(conf["BinaryEdge"]["key"])
                         res = be.domain_dns(unbracket(args.DOMAIN))
-                        for d in res['events']:
+                        for d in res["events"]:
                             if "A" in d:
-                                for a in d['A']:
-                                    passive_dns.append({
-                                        "ip": a,
-                                        "first": parse(d['updated_at']).astimezone(pytz.utc),
-                                        "last": parse(d['updated_at']).astimezone(pytz.utc),
-                                        "source" : "BinaryEdge"
-                                    })
+                                for a in d["A"]:
+                                    passive_dns.append(
+                                        {
+                                            "ip": a,
+                                            "first": parse(d["updated_at"]).astimezone(
+                                                pytz.utc
+                                            ),
+                                            "last": parse(d["updated_at"]).astimezone(
+                                                pytz.utc
+                                            ),
+                                            "source": "BinaryEdge",
+                                        }
+                                    )
                     except BinaryEdgeException:
-                        print('You need a paid BinaryEdge subscription for this request')
+                        print(
+                            "You need a paid BinaryEdge subscription for this request"
+                        )
                 # RobTex
-                print('[+] Downloading Robtex information....')
+                print("[+] Downloading Robtex information....")
                 try:
                     rob = Robtex()
-                    res = rob.get_pdns_domain(args.DOMAIN)
+                    res = rob.get_pdns_domain(unbracket(args.DOMAIN))
                     for d in res:
-                        if d['rrtype'] in ['A', 'AAAA']:
-                            passive_dns.append({
-                                'first': d['time_first_o'].astimezone(pytz.utc),
-                                'last': d['time_last_o'].astimezone(pytz.utc),
-                                'ip': d['rrdata'],
-                                'source': 'Robtex'
-                            })
+                        if d["rrtype"] in ["A", "AAAA"]:
+                            passive_dns.append(
+                                {
+                                    "first": d["time_first_o"].astimezone(pytz.utc),
+                                    "last": d["time_last_o"].astimezone(pytz.utc),
+                                    "ip": d["rrdata"],
+                                    "source": "Robtex",
+                                }
+                            )
                 except RobtexError:
                     print("Robtex query failed")
                 # PT
-                pt_e = plugins['pt'].test_config(conf)
+                pt_e = plugins["pt"].test_config(conf)
                 if pt_e:
                     try:
                         pt_osint = {}
                         ptout = False
-                        print('[+] Downloading Passive Total information....')
-                        client = DnsRequest(conf['PassiveTotal']['username'], conf['PassiveTotal']['key'])
-                        raw_results = client.get_passive_dns(query=unbracket(args.DOMAIN))
+                        print("[+] Downloading Passive Total information....")
+                        client = DnsRequest(
+                            conf["PassiveTotal"]["username"],
+                            conf["PassiveTotal"]["key"],
+                        )
+                        raw_results = client.get_passive_dns(
+                            query=unbracket(args.DOMAIN)
+                        )
                         if "results" in raw_results:
                             for res in raw_results["results"]:
-                                passive_dns.append({
-                                    "first": parse(res["firstSeen"]).astimezone(pytz.utc),
-                                    "last": parse(res["lastSeen"]).astimezone(pytz.utc),
-                                    "ip": res["resolve"],
-                                    "source": "PT"
-                                })
+                                passive_dns.append(
+                                    {
+                                        "first": parse(res["firstSeen"]).astimezone(
+                                            pytz.utc
+                                        ),
+                                        "last": parse(res["lastSeen"]).astimezone(
+                                            pytz.utc
+                                        ),
+                                        "ip": res["resolve"],
+                                        "source": "PT",
+                                    }
+                                )
                         if "message" in raw_results:
                             if "quota_exceeded" in raw_results["message"]:
                                 print("PT quota exceeded")
                                 ptout = True
                         if not ptout:
-                            client2 = EnrichmentRequest(conf["PassiveTotal"]["username"], conf["PassiveTotal"]['key'])
+                            client2 = EnrichmentRequest(
+                                conf["PassiveTotal"]["username"],
+                                conf["PassiveTotal"]["key"],
+                            )
                             # Get OSINT
                             # TODO: add PT projects here
                             pt_osint = client2.get_osint(query=unbracket(args.DOMAIN))
                             # Get malware
-                            raw_results = client2.get_malware(query=unbracket(args.DOMAIN))
+                            raw_results = client2.get_malware(
+                                query=unbracket(args.DOMAIN)
+                            )
                             if "results" in raw_results:
                                 for r in raw_results["results"]:
-                                    malware.append({
-                                        'hash': r["sample"],
-                                        'date': parse(r['collectionDate']).astimezone(pytz.utc),
-                                        'source' : 'PT (%s)' % r["source"]
-                                    })
+                                    malware.append(
+                                        {
+                                            "hash": r["sample"],
+                                            "date": parse(
+                                                r["collectionDate"]
+                                            ).astimezone(pytz.utc),
+                                            "source": "PT (%s)" % r["source"],
+                                        }
+                                    )
                     except requests.exceptions.ReadTimeout:
                         print("PT: Time Out")
                 # VT
-                vt_e = plugins['vt'].test_config(conf)
+                vt_e = plugins["vt"].test_config(conf)
                 if vt_e:
                     if conf["VirusTotal"]["type"] != "public":
-                        print('[+] Downloading VT information....')
+                        print("[+] Downloading VT information....")
                         vt = PrivateApi(conf["VirusTotal"]["key"])
                         res = vt.get_domain_report(unbracket(args.DOMAIN))
                         if "results" in res:
-                            if "resolutions" in res['results']:
+                            if "resolutions" in res["results"]:
                                 for r in res["results"]["resolutions"]:
-                                    passive_dns.append({
-                                        "first": parse(r["last_resolved"]).astimezone(pytz.utc),
-                                        "last": parse(r["last_resolved"]).astimezone(pytz.utc),
-                                        "ip": r["ip_address"],
-                                        "source": "VT"
-                                    })
-                            if "undetected_downloaded_samples" in res['results']:
-                                for r in res['results']['undetected_downloaded_samples']:
-                                    files.append({
-                                        'hash': r['sha256'],
-                                        'date': parse(r['date']).astimezone(pytz.utc) if 'date' in r else '',
-                                        'source' : 'VT'
-                                    })
-                            if "undetected_referrer_samples" in res['results']:
-                                for r in res['results']['undetected_referrer_samples']:
-                                    files.append({
-                                        'hash': r['sha256'],
-                                        'date': parse(r['date']).astimezone(pytz.utc) if 'date' in r else '',
-                                        'source' : 'VT'
-                                    })
-                            if "detected_downloaded_samples" in res['results']:
-                                for r in res['results']['detected_downloaded_samples']:
-                                    malware.append({
-                                        'hash': r['sha256'],
-                                        'date': parse(r['date']).astimezone(pytz.utc),
-                                        'source' : 'VT'
-                                    })
-                            if "detected_referrer_samples" in res['results']:
-                                for r in res['results']['detected_referrer_samples']:
+                                    passive_dns.append(
+                                        {
+                                            "first": parse(
+                                                r["last_resolved"]
+                                            ).astimezone(pytz.utc),
+                                            "last": parse(
+                                                r["last_resolved"]
+                                            ).astimezone(pytz.utc),
+                                            "ip": r["ip_address"],
+                                            "source": "VT",
+                                        }
+                                    )
+                            if "undetected_downloaded_samples" in res["results"]:
+                                for r in res["results"][
+                                    "undetected_downloaded_samples"
+                                ]:
+                                    files.append(
+                                        {
+                                            "hash": r["sha256"],
+                                            "date": parse(r["date"]).astimezone(
+                                                pytz.utc
+                                            )
+                                            if "date" in r
+                                            else "",
+                                            "source": "VT",
+                                        }
+                                    )
+                            if "undetected_referrer_samples" in res["results"]:
+                                for r in res["results"]["undetected_referrer_samples"]:
+                                    files.append(
+                                        {
+                                            "hash": r["sha256"],
+                                            "date": parse(r["date"]).astimezone(
+                                                pytz.utc
+                                            )
+                                            if "date" in r
+                                            else "",
+                                            "source": "VT",
+                                        }
+                                    )
+                            if "detected_downloaded_samples" in res["results"]:
+                                for r in res["results"]["detected_downloaded_samples"]:
+                                    malware.append(
+                                        {
+                                            "hash": r["sha256"],
+                                            "date": parse(r["date"]).astimezone(
+                                                pytz.utc
+                                            ),
+                                            "source": "VT",
+                                        }
+                                    )
+                            if "detected_referrer_samples" in res["results"]:
+                                for r in res["results"]["detected_referrer_samples"]:
                                     if "date" in r:
-                                        malware.append({
-                                            'hash': r['sha256'],
-                                            'date': parse(r['date']).astimezone(pytz.utc),
-                                            'source' : 'VT'
-                                        })
-                            if "detected_urls" in res['results']:
-                                for r in res['results']['detected_urls']:
-                                    urls.append({
-                                        'date': parse(r['scan_date']).astimezone(pytz.utc),
-                                        'url': r['url'],
-                                        'ip': '',
-                                        'source': 'VT'
-                                    })
+                                        malware.append(
+                                            {
+                                                "hash": r["sha256"],
+                                                "date": parse(r["date"]).astimezone(
+                                                    pytz.utc
+                                                ),
+                                                "source": "VT",
+                                            }
+                                        )
+                            if "detected_urls" in res["results"]:
+                                for r in res["results"]["detected_urls"]:
+                                    urls.append(
+                                        {
+                                            "date": parse(r["scan_date"]).astimezone(
+                                                pytz.utc
+                                            ),
+                                            "url": r["url"],
+                                            "ip": "",
+                                            "source": "VT",
+                                        }
+                                    )
                     else:
                         vt_e = False
-                tg_e = plugins['threatgrid'].test_config(conf)
+                tg_e = plugins["threatgrid"].test_config(conf)
                 if tg_e:
                     try:
-                        print('[+] Downloading Threat Grid....')
-                        tg = ThreatGrid(conf['ThreatGrid']['key'])
-                        res = tg.search_samples(unbracket(args.DOMAIN), type='domain')
+                        print("[+] Downloading Threat Grid....")
+                        tg = ThreatGrid(conf["ThreatGrid"]["key"])
+                        res = tg.search_samples(unbracket(args.DOMAIN), type="domain")
                         already = []
-                        if 'items' in res:
-                            for r in res['items']:
-                                if r['sample_sha256'] not in already:
-                                    d = parse(r['ts']).astimezone(pytz.utc)
-                                    malware.append({
-                                        'hash': r["sample_sha256"],
-                                        'date': d,
-                                        'source' : 'ThreatGrid'
-                                    })
-                                    already.append(r['sample_sha256'])
+                        if "items" in res:
+                            for r in res["items"]:
+                                if r["sample_sha256"] not in already:
+                                    d = parse(r["ts"]).astimezone(pytz.utc)
+                                    malware.append(
+                                        {
+                                            "hash": r["sample_sha256"],
+                                            "date": d,
+                                            "source": "ThreatGrid",
+                                        }
+                                    )
+                                    already.append(r["sample_sha256"])
                     except ThreatGridError as e:
                         print("Failed to connect to Threat Grid: %s" % e.message)
-                print('[+] Downloading ThreatMiner....')
+                print("[+] Downloading ThreatMiner....")
                 tm = ThreatMiner()
                 response = tm.get_report(unbracket(args.DOMAIN))
-                if response['status_code'] == '200':
-                    tmm = response['results']
+                if response["status_code"] == "200":
+                    tmm = response["results"]
                 else:
                     tmm = []
-                    if response['status_code'] == '404':
-                        print("Request to ThreatMiner failed: {}".format(response['status_message']))
+                    if response["status_code"] == "404":
+                        print(
+                            "Request to ThreatMiner failed: {}".format(
+                                response["status_message"]
+                            )
+                        )
                 response = tm.get_related_samples(unbracket(args.DOMAIN))
-                if response['status_code'] == '200':
-                    for r in response['results']:
-                        malware.append({
-                            'hash': r,
-                            'date': None,
-                            'source': 'ThreatMiner'
-                        })
+                if response["status_code"] == "200":
+                    for r in response["results"]:
+                        malware.append(
+                            {"hash": r, "date": None, "source": "ThreatMiner"}
+                        )
 
-
-                print('----------------- Intelligence Report')
+                print("----------------- Intelligence Report")
                 if misp_e:
-                    if len(misp_results['Attribute']) > 0:
-                        print('MISP:')
-                        for event in misp_results['Attribute']:
-                            print("- {} - {}".format(
-                                event['Event']['id'],
-                                event['Event']['info']
-                            ))
+                    if len(misp_results["Attribute"]) > 0:
+                        print("MISP:")
+                        for event in misp_results["Attribute"]:
+                            print(
+                                "- {} - {}".format(
+                                    event["Event"]["id"], event["Event"]["info"]
+                                )
+                            )
                 if otx_e:
                     if len(otx_pulses):
-                        print('OTX:')
+                        print("OTX:")
                         for p in otx_pulses:
-                            print('- %s (%s - %s)' % (
-                                    p['name'],
-                                    p['created'][:10],
-                                    "https://otx.alienvault.com/pulse/" + p['id']
+                            print(
+                                "- %s (%s - %s)"
+                                % (
+                                    p["name"],
+                                    p["created"][:10],
+                                    "https://otx.alienvault.com/pulse/" + p["id"],
                                 )
                             )
                     else:
-                        print('OTX: Not found in any pulse')
+                        print("OTX: Not found in any pulse")
                 if pt_e:
                     if "results" in pt_osint:
                         if len(pt_osint["results"]):
                             if len(pt_osint["results"]) == 1:
                                 if "name" in pt_osint["results"][0]:
-                                    print("PT: %s %s" % (pt_osint["results"][0]["name"], pt_osint["results"][0]["sourceUrl"]))
+                                    print(
+                                        "PT: %s %s"
+                                        % (
+                                            pt_osint["results"][0]["name"],
+                                            pt_osint["results"][0]["sourceUrl"],
+                                        )
+                                    )
                                 else:
-                                    print("PT: %s" % (pt_osint["results"][0]["sourceUrl"]))
+                                    print(
+                                        "PT: %s" % (pt_osint["results"][0]["sourceUrl"])
+                                    )
                             else:
                                 print("PT:")
                                 for r in pt_osint["results"]:
@@ -387,56 +488,64 @@ class CommandDomain(Command):
                 if len(tmm) > 0:
                     print("ThreatMiner:")
                     for r in tmm:
-                        print("- {} {} - {}".format(
-                            r['year'],
-                            r['filename'],
-                            r['URL']
-                        ))
+                        print("- {} {} - {}".format(r["year"], r["filename"], r["URL"]))
 
                 if len(malware) > 0:
-                    print('----------------- Malware')
+                    print("----------------- Malware")
                     for r in malware:
-                        print("[%s] %s %s" % (
+                        print(
+                            "[%s] %s %s"
+                            % (
                                 r["source"],
                                 r["hash"],
-                                r["date"].strftime("%Y-%m-%d") if r["date"] else ""
+                                r["date"].strftime("%Y-%m-%d") if r["date"] else "",
                             )
                         )
                 if len(files) > 0:
-                    print('----------------- Files')
+                    print("----------------- Files")
                     for r in files:
-                        if r['date'] != '':
-                            print("[%s] %s (%s)" % (
+                        if r["date"] != "":
+                            print(
+                                "[%s] %s (%s)"
+                                % (
                                     r["source"],
                                     r["hash"],
-                                    r["date"].strftime("%Y-%m-%d")
+                                    r["date"].strftime("%Y-%m-%d"),
                                 )
                             )
                         else:
-                            print("[%s] %s" % (
+                            print(
+                                "[%s] %s"
+                                % (
                                     r["source"],
                                     r["hash"],
                                 )
                             )
                 if len(urls) > 0:
-                    print('----------------- Urls')
+                    print("----------------- Urls")
                     for r in sorted(urls, key=lambda x: x["date"], reverse=True):
-                        print("[%s] %s - %s %s" % (
+                        print(
+                            "[%s] %s - %s %s"
+                            % (
                                 r["source"],
                                 r["url"],
                                 r["ip"],
-                                r["date"].strftime("%Y-%m-%d")
+                                r["date"].strftime("%Y-%m-%d"),
                             )
                         )
                 # TODO: add ASN + location info here
                 if len(passive_dns) > 0:
-                    print('----------------- Passive DNS')
-                    for r in sorted(passive_dns, key=lambda x: x["first"], reverse=True):
-                        print("[+] %-40s (%s -> %s)(%s)" % (
+                    print("----------------- Passive DNS")
+                    for r in sorted(
+                        passive_dns, key=lambda x: x["first"], reverse=True
+                    ):
+                        print(
+                            "[+] %-40s (%s -> %s)(%s)"
+                            % (
                                 r["ip"],
                                 r["first"].strftime("%Y-%m-%d"),
                                 r["last"].strftime("%Y-%m-%d"),
-                                r["source"]
+                                r["source"],
                             )
                         )
 
