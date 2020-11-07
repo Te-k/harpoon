@@ -109,6 +109,7 @@ You can get information on each command with `harpoon help COMMAND`
 * [CIRCL Passive DNS](https://www.circl.lu/services/passive-dns/)
 * [Farsight Dnsdb](https://www.farsightsecurity.com/dnsdb-community-edition/)
 * [FullContact](https://dashboard.fullcontact.com/register)
+* [GreyNoise](https://greynoise.io/)
 * [Have I Been Pwned](https://haveibeenpwned.com/)
 * [Hunter](https://hunter.io/users/sign_up)
 * [Hybrid Analysis](https://www.hybrid-analysis.com/apikeys/info)

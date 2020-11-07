@@ -157,7 +157,7 @@ class CommandDomain(Command):
                 us = UrlScan()
                 print('[+] Downloading UrlScan information....')
                 res = us.search(unbracket(args.DOMAIN))
-                if 'results' in r:
+                if 'results' in res:
                     for r in res['results']:
                         urls.append({
                             "date": parse(r["task"]["time"]).astimezone(pytz.utc),
@@ -165,7 +165,7 @@ class CommandDomain(Command):
                             "ip": r["page"]["ip"] if "ip" in r["page"] else "",
                             "source": "UrlScan"
                         })
-                        
+
                 # UrlHaus
                 uh_e = plugins["urlhaus"].test_config(conf)
                 if uh_e:
