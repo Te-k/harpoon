@@ -17,7 +17,7 @@ setup(
     install_requires=[
         "requests",
         "configparser",
-        "tweepy",
+        "tweepy>=3.8.0",
         "passivetotal",
         "beautifulsoup4==4.9.1",
         "lxml==4.5.1",
