@@ -1,11 +1,12 @@
 #! /usr/bin/env python
-import sys
-import os
 import json
+import os
+import sys
 import time
+
 from harpoon.commands.base import Command
-from harpoon.lib.utils import unbracket
 from harpoon.lib.ipinfo import IPInfo, IPInfoError
+from harpoon.lib.utils import unbracket
 
 
 class CommandIPInfo(Command):
