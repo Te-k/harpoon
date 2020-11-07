@@ -508,13 +508,11 @@ class CommandIp(Command):
                         vt_e = False
 
                 print("[+] Downloading GreyNoise information....")
-                cfg = conf["GreyNoise"]["key"]
+                gn_e = plugins["greynoise"].test_config(conf)
                 greynoise = []
-                if cfg != "":
+                if gn_e:
                     gn = GreyNoise(cfg)
                     greynoise = gn.ip(unbracket(args.IP))
-                else:
-                    print("[!] Greynoise API key is not set up.")
 
                 tg_e = plugins["threatgrid"].test_config(conf)
                 if tg_e:
