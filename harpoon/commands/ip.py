@@ -11,6 +11,7 @@ import sys
 import tarfile
 import urllib
 import urllib.request
+import logging
 
 import geoip2.database
 import pyasn
@@ -511,7 +512,8 @@ class CommandIp(Command):
                 gn_e = plugins["greynoise"].test_config(conf)
                 greynoise = []
                 if gn_e:
-                    gn = GreyNoise(cfg)
+                    logging.getLogger("greynoise").setLevel(logging.CRITICAL)
+                    gn = GreyNoise(conf['GreyNoise']['key'])
                     greynoise = gn.ip(unbracket(args.IP))
 
                 tg_e = plugins["threatgrid"].test_config(conf)
@@ -590,9 +592,11 @@ class CommandIp(Command):
                                 )
                             )
                 if len(greynoise) > 0:
-                    print("GreyNoise: IP identified as")
-                    for key, value in greynoise.items():
-                        print(key, "->", value)
+                    if "seen" in greynoise:
+                        if greynoise['seen']:
+                            print("GreyNoise: IP identified as")
+                            for key, value in greynoise.items():
+                                print(key, "->", value)
                 else:
                     print("GreyNoise: Not found")
                 if pt_e:

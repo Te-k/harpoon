@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 import json
 import sys
+import logging
 
 from greynoise import GreyNoise
 from harpoon.commands.base import Command
@@ -50,6 +51,7 @@ class CommandGreyNoise(Command):
         if conf["GreyNoise"]["key"] == "":
             print("You need to set your API key with GreyNoise")
             sys.exit()
+        logging.getLogger("greynoise").setLevel(logging.CRITICAL)
         gn = GreyNoise(api_key=conf["GreyNoise"]["key"])
         if args.ip:
             res = gn.ip(args.ip)
