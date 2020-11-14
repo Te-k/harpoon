@@ -17,6 +17,7 @@ import pytz
 import requests
 from dateutil.parser import parse
 from harpoon.commands.base import Command
+from harpoon.commands.umbrella import CommandUmbrella
 from harpoon.lib.robtex import Robtex, RobtexError
 from harpoon.lib.urlhaus import UrlHaus, UrlHausError
 from harpoon.lib.urlscan import UrlScan
@@ -462,6 +463,12 @@ class CommandDomain(Command):
                         malware.append(
                             {"hash": r, "date": None, "source": "ThreatMiner"}
                         )
+
+                # Umbrella Top 1m
+                cu = CommandUmbrella()
+                res = cu.check(unbracket(args.DOMAIN))
+                if res:
+                    print("Ranked {} by Umbrella".format(res))
 
                 print("----------------- Intelligence Report")
                 if misp_e:

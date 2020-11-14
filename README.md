@@ -89,6 +89,7 @@ threatminer         Requests TreatMiner database https://www.threatminer.org/
 tor                 Check if an IP is a Tor exit node listed in the public list
 totalhash           Request Total Hash API
 twitter             Requests Twitter API
+umbrella            Check if a domain is in Umbrella Top 1 million domains
 update              Update Harpoon data
 urlhaus             Request urlhaus.abuse.ch API
 urlscan             Search and submit urls to urlscan.io
