@@ -21,6 +21,7 @@ from harpoon.lib.robtex import Robtex, RobtexError
 from harpoon.lib.urlhaus import UrlHaus, UrlHausError
 from harpoon.lib.urlscan import UrlScan
 from harpoon.lib.utils import bracket, unbracket
+from harpoon.lib.threatcrowd import ThreatCrowd, ThreatCrowdError
 from IPy import IP
 from OTXv2 import IndicatorTypes, OTXv2
 from passivetotal.libs.dns import DnsRequest
@@ -169,7 +170,7 @@ class CommandDomain(Command):
                 # UrlHaus
                 uh_e = plugins["urlhaus"].test_config(conf)
                 if uh_e:
-                    print("[+] Checking urlhaus...")
+                    print("[+] Downloading URLHaus information...")
                     try:
                         urlhaus = UrlHaus(conf["UrlHaus"]["key"])
                         res = urlhaus.get_host(unbracket(args.DOMAIN))
@@ -205,6 +206,33 @@ class CommandDomain(Command):
                                 "source": "CIRCL",
                             }
                         )
+                # ThreatCrowd
+                print("[+] Downloading BinaryEdge information....")
+                tc = ThreatCrowd()
+                try:
+                    res = tc.domain(unbracket(args.DOMAIN))
+                    if "resolutions" in res:
+                        for d in res["resolutions"]:
+                            if d["ip_address"] not in ["-", ""]:
+                                try:
+                                    passive_dns.append({
+                                        "ip": d["ip_address"],
+                                        "first": parse(d["last_resolved"]).astimezone(pytz.utc),
+                                        "last": parse(d["last_resolved"]).astimezone(pytz.utc),
+                                        "source": "ThreatCrowd"
+                                    })
+                                except:
+                                    # Date error
+                                    pass
+                    if "hashes" in res:
+                        for h in res["hashes"]:
+                            malware.append({
+                                "hash": h,
+                                "source": "ThreatCrowd",
+                            })
+                except ThreatCrowdError as e:
+                    print("Connection to ThreatCrowd failed: {}".format(e.message))
+
                 # BinaryEdge
                 be_e = plugins["binaryedge"].test_config(conf)
                 if be_e:
@@ -315,8 +343,8 @@ class CommandDomain(Command):
                         if "results" in res:
                             if "resolutions" in res["results"]:
                                 for r in res["results"]["resolutions"]:
-                                    passive_dns.append(
-                                        {
+                                    try:
+                                        passive_dns.append({
                                             "first": parse(
                                                 r["last_resolved"]
                                             ).astimezone(pytz.utc),
@@ -325,8 +353,10 @@ class CommandDomain(Command):
                                             ).astimezone(pytz.utc),
                                             "ip": r["ip_address"],
                                             "source": "VT",
-                                        }
-                                    )
+                                        })
+                                    except TypeError:
+                                        # Error with the date
+                                        pass
                             if "undetected_downloaded_samples" in res["results"]:
                                 for r in res["results"][
                                     "undetected_downloaded_samples"
@@ -524,10 +554,8 @@ class CommandDomain(Command):
                 if len(urls) > 0:
                     print("----------------- Urls")
                     for r in sorted(urls, key=lambda x: x["date"], reverse=True):
-                        print(
-                            "[%s] %s - %s %s"
-                            % (
-                                r["source"],
+                        print("{:9} {} - {} {}".format(
+                                "[" + r["source"] + "]",
                                 r["url"],
                                 r["ip"],
                                 r["date"].strftime("%Y-%m-%d"),

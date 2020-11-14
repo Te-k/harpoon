@@ -8,11 +8,9 @@ import shutil
 import socket
 import subprocess
 import sys
-import tarfile
 import urllib
 import urllib.request
 import logging
-
 import geoip2.database
 import pyasn
 import pytz
@@ -25,6 +23,7 @@ from harpoon.commands.tor import CommandTor
 from harpoon.lib.robtex import Robtex, RobtexError
 from harpoon.lib.urlhaus import UrlHaus, UrlHausError
 from harpoon.lib.utils import bracket, is_ip, unbracket
+from harpoon.lib.threatcrowd import ThreatCrowd, ThreatCrowdError
 from IPy import IP
 from OTXv2 import IndicatorTypes, OTXv2
 from passivetotal.libs.dns import DnsRequest
@@ -209,11 +208,9 @@ class CommandIp(Command):
                     sys.exit(1)
                 # FIXME: move code here in a library
                 ip = unbracket(args.IP)
-                try:
-                    ipy = IP(ip)
-                except ValueError:
+                if not is_ip(ip):
                     print("Invalid IP format, quitting...")
-                    return
+                    sys.exit(1)
                 ipinfo = self.ipinfo(ip)
                 print(
                     "MaxMind: Located in %s, %s" % (ipinfo["city"], ipinfo["country"])
@@ -275,8 +272,13 @@ class CommandIp(Command):
                 misp_e = plugins["misp"].test_config(conf)
                 if misp_e:
                     print("[+] Downloading MISP information...")
-                    server = ExpandedPyMISP(conf["Misp"]["url"], conf["Misp"]["key"])
-                    misp_results = server.search("attributes", value=unbracket(args.IP))
+                    try:
+                        server = ExpandedPyMISP(conf["Misp"]["url"], conf["Misp"]["key"])
+                        misp_results = server.search("attributes", value=unbracket(args.IP))
+                    except requests.exceptions.ConnectionError:
+                        print("Failed connection to MISP")
+                        misp_e = False
+
                 # Binary Edge
                 be_e = plugins["binaryedge"].test_config(conf)
                 if be_e:
@@ -416,7 +418,7 @@ class CommandIp(Command):
                 # Urlhaus
                 uh_e = plugins["urlhaus"].test_config(conf)
                 if uh_e:
-                    print("[+] Checking urlhaus data...")
+                    print("[+] Checking URLHaus data...")
                     try:
                         urlhaus = UrlHaus(conf["UrlHaus"]["key"])
                         res = urlhaus.get_host(unbracket(args.IP))
@@ -508,10 +510,11 @@ class CommandIp(Command):
                     else:
                         vt_e = False
 
-                print("[+] Downloading GreyNoise information....")
+                # Greynoise
                 gn_e = plugins["greynoise"].test_config(conf)
                 greynoise = []
                 if gn_e:
+                    print("[+] Downloading GreyNoise information....")
                     logging.getLogger("greynoise").setLevel(logging.CRITICAL)
                     gn = GreyNoise(conf['GreyNoise']['key'])
                     greynoise = gn.ip(unbracket(args.IP))
@@ -538,6 +541,32 @@ class CommandIp(Command):
                                     already.append(r["sample_sha256"])
                     except ThreatGridError as e:
                         print("Error with threat grid: {}".format(e.message))
+
+                # ThreatCrowd
+                print("[+] Downloading ThreatCrowd....")
+                tc = ThreatCrowd()
+                try:
+                    res = tc.ip(unbracket(args.IP))
+                    if "hashes" in res:
+                        for h in res["hashes"]:
+                            malware.append(
+                                {
+                                    "hash": h,
+                                    "date": None,
+                                    "source": "ThreatCrowd",
+                                }
+                            )
+                    if "resolutions" in res:
+                        for r in res["resolutions"]:
+                            d = parse(r["last_resolved"]).astimezone(pytz.utc)
+                            passive_dns.append({
+                                "first": d,
+                                "last": d,
+                                "domain": r["domain"].strip(),
+                                "source": "ThreatCrowd",
+                            })
+                except ThreatCrowdError as e:
+                    print("ThreatCrowd query failed: {}".format(e.message))
 
                 # ThreatMiner
                 print("[+] Downloading ThreatMiner....")

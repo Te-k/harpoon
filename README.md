@@ -83,6 +83,7 @@ securitytrails      Requests SecurityTrails database
 shodan              Requests Shodan API
 spyonweb            Search in SpyOnWeb through the API
 telegram            Request information from Telegram through the API
+threatcrowd         Request the ThreatCrowd API
 threatgrid          Request Threat Grid API
 threatminer         Requests TreatMiner database https://www.threatminer.org/
 tor                 Check if an IP is a Tor exit node listed in the public list
