@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 import sys
 import json
+import pytz
+from dateutil.parser import parse
 from harpoon.commands.base import Command
 from harpoon.lib.utils import typeguess
 from OTXv2 import OTXv2, IndicatorTypes
@@ -185,3 +187,42 @@ class CommandOtx(Command):
                         print("Not listed in any pulse")
         else:
             self.parser.print_help()
+
+    def intel(self, type, query, data, conf):
+        if type == "domain":
+            print("[+] Downloading OTX information....")
+            try:
+                otx = OTXv2(conf["AlienVaultOtx"]["key"])
+                res = otx.get_indicator_details_full(IndicatorTypes.DOMAIN, query)
+                otx_pulses = res["general"]["pulse_info"]["pulses"]
+                # Get Passive DNS
+                if "passive_dns" in res:
+                    for r in res["passive_dns"]["passive_dns"]:
+                        data["passive_dns"].append({
+                            "ip": r["hostname"],
+                            "first": parse(r["first"]).astimezone(pytz.utc),
+                            "last": parse(r["last"]).astimezone(pytz.utc),
+                            "source": "OTX",
+                        })
+                if "url_list" in res:
+                    for r in res["url_list"]["url_list"]:
+                        if "result" in r:
+                            data["urls"].append({
+                                "date": parse(r["date"]).astimezone(pytz.utc),
+                                "url": r["url"],
+                                "ip": r["result"]["urlworker"]["ip"]
+                                if "ip" in r["result"]["urlworker"]
+                                else "",
+                                "source": "OTX",
+                            })
+                        else:
+                            data["urls"].append({
+                                "date": parse(r["date"]).astimezone(pytz.utc),
+                                "url": r["url"],
+                                "ip": "",
+                                "source": "OTX",
+                            })
+            except AttributeError:
+                print("OTX crashed  ¯\_(ツ)_/¯")
+
+

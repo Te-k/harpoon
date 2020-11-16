@@ -2,10 +2,13 @@
 import sys
 import operator
 import json
+import pytz
+from dateutil.parser import parse
 from harpoon.commands.base import Command
 from harpoon.lib.robtex import Robtex, RobtexError
 from harpoon.lib.utils import json_serial, unbracket
 from datetime import date, datetime
+
 
 class CommandRobtex(Command):
     """
@@ -21,6 +24,7 @@ class CommandRobtex(Command):
     """
     name = "robtex"
     description = "Search in Robtex API (https://www.robtex.com/api/)"
+    config = {'RobTex': []}
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(help='Subcommand')
@@ -102,3 +106,23 @@ class CommandRobtex(Command):
                 self.parser.print_help()
         else:
             self.parser.print_help()
+
+    def intel(self, type, query, data, conf):
+        if type == "domain":
+            print("[+] Downloading Robtex information....")
+            try:
+                rob = Robtex()
+                res = rob.get_pdns_domain(query)
+                for d in res:
+                    if d["rrtype"] in ["A", "AAAA"]:
+                        data["passive_dns"].append(
+                            {
+                                "first": d["time_first_o"].astimezone(pytz.utc),
+                                "last": d["time_last_o"].astimezone(pytz.utc),
+                                "ip": d["rrdata"],
+                                "source": "Robtex",
+                            }
+                        )
+            except RobtexError:
+                print("Robtex query failed")
+

@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 import sys
+import pytz
+from urllib.parse import urljoin
+from dateutil.parser import parse
 from collections import Counter
 from harpoon.commands.base import Command
 from pymisp import ExpandedPyMISP
@@ -82,3 +85,18 @@ class CommandMisp(Command):
                     print('{} - {}'.format(attr['Event']['id'], attr['Event']['info']))
         else:
             self.parser.print_help()
+
+    def intel(self, type, query, data, conf):
+        if type == "domain":
+            print("[+] Downloading MISP information...")
+            server = ExpandedPyMISP(conf["Misp"]["url"], conf["Misp"]["key"])
+            misp_results = server.search("events", value=query)
+            for event in misp_results:
+                data["reports"].append({
+                    "date": parse(event['Event']['date']).astimezone(pytz.utc),
+                    "title": event['Event']['info'],
+                    "source": "MISP",
+                    "url": urljoin(conf['Misp']['url'], "events/view/".format(event['Event']['id']))
+                })
+
+

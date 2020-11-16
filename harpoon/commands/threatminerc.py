@@ -2,6 +2,8 @@
 import sys
 import json
 import datetime
+import pytz
+from dateutil.parser import parse
 from harpoon.commands.base import Command
 from harpoon.lib.utils import bracket, unbracket
 from threatminer import ThreatMiner
@@ -27,6 +29,7 @@ class CommandThreatMiner(Command):
     """
     name = "threatminer"
     description = "Requests TreatMiner database https://www.threatminer.org/"
+    config = {'ThreatMiner': []}
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(help='Subcommand')
@@ -195,3 +198,32 @@ class CommandThreatMiner(Command):
                 self.parser.print_help()
         else:
             self.parser.print_help()
+
+    def intel(self, type, query, data, conf):
+        if type == "domain":
+            print("[+] Downloading ThreatMiner....")
+            tm = ThreatMiner()
+            response = tm.get_report(query)
+            if response["status_code"] == "200":
+                for r in response["results"]:
+                    data["reports"].append({
+                        "date": r["year"],
+                        "title": r["filename"],
+                        "url": r["URL"],
+                        "source": "ThreatMiner"
+                    })
+            else:
+                tmm = []
+                if response["status_code"] == "404":
+                    print(
+                        "Request to ThreatMiner failed: {}".format(
+                            response["status_message"]
+                        )
+                    )
+            response = tm.get_related_samples(query)
+            if response["status_code"] == "200":
+                for r in response["results"]:
+                    data["malware"].append(
+                        {"hash": r, "date": None, "source": "ThreatMiner"}
+                    )
+

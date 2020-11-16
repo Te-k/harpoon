@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 
 import json
-
+import pytz
+from dateutil.parser import parse
 from harpoon.commands.base import Command
 from harpoon.lib.urlhaus import UrlHaus, UrlHausError
 from harpoon.lib.utils import unbracket
@@ -91,3 +92,21 @@ class CommandUrlhaus(Command):
                 print("UrlHaus : query failed ¯\_(ツ)_/¯")
         else:
             self.parser.print_help()
+
+    def intel(self, type, query, data, conf):
+        if type == "domain":
+            print("[+] Downloading URLHaus information...")
+            try:
+                urlhaus = UrlHaus(conf["UrlHaus"]["key"])
+                res = urlhaus.get_host(query)
+            except UrlHausError:
+                print("Error with the query")
+            else:
+                if "urls" in res:
+                    for r in res["urls"]:
+                        data["urls"].append({
+                            "date": parse(r["date_added"]).astimezone(pytz.utc),
+                            "url": r["url"],
+                            "ip": "",
+                            "source": "UrlHaus",
+                        })

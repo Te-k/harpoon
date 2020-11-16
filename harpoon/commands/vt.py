@@ -3,6 +3,8 @@ import sys
 import json
 import hashlib
 import os
+import pytz
+from dateutil.parser import parse
 from harpoon.commands.base import Command
 from virus_total_apis import PublicApi, PrivateApi
 from harpoon.lib.utils import unbracket
@@ -324,3 +326,82 @@ class CommandVirusTotal(Command):
                     self.parser.print_help()
         else:
             self.parser.print_help()
+
+    def intel(self, type, query, data, conf):
+        if type == "domain":
+            if conf["VirusTotal"]["type"] != "public":
+                print("[+] Downloading VT information....")
+                vt = PrivateApi(conf["VirusTotal"]["key"])
+                res = vt.get_domain_report(query)
+                if "results" in res:
+                    if "resolutions" in res["results"]:
+                        for r in res["results"]["resolutions"]:
+                            try:
+                                data["passive_dns"].append({
+                                    "first": parse(
+                                        r["last_resolved"]
+                                    ).astimezone(pytz.utc),
+                                    "last": parse(
+                                        r["last_resolved"]
+                                        ).astimezone(pytz.utc),
+                                    "ip": r["ip_address"],
+                                    "source": "VT",
+                                })
+                            except TypeError:
+                                # Error with the date
+                                pass
+                    if "undetected_downloaded_samples" in res["results"]:
+                        for r in res["results"]["undetected_downloaded_samples"]:
+                            data["files"].append({
+                                "hash": r["sha256"],
+                                "date": parse(r["date"]).astimezone(pytz.utc) if "date" in r else "",
+                                "source": "VT",
+                            })
+                    if "undetected_referrer_samples" in res["results"]:
+                        for r in res["results"]["undetected_referrer_samples"]:
+                            data["files"].append(
+                                {
+                                    "hash": r["sha256"],
+                                    "date": parse(r["date"]).astimezone(
+                                        pytz.utc
+                                    )
+                                    if "date" in r
+                                    else "",
+                                    "source": "VT",
+                                }
+                            )
+                    if "detected_downloaded_samples" in res["results"]:
+                        for r in res["results"]["detected_downloaded_samples"]:
+                            data["malware"].append(
+                                {
+                                    "hash": r["sha256"],
+                                    "date": parse(r["date"]).astimezone(
+                                        pytz.utc
+                                    ),
+                                    "source": "VT",
+                                }
+                            )
+                    if "detected_referrer_samples" in res["results"]:
+                        for r in res["results"]["detected_referrer_samples"]:
+                            if "date" in r:
+                                data["malware"].append(
+                                    {
+                                        "hash": r["sha256"],
+                                        "date": parse(r["date"]).astimezone(
+                                            pytz.utc
+                                        ),
+                                        "source": "VT",
+                                    }
+                                )
+                    if "detected_urls" in res["results"]:
+                        for r in res["results"]["detected_urls"]:
+                            data["urls"].append(
+                                {
+                                    "date": parse(r["scan_date"]).astimezone(
+                                        pytz.utc
+                                    ),
+                                    "url": r["url"],
+                                    "ip": "",
+                                    "source": "VT",
+                                }
+                            )

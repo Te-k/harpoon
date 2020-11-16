@@ -27,7 +27,6 @@ class CommandCyberCure(Command):
     """
     name = "cybercure"
     description = "Search cybercure.ai intelligence database for specific indicators."
-    #config = {'IPInfo': ['token']}
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(help='Subcommand')

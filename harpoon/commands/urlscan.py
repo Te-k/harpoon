@@ -2,6 +2,8 @@
 import sys
 import json
 import requests
+import pytz
+from dateutil.parser import parse
 from harpoon.commands.base import Command
 from harpoon.lib.urlscan import UrlScan
 
@@ -17,6 +19,7 @@ class CommandUrlscan(Command):
     """
     name = "urlscan"
     description = "Search and submit urls to urlscan.io"
+    config = {'UrlScan': []}
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(help='Subcommand')
@@ -55,3 +58,18 @@ class CommandUrlscan(Command):
                 self.parser.print_help()
         else:
             self.parser.print_help()
+
+    def intel(self, type, query, data, conf):
+        if type == "domain":
+            print('[+] Downloading UrlScan information....')
+            us = UrlScan()
+            res = us.search(query)
+            if 'results' in res:
+                for r in res['results']:
+                    data["urls"].append({
+                        "date": parse(r["task"]["time"]).astimezone(pytz.utc),
+                        "url": r["page"]["url"],
+                        "ip": r["page"]["ip"] if "ip" in r["page"] else "",
+                        "source": "UrlScan"
+                    })
+

@@ -2,6 +2,8 @@
 import sys
 import json
 import datetime
+import pytz
+from dateutil.parser import parse
 from harpoon.commands.base import Command
 from harpoon.lib.utils import bracket, unbracket
 from passivetotal.libs.whois import WhoisRequest
@@ -213,3 +215,65 @@ class CommandPassiveTotal(Command):
                 self.parser.print_help()
         else:
             self.parser.print_help()
+
+    def intel(self, type, query, data, conf):
+        if type == "domain":
+            print("Downloading Passive Total information")
+            try:
+                pt_osint = {}
+                ptout = False
+                client = DnsRequest(
+                    conf["PassiveTotal"]["username"],
+                    conf["PassiveTotal"]["key"],
+                )
+                raw_results = client.get_passive_dns(query=query)
+                if "results" in raw_results:
+                    for res in raw_results["results"]:
+                        data["passive_dns"].append(
+                            {
+                                "first": parse(res["firstSeen"]).astimezone(
+                                    pytz.utc
+                                ),
+                                "last": parse(res["lastSeen"]).astimezone(
+                                    pytz.utc
+                                ),
+                                "ip": res["resolve"],
+                                "source": "PT",
+                            }
+                        )
+                if "message" in raw_results:
+                    if "quota_exceeded" in raw_results["message"]:
+                        print("PT quota exceeded")
+                        ptout = True
+                if not ptout:
+                    client2 = EnrichmentRequest(
+                        conf["PassiveTotal"]["username"],
+                        conf["PassiveTotal"]["key"],
+                    )
+                    # Get OSINT
+                    pt_osint = client2.get_osint(query=query)
+                    if "results" in pt_osint:
+                        for r in pt_osint["results"]:
+                            data["reports"].append({
+                                "date": "",
+                                "title": r["name"] if "name" in r else "",
+                                "url": r["sourceUrl"],
+                                "source": "PT"
+                            })
+                    # Get malware
+                    raw_results = client2.get_malware(
+                        query=query
+                    )
+                    if "results" in raw_results:
+                        for r in raw_results["results"]:
+                            data["malware"].append(
+                                {
+                                    "hash": r["sample"],
+                                    "date": parse(
+                                        r["collectionDate"]
+                                    ).astimezone(pytz.utc),
+                                    "source": "PT (%s)" % r["source"],
+                                }
+                            )
+            except requests.exceptions.ReadTimeout:
+                print("PT: Time Out")

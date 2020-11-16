@@ -2,6 +2,8 @@
 
 import json
 import requests
+import pytz
+from dateutil.parser import parse
 from harpoon.commands.base import Command
 from harpoon.lib.threatcrowd import ThreatCrowd, ThreatCrowdError
 from harpoon.lib.utils import unbracket
@@ -28,9 +30,9 @@ class CommandThreatCrowd(Command):
     * Query for a antivirus: `harpoon threatcrowd --antivirus MALWARE` (ex: plugx)
     * Query for a filehash: `harpoon threatcrowd --file HASH`
     """
-
     name = "threatcrowd"
     description = "Request the ThreatCrowd API"
+    config = {'ThreatCrowd': []}
 
     def add_arguments(self, parser):
         parser.add_argument("--email", "-e", help="Query an email")
@@ -62,4 +64,33 @@ class CommandThreatCrowd(Command):
                 self.parser.print_help()
         except ThreatCrowdError as e:
             print("Query failed: {}".format(e.message))
+
+    def intel(self, type, query, data, conf):
+        if type == "domain":
+            print("[+] Downloading ThreatCrowd information....")
+            tc = ThreatCrowd()
+            try:
+                res = tc.domain(query)
+                if "resolutions" in res:
+                    for d in res["resolutions"]:
+                        if d["ip_address"] not in ["-", ""]:
+                            try:
+                                data["passive_dns"].append({
+                                    "ip": d["ip_address"],
+                                    "first": parse(d["last_resolved"]).astimezone(pytz.utc),
+                                    "last": parse(d["last_resolved"]).astimezone(pytz.utc),
+                                    "source": "ThreatCrowd"
+                                })
+                            except:
+                                # Date error
+                                pass
+                if "hashes" in res:
+                    for h in res["hashes"]:
+                        data["malware"].append({
+                            "hash": h,
+                            "source": "ThreatCrowd",
+                        })
+            except ThreatCrowdError as e:
+                print("Connection to ThreatCrowd failed: {}".format(e.message))
+
 

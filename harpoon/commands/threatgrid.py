@@ -2,6 +2,8 @@
 import sys
 import json
 import hashlib
+import pytz
+from dateutil.parser import parse
 from harpoon.commands.base import Command
 from harpoon.lib.utils import json_serial, typeguess, unbracket
 from pythreatgrid2 import ThreatGrid, ThreatGridError
@@ -91,3 +93,26 @@ class CommandThreatGrid(Command):
                 self.parser.print_help()
         else:
             self.parser.print_help()
+
+    def intel(self, type, query, data, conf):
+        if type == "domain":
+            try:
+                print("[+] Downloading Threat Grid....")
+                tg = ThreatGrid(conf["ThreatGrid"]["key"])
+                res = tg.search_samples(query, type="domain")
+                already = []
+                if "items" in res:
+                    for r in res["items"]:
+                        if r["sample_sha256"] not in already:
+                            d = parse(r["ts"]).astimezone(pytz.utc)
+                            data["malware"].append(
+                                {
+                                    "hash": r["sample_sha256"],
+                                    "date": d,
+                                    "source": "ThreatGrid",
+                                }
+                            )
+                            already.append(r["sample_sha256"])
+            except ThreatGridError as e:
+                print("Failed to connect to Threat Grid: %s" % e.message)
+

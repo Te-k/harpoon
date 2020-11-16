@@ -64,6 +64,7 @@ help                Give help on an Harpoon command
 hibp                Request Have I Been Pwned API (https://haveibeenpwned.com/)
 hunter              Request hunter.io information through the API
 hybrid              Requests Hybrid Analysis platform
+intel               Gather information on a domain
 ip                  Gather information on an IP address
 ipinfo              Request ipinfo.io information
 malshare            Requests MalShare database

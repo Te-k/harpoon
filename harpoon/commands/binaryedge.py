@@ -1,11 +1,13 @@
 #! /usr/bin/env python
 import json
+import pytz
+from dateutil.parser import parse
 from harpoon.lib.utils import unbracket
 from harpoon.commands.base import Command
 from pybinaryedge import BinaryEdge, BinaryEdgeException, BinaryEdgeNotFound
 
 
-class CommandBitly(Command):
+class CommandBinaryEdge(Command):
     """
     # binaryedge plugin
 
@@ -126,3 +128,26 @@ class CommandBitly(Command):
             print('Search term not found')
         except BinaryEdgeException as e:
             print('Error: %s' % e.message)
+
+    def intel(self, type, query, data, conf):
+        if type == "domain":
+            print("[+] Downloading BinaryEdge information....")
+            try:
+                be = BinaryEdge(conf["BinaryEdge"]["key"])
+                res = be.domain_dns(query)
+                for d in res["events"]:
+                    if "A" in d:
+                        for a in d["A"]:
+                            data["passive_dns"].append(
+                                {
+                                    "ip": a,
+                                    "first": parse(d["updated_at"]).astimezone(pytz.utc),
+                                    "last": parse(d["updated_at"]).astimezone(pytz.utc),
+                                    "source": "BinaryEdge",
+                                }
+                            )
+            except BinaryEdgeException:
+                print(
+                    "You need a paid BinaryEdge subscription for this request"
+                )
+

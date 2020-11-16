@@ -63,3 +63,14 @@ class CommandUmbrella(Command):
             print("Found ranked {}".format(rank))
         else:
             print("Not found")
+
+    def intel(self, type, query, data, conf):
+        if type == "domain":
+            rank = self.check(query)
+            if rank:
+                data["reports"].append({
+                    "date": "",
+                    "title": "Domain ranked as {} by Cisco Umbrella".format(rank),
+                    "url": "",
+                    "source": "Cisco Umbrella"
+                })
