@@ -42,9 +42,6 @@ class CommandShodan(Command):
 
     def run(self, conf, args, plugins):
         if 'subcommand' in args:
-            if 'Shodan' not in conf and 'key' not in conf['Shodan']:
-                print('Bad configuration for Shodan, quitting...')
-                sys.exit(1)
             api = shodan.Shodan(conf['Shodan']['key'])
             if args.subcommand == 'ip':
                 try:
@@ -144,3 +141,19 @@ class CommandShodan(Command):
                 self.parser.print_help()
         else:
             self.parser.print_help()
+
+    def intel(self, type, query, data, conf):
+        if type == "ip":
+            print("[+] Checking Shodan...")
+            api = shodan.Shodan(conf['Shodan']['key'])
+            try:
+                res = api.host(query)
+            except shodan.exception.APIError:
+                pass
+            else:
+                for p in res["ports"]:
+                    data["ports"].append({
+                        "port": p,
+                        "source": "Shodan",
+                        "info": ""
+                    })

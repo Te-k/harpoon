@@ -190,7 +190,7 @@ class CommandOtx(Command):
 
     def intel(self, type, query, data, conf):
         if type == "domain":
-            print("[+] Downloading OTX information....")
+            print("[+] Checking OTX...")
             try:
                 otx = OTXv2(conf["AlienVaultOtx"]["key"])
                 res = otx.get_indicator_details_full(IndicatorTypes.DOMAIN, query)
@@ -231,7 +231,7 @@ class CommandOtx(Command):
             except AttributeError:
                 print("OTX crashed  ¯\_(ツ)_/¯")
         elif type == "ip":
-            print("[+] Downloading OTX information....")
+            print("[+] Checking OTX...")
             try:
                 otx = OTXv2(conf["AlienVaultOtx"]["key"])
                 res = otx.get_indicator_details_full(IndicatorTypes.IPv4, query)

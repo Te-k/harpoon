@@ -316,9 +316,9 @@ class CommandZetalytics(Command):
             self.parser.print_help()
 
     def intel(self, type, query, data, conf):
+        zeta = Zetalytics(token=conf['Zetalytics']['token'])
         if type == "domain":
-            print("[+] Downloading Zetalytics information....")
-            zeta = Zetalytics(token=conf['Zetalytics']['token'])
+            print("[+] Checking Zetalytics...")
             res = zeta.domain2ip(q=query)
             if "results" in res:
                 for domain in res["results"]:
@@ -331,4 +331,14 @@ class CommandZetalytics(Command):
                         })
                     #else:
                         #data["subdomains"].append(domain["qname"])
-
+        elif type == "ip":
+            print("[+] Checking Zetalytics...")
+            res = zeta.ip(q=query)
+            if "results" in res:
+                for domain in res["results"]:
+                    data["passive_dns"].append({
+                        "domain": domain["qname"],
+                        "source": "Zetalytics",
+                        "first": parse(domain['date']).astimezone(pytz.utc),
+                        "last": parse(domain['last_seen']).astimezone(pytz.utc),
+                    })

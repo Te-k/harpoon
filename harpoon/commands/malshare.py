@@ -30,7 +30,7 @@ class CommandMalShare(Command):
         parser_b.add_argument('HASH', help='Hash')
         parser_b.add_argument('--output', '-o', help='Output file name')
         parser_b.set_defaults(subcommand='download')
-        parser_e = subparsers.add_parser('search', help='Search in Total Hash database')
+        parser_e = subparsers.add_parser('search', help='Search in MalShare database')
         parser_e.add_argument('QUERY', help='query')
         parser_e.set_defaults(subcommand='search')
         self.parser = parser

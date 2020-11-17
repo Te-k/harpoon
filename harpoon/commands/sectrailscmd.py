@@ -76,7 +76,7 @@ class CommandSecurityTrails(Command):
     def intel(self, type, query, data, conf):
         client = SecurityTrails(conf['SecurityTrails']['key'])
         if type == "domain":
-            print("[+] Downloading SecurityTrails information...")
+            print("[+] Checking SecurityTrails...")
             try:
                 res = client.domain_history_dns(query)
                 for r in res["records"]:

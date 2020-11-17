@@ -105,9 +105,22 @@ tag:teslacrypt
     def intel(self, type, query, data, conf):
         ha = HybridAnalysis(conf['HybridAnalysis']['key'], conf['HybridAnalysis']['secret'])
         if type == "domain":
-            print("[+] Downloading Hybrid Analysis info...")
+            print("[+] Checking HybridAnalysis...")
             try:
                 res = ha.search("domain:{}".format(query))
+            except HybridAnalysisFailed:
+                print("Query failed")
+            else:
+                for r in res["result"]:
+                    data["malware"].append({
+                        "source": "HybridAnalysis",
+                        "hash": r["sha256"],
+                        "date": parse(r["start_time"]).astimezone(pytz.utc)
+                    })
+        elif type == "ip":
+            print("[+] Checking HybridAnalysis...")
+            try:
+                res = ha.search("host:{}".format(query))
             except HybridAnalysisFailed:
                 print("Query failed")
             else:

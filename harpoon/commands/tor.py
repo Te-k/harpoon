@@ -15,6 +15,7 @@ class CommandTor(Command):
     """
     name = "tor"
     description = "Check if an IP is a Tor exit node listed in the public list"
+    config = {"Tor": []}
 
     def add_arguments(self, parser):
         parser.add_argument('IP',  help='IP Address')
@@ -43,3 +44,15 @@ class CommandTor(Command):
                 print("{} is not listed in the Tor Exit node public list".format(unbracket(args.IP)))
         else:
             print("Impossible to reach the Tor Exit node list")
+
+    def intel(self, type, query, data, conf):
+        if type == "ip":
+            print("[+] Checking Tor exit nodes...")
+            ips = self.get_list()
+            if query.strip() in ips:
+                data["reports"].append({
+                    "date": None,
+                    "title": "{} is a Tor Exit Node".format(query),
+                    "url": "",
+                    "source": "TorExit"
+                })

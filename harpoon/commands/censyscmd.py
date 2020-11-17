@@ -115,3 +115,18 @@ class CommandCensys(Command):
                 self.parser.print_help()
         else:
             self.parser.print_help()
+
+    def intel(self, type, query, data, conf):
+        if type == "ip":
+            print("[+] Checking Censys...")
+            api = ipv4.CensysIPv4(conf['Censys']['id'], conf['Censys']['secret'])
+            try:
+                ip = api.view(query)
+                for port in ip["ports"]:
+                    data["ports"].append({
+                        "port": port,
+                        "info": "",
+                        "source": "Censys"
+                    })
+            except censys.base.CensysNotFoundException:
+                pass

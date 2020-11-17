@@ -49,4 +49,3 @@ class CommandCircl(Command):
                         "source": "CIRCL",
                     }
                 )
-

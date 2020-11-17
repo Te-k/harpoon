@@ -46,7 +46,7 @@ class CommandUrlscan(Command):
                             print("{} - {} - {} - https://urlscan.io/result/{}".format(
                                 r["task"]["time"],
                                 r["page"]["url"],
-                                r["page"]["ip"],
+                                r["page"]["ip"] if "ip" in r["page"] else "",
                                 r["_id"]
                                 )
                             )
@@ -60,8 +60,8 @@ class CommandUrlscan(Command):
             self.parser.print_help()
 
     def intel(self, type, query, data, conf):
-        if type == "domain":
-            print('[+] Downloading UrlScan information....')
+        if type in ["domain", "ip"]:
+            print('[+] Checking UrlScan...')
             us = UrlScan()
             res = us.search(query)
             if 'results' in res:

@@ -88,7 +88,7 @@ class CommandMisp(Command):
 
     def intel(self, type, query, data, conf):
         if type in ["domain", "ip"]:
-            print("[+] Downloading MISP information...")
+            print("[+] Checking MISP...")
             server = ExpandedPyMISP(conf["Misp"]["url"], conf["Misp"]["key"])
             misp_results = server.search("events", value=query)
             for event in misp_results:

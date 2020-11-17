@@ -218,7 +218,7 @@ class CommandPassiveTotal(Command):
 
     def intel(self, type, query, data, conf):
         if type == "domain":
-            print("Downloading Passive Total information")
+            print("[+] Checking Passive Total...")
             try:
                 pt_osint = {}
                 ptout = False
@@ -278,7 +278,7 @@ class CommandPassiveTotal(Command):
             except requests.exceptions.ReadTimeout:
                 print("PT: Time Out")
         elif type == "ip":
-            print("Downloading Passive Total information")
+            print("[+] Checking Passive Total...")
             try:
                 pt_osint = {}
                 ptout = False

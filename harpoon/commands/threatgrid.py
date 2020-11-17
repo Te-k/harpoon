@@ -96,8 +96,8 @@ class CommandThreatGrid(Command):
 
     def intel(self, type, query, data, conf):
         if type == "domain":
+            print("[+] Checking ThreatGrid...")
             try:
-                print("[+] Downloading Threat Grid....")
                 tg = ThreatGrid(conf["ThreatGrid"]["key"])
                 res = tg.search_samples(query, type="domain")
                 already = []
@@ -115,4 +115,23 @@ class CommandThreatGrid(Command):
                             already.append(r["sample_sha256"])
             except ThreatGridError as e:
                 print("Failed to connect to Threat Grid: %s" % e.message)
-
+        elif type == "ip":
+            print("[+] Checking ThreatGrid...")
+            try:
+                tg = ThreatGrid(conf["ThreatGrid"]["key"])
+                res = tg.search_samples(query, type="ip")
+                already = []
+                if "items" in res:
+                    for r in res["items"]:
+                        if r["sample_sha256"] not in already:
+                            d = parse(r["ts"]).astimezone(pytz.utc)
+                            data["malware"].append(
+                                {
+                                    "hash": r["sample_sha256"],
+                                    "date": d,
+                                    "source": "ThreatGrid",
+                                }
+                            )
+                            already.append(r["sample_sha256"])
+            except ThreatGridError as e:
+                print("Failed to connect to Threat Grid: %s" % e.message)

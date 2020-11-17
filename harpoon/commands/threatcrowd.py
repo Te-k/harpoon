@@ -67,7 +67,7 @@ class CommandThreatCrowd(Command):
 
     def intel(self, type, query, data, conf):
         if type == "domain":
-            print("[+] Downloading ThreatCrowd information....")
+            print("[+] Checking ThreatCrowd...")
             tc = ThreatCrowd()
             try:
                 res = tc.domain(query)
@@ -94,7 +94,7 @@ class CommandThreatCrowd(Command):
             except ThreatCrowdError as e:
                 print("Connection to ThreatCrowd failed: {}".format(e.message))
         elif type == "ip":
-            print("[+] Downloading ThreatCrowd information....")
+            print("[+] Checking ThreatCrowd...")
             tc = ThreatCrowd()
             try:
                 res = tc.ip(query)

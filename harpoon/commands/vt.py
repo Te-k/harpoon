@@ -330,7 +330,7 @@ class CommandVirusTotal(Command):
     def intel(self, type, query, data, conf):
         if type == "domain":
             if conf["VirusTotal"]["type"] != "public":
-                print("[+] Downloading VT information....")
+                print("[+] Checking VirusTotal....")
                 vt = PrivateApi(conf["VirusTotal"]["key"])
                 res = vt.get_domain_report(query)
                 if "results" in res:
@@ -407,7 +407,7 @@ class CommandVirusTotal(Command):
                             )
         elif type == "ip":
             if conf["VirusTotal"]["type"] != "public":
-                print("[+] Downloading VT information....")
+                print("[+] Checking VirusTotal...")
                 vt = PrivateApi(conf["VirusTotal"]["key"])
                 res = vt.get_ip_report(query)
                 if "results" in res:

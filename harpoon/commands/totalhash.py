@@ -63,7 +63,17 @@ class CommandTotalHash(Command):
     def intel(self, type, query, data, conf):
         th = TotalHash(conf['TotalHash']['user'], conf['TotalHash']['key'])
         if type == "domain":
+            print("[+] Checking TotalHash...")
             res = th.search('dnsrr:{}'.format(query))
+            for r in res['results']:
+                data["malware"].append({
+                    "source": "TotalHash",
+                    "date": None,
+                    "hash": r
+                })
+        elif type == "ip":
+            print("[+] Checking TotalHash...")
+            res = th.search('ip:{}'.format(query))
             for r in res['results']:
                 data["malware"].append({
                     "source": "TotalHash",

@@ -56,7 +56,7 @@ class DnsDbTotal(Command):
                             r["rrtype"],
                             r["time_first"],
                             r["time_last"],
-                            r["rdata"]
+                            r["rrname"]
                         ))
             else:
                 self.parser.print_help()
@@ -65,6 +65,7 @@ class DnsDbTotal(Command):
 
     def intel(self, type, query, data, conf):
         if type == "domain":
+            print("[+] Checking DNSdb...")
             dnsdb = Dnsdb(conf['Dnsdb']['key'])
             results = dnsdb.search(name=query)
             if results.status_code != 200:
@@ -79,3 +80,21 @@ class DnsDbTotal(Command):
                                 "last": parse(r['time_last']).astimezone(pytz.utc),
                                 "source": "DNSdb"
                             })
+        elif type == "ip":
+            print("[+] Checking DNSdb...")
+            dnsdb = Dnsdb(conf['Dnsdb']['key'])
+            results = dnsdb.search(ip=query)
+            if results.status_code != 200:
+                if results.status_code != 404:
+                    print("Request failed : status code {}".format(results.status_code))
+            else:
+                for r in results.records:
+                    if r['rrtype'] in ['A', 'AAAA']:
+                        data["passive_dns"].append({
+                            "domain": r["rrname"].strip(),
+                            "first": parse(r['time_first']).astimezone(pytz.utc),
+                            "last": parse(r['time_last']).astimezone(pytz.utc),
+                            "source": "DNSdb"
+                        })
+
+

@@ -109,7 +109,7 @@ class CommandRobtex(Command):
 
     def intel(self, type, query, data, conf):
         if type == "domain":
-            print("[+] Downloading Robtex information....")
+            print("[+] Checking Robtex....")
             try:
                 rob = Robtex()
                 res = rob.get_pdns_domain(query)
@@ -126,7 +126,7 @@ class CommandRobtex(Command):
             except RobtexError:
                 print("Robtex query failed")
         elif type == "ip":
-            print("[+] Downloading Robtex information....")
+            print("[+] Checking Robtex....")
             try:
                 rob = Robtex()
                 res = rob.get_ip_info(query)
