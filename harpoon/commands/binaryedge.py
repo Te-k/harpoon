@@ -150,4 +150,30 @@ class CommandBinaryEdge(Command):
                 print(
                     "You need a paid BinaryEdge subscription for this request"
                 )
+        elif type == "ip":
+            print("[+] Downloading BinaryEdge information....")
+            try:
+                be = BinaryEdge(conf["BinaryEdge"]["key"])
+                res = be.domain_ip(query)
+                for d in res["events"]:
+                    data["passive_dns"].append(
+                        {
+                            "domain": d["domain"],
+                            "first": parse(d["updated_at"]).astimezone(pytz.utc),
+                            "last": "",
+                            "source": "BinaryEdge",
+                        }
+                    )
+                res = be.host(query)
+                for d in res["events"]:
+                    data["ports"].append({
+                        "port": d["port"],
+                        "info": "",
+                        "source": "BinaryEdge"
+                    })
+            except BinaryEdgeException:
+                print(
+                    "You need a paid BinaryEdge subscription for this request"
+                )
+
 

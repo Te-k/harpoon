@@ -89,8 +89,37 @@ class CommandThreatCrowd(Command):
                         data["malware"].append({
                             "hash": h,
                             "source": "ThreatCrowd",
+                            "date": ""
                         })
             except ThreatCrowdError as e:
                 print("Connection to ThreatCrowd failed: {}".format(e.message))
+        elif type == "ip":
+            print("[+] Downloading ThreatCrowd information....")
+            tc = ThreatCrowd()
+            try:
+                res = tc.ip(query)
+                if "resolutions" in res:
+                    for d in res["resolutions"]:
+                        try:
+                            data["passive_dns"].append({
+                                "domain": d["domain"].strip(),
+                                "first": parse(d["last_resolved"]).astimezone(pytz.utc),
+                                "last": parse(d["last_resolved"]).astimezone(pytz.utc),
+                                "source": "ThreatCrowd"
+                            })
+                        except:
+                            # Date error
+                            pass
+                if "hashes" in res:
+                    for h in res["hashes"]:
+                        data["malware"].append({
+                            "hash": h,
+                            "source": "ThreatCrowd",
+                            "date": ""
+                        })
+            except ThreatCrowdError as e:
+                print("Connection to ThreatCrowd failed: {}".format(e.message))
+
+
 
 

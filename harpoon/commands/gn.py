@@ -48,9 +48,6 @@ class CommandGreyNoise(Command):
         return
 
     def run(self, conf, args, plugins):
-        if conf["GreyNoise"]["key"] == "":
-            print("You need to set your API key with GreyNoise")
-            sys.exit()
         logging.getLogger("greynoise").setLevel(logging.CRITICAL)
         gn = GreyNoise(api_key=conf["GreyNoise"]["key"])
         if args.ip:
@@ -61,3 +58,17 @@ class CommandGreyNoise(Command):
             self.print_results(res, args)
         else:
             self.parser.print_help()
+
+    def intel(self, type, query, data, conf):
+        if type == "ip":
+            print("[+] Checking GreyNoise...")
+            logging.getLogger("greynoise").setLevel(logging.CRITICAL)
+            gn = GreyNoise(api_key=conf["GreyNoise"]["key"])
+            res = gn.ip(query)
+            if res["seen"]:
+                data["reports"].append({
+                    "url": "https://viz.greynoise.io/ip/{}".format(query),
+                    "title": "Seen by GreyNoise as {}".format(", ".join(res["tags"])),
+                    "date": None,
+                    "source": "GreyNoise"
+                })

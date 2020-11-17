@@ -194,7 +194,13 @@ class CommandOtx(Command):
             try:
                 otx = OTXv2(conf["AlienVaultOtx"]["key"])
                 res = otx.get_indicator_details_full(IndicatorTypes.DOMAIN, query)
-                otx_pulses = res["general"]["pulse_info"]["pulses"]
+                for pulse in res["general"]["pulse_info"]["pulses"]:
+                    data["reports"].append({
+                        "date": parse(pulse["created"]).astimezone(pytz.utc),
+                        "title": pulse["name"],
+                        "source": "OTX",
+                        "url": "https://otx.alienvault.com/pulse/{}".format(pulse["id"])
+                    })
                 # Get Passive DNS
                 if "passive_dns" in res:
                     for r in res["passive_dns"]["passive_dns"]:
@@ -224,5 +230,44 @@ class CommandOtx(Command):
                             })
             except AttributeError:
                 print("OTX crashed  ¯\_(ツ)_/¯")
-
-
+        elif type == "ip":
+            print("[+] Downloading OTX information....")
+            try:
+                otx = OTXv2(conf["AlienVaultOtx"]["key"])
+                res = otx.get_indicator_details_full(IndicatorTypes.IPv4, query)
+                for pulse in res["general"]["pulse_info"]["pulses"]:
+                    data["reports"].append({
+                        "date": parse(pulse["created"]).astimezone(pytz.utc),
+                        "title": pulse["name"],
+                        "source": "OTX",
+                        "url": "https://otx.alienvault.com/pulse/{}".format(pulse["id"])
+                    })
+                # Get Passive DNS
+                if "passive_dns" in res:
+                    for r in res["passive_dns"]["passive_dns"]:
+                        data["passive_dns"].append({
+                            "domain": r["hostname"],
+                            "first": parse(r["first"]).astimezone(pytz.utc),
+                            "last": parse(r["last"]).astimezone(pytz.utc),
+                            "source": "OTX",
+                        })
+                if "url_list" in res:
+                    for r in res["url_list"]["url_list"]:
+                        if "result" in r:
+                            data["urls"].append({
+                                "date": parse(r["date"]).astimezone(pytz.utc),
+                                "url": r["url"],
+                                "ip": r["result"]["urlworker"]["ip"]
+                                if "ip" in r["result"]["urlworker"]
+                                else "",
+                                "source": "OTX",
+                            })
+                        else:
+                            data["urls"].append({
+                                "date": parse(r["date"]).astimezone(pytz.utc),
+                                "url": r["url"],
+                                "ip": "",
+                                "source": "OTX",
+                            })
+            except AttributeError:
+                print("OTX crashed  ¯\_(ツ)_/¯")

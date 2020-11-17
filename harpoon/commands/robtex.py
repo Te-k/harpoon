@@ -125,4 +125,23 @@ class CommandRobtex(Command):
                         )
             except RobtexError:
                 print("Robtex query failed")
+        elif type == "ip":
+            print("[+] Downloading Robtex information....")
+            try:
+                rob = Robtex()
+                res = rob.get_ip_info(query)
+                if "pas" in res:
+                    if len(res["pas"]):
+                        for d in res["pas"]:
+                            data["passive_dns"].append(
+                                {
+                                    "first": d["date"].astimezone(pytz.utc),
+                                    "last": "",
+                                    "domain": d["o"],
+                                    "source": "Robtex",
+                                }
+                            )
+            except RobtexError:
+                print("Robtex query failed")
+
 

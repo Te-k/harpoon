@@ -43,7 +43,7 @@ class CommandIp(Command):
 
         Get information on an IP:
         ```
-    harpoon ip info 172.34.127.2
+    harpoon ip 172.34.127.2
     MaxMind: Located in None, United States
     MaxMind: ASN21928, T-Mobile USA, Inc.
     ASN 21928 - T-MOBILE-AS21928 - T-Mobile USA, Inc., US (range 172.32.0.0/11)
@@ -54,9 +54,6 @@ class CommandIp(Command):
     BGP HE:     https://bgp.he.net/ip/172.34.127.2
     IP Location:    https://www.iplocation.net/?query=172.34.127.2
         ```
-
-        * Get intelligence information on an IP: `harpoon ip intel IP`
-
     """
 
     name = "ip"
@@ -70,15 +67,7 @@ class CommandIp(Command):
     specific_ips = os.path.join(os.path.expanduser("~"), ".config/harpoon/iplist.csv")
 
     def add_arguments(self, parser):
-        subparsers = parser.add_subparsers(help="Subcommand")
-        parser_a = subparsers.add_parser("info", help="Information on an IP")
-        parser_a.add_argument("IP", help="IP address")
-        parser_a.set_defaults(subcommand="info")
-        parser_b = subparsers.add_parser(
-            "intel", help="Gather Threat Intelligence information on an IP"
-        )
-        parser_b.add_argument("IP", help="IP address")
-        parser_b.set_defaults(subcommand="intel")
+        parser.add_argument("IP", help="IP address")
         self.parser = parser
 
     def update(self):
@@ -201,506 +190,54 @@ class CommandIp(Command):
         return ipinfo
 
     def run(self, conf, args, plugins):
-        if "subcommand" in args:
-            if args.subcommand == "info":
-                if not is_ip(unbracket(args.IP)):
-                    print("Invalid IP address")
-                    sys.exit(1)
-                # FIXME: move code here in a library
-                ip = unbracket(args.IP)
-                if not is_ip(ip):
-                    print("Invalid IP format, quitting...")
-                    sys.exit(1)
-                ipinfo = self.ipinfo(ip)
-                print(
-                    "MaxMind: Located in %s, %s" % (ipinfo["city"], ipinfo["country"])
-                )
-                if ipinfo["asn"] == 0:
-                    print("MaxMind: IP not found in the ASN database")
-                else:
-                    print("MaxMind: ASN%i, %s" % (ipinfo["asn"], ipinfo["asn_name"]))
-                    print("CAIDA Type: %s" % ipinfo["asn_type"])
-                try:
-                    asndb2 = pyasn.pyasn(self.asncidr)
-                    res = asndb2.lookup(ip)
-                except OSError:
-                    print("Configuration files are not available")
-                    print("Please run harpoon update before using harpoon")
-                    sys.exit(1)
-                if res[1] is None:
-                    print("IP not found in ASN database")
-                else:
-                    # Search for name
-                    f = open(self.asnname, "r")
-                    found = False
-                    line = f.readline()
-                    name = ""
-                    while not found and line != "":
-                        s = line.split("|")
-                        if s[0] == str(res[0]):
-                            name = s[1].strip()
-                            found = True
-                        line = f.readline()
-
-                    print("ASN %i - %s (range %s)" % (res[0], name, res[1]))
-                if ipinfo["hostname"] != "":
-                    print("Hostname: %s" % ipinfo["hostname"])
-                if ipinfo["specific"] != "":
-                    print("Specific: %s" % ipinfo["specific"])
-                if ipy.iptype() == "PRIVATE":
-                    "Private IP"
-                print("")
-                if ipy.version() == 4:
-                    print("Censys:\t\thttps://censys.io/ipv4/%s" % ip)
-                    print("Shodan:\t\thttps://www.shodan.io/host/%s" % ip)
-                    print("IP Info:\thttp://ipinfo.io/%s" % ip)
-                    print("BGP HE:\t\thttps://bgp.he.net/ip/%s" % ip)
-                    print("IP Location:\thttps://www.iplocation.net/?query=%s" % ip)
-            elif args.subcommand == "intel":
-                if not is_ip(unbracket(args.IP)):
-                    print("Invalid IP address")
-                    sys.exit(1)
-                # Start with MISP and OTX to get Intelligence Reports
-                print(
-                    "###################### %s ###################" % unbracket(args.IP)
-                )
-                passive_dns = []
-                urls = []
-                malware = []
-                files = []
-                # MISP
-                misp_e = plugins["misp"].test_config(conf)
-                if misp_e:
-                    print("[+] Downloading MISP information...")
-                    try:
-                        server = ExpandedPyMISP(conf["Misp"]["url"], conf["Misp"]["key"])
-                        misp_results = server.search("attributes", value=unbracket(args.IP))
-                    except requests.exceptions.ConnectionError:
-                        print("Failed connection to MISP")
-                        misp_e = False
-
-                # Binary Edge
-                be_e = plugins["binaryedge"].test_config(conf)
-                if be_e:
-                    try:
-                        print("[+] Downloading BinaryEdge information...")
-                        be = BinaryEdge(conf["BinaryEdge"]["key"])
-                        # FIXME: this only get the first page
-                        res = be.domain_ip(unbracket(args.IP))
-                        for d in res["events"]:
-                            passive_dns.append(
-                                {
-                                    "domain": d["domain"],
-                                    "first": parse(d["updated_at"]).astimezone(
-                                        pytz.utc
-                                    ),
-                                    "last": parse(d["updated_at"]).astimezone(pytz.utc),
-                                    "source": "BinaryEdge",
-                                }
-                            )
-                    except BinaryEdgeException:
-                        print("BinaryEdge request failed, you need a paid subscription")
-                # OTX
-                otx_e = plugins["otx"].test_config(conf)
-                if otx_e:
-                    print("[+] Downloading OTX information....")
-                    otx = OTXv2(conf["AlienVaultOtx"]["key"])
-                    res = otx.get_indicator_details_full(
-                        IndicatorTypes.IPv4, unbracket(args.IP)
-                    )
-                    otx_pulses = res["general"]["pulse_info"]["pulses"]
-                    # Get Passive DNS
-                    if "passive_dns" in res:
-                        for r in res["passive_dns"]["passive_dns"]:
-                            passive_dns.append(
-                                {
-                                    "domain": r["hostname"],
-                                    "first": parse(r["first"]).astimezone(pytz.utc),
-                                    "last": parse(r["last"]).astimezone(pytz.utc),
-                                    "source": "OTX",
-                                }
-                            )
-                    if "url_list" in res:
-                        for r in res["url_list"]["url_list"]:
-                            if "result" in r:
-                                urls.append(
-                                    {
-                                        "date": parse(r["date"]).astimezone(pytz.utc),
-                                        "url": r["url"],
-                                        "ip": r["result"]["urlworker"]["ip"]
-                                        if "ip" in r["result"]["urlworker"]
-                                        else "",
-                                        "source": "OTX",
-                                    }
-                                )
-                            else:
-                                urls.append(
-                                    {
-                                        "date": parse(r["date"]).astimezone(pytz.utc),
-                                        "url": r["url"],
-                                        "ip": "",
-                                        "source": "OTX",
-                                    }
-                                )
-                # RobTex
-                print("[+] Downloading Robtex information....")
-                rob = Robtex()
-                try:
-                    res = rob.get_ip_info(unbracket(args.IP))
-                except RobtexError:
-                    print("Error with Robtex")
-                else:
-                    for d in ["pas", "pash", "act", "acth"]:
-                        if d in res:
-                            for a in res[d]:
-                                passive_dns.append(
-                                    {
-                                        "first": a["date"].astimezone(pytz.utc),
-                                        "last": a["date"].astimezone(pytz.utc),
-                                        "domain": a["o"],
-                                        "source": "Robtex",
-                                    }
-                                )
-
-                # PT
-                pt_e = plugins["pt"].test_config(conf)
-                if pt_e:
-                    out_pt = False
-                    print("[+] Downloading Passive Total information....")
-                    client = DnsRequest(
-                        conf["PassiveTotal"]["username"], conf["PassiveTotal"]["key"]
-                    )
-                    try:
-                        raw_results = client.get_passive_dns(query=unbracket(args.IP))
-                        if "results" in raw_results:
-                            for res in raw_results["results"]:
-                                passive_dns.append(
-                                    {
-                                        "first": parse(res["firstSeen"]).astimezone(
-                                            pytz.utc
-                                        ),
-                                        "last": parse(res["lastSeen"]).astimezone(
-                                            pytz.utc
-                                        ),
-                                        "domain": res["resolve"],
-                                        "source": "PT",
-                                    }
-                                )
-                        if "message" in raw_results:
-                            if "quota_exceeded" in raw_results["message"]:
-                                print("Quota exceeded for Passive Total")
-                                out_pt = True
-                                pt_osint = {}
-                    except requests.exceptions.ReadTimeout:
-                        print("Timeout on Passive Total requests")
-                    if not out_pt:
-                        try:
-                            client2 = EnrichmentRequest(
-                                conf["PassiveTotal"]["username"],
-                                conf["PassiveTotal"]["key"],
-                            )
-                            # Get OSINT
-                            # TODO: add PT projects here
-                            pt_osint = client2.get_osint(query=unbracket(args.IP))
-                            # Get malware
-                            raw_results = client2.get_malware(query=unbracket(args.IP))
-                            if "results" in raw_results:
-                                for r in raw_results["results"]:
-                                    malware.append(
-                                        {
-                                            "hash": r["sample"],
-                                            "date": parse(r["collectionDate"]),
-                                            "source": "PT (%s)" % r["source"],
-                                        }
-                                    )
-                        except requests.exceptions.ReadTimeout:
-                            print("Timeout on Passive Total requests")
-                # Urlhaus
-                uh_e = plugins["urlhaus"].test_config(conf)
-                if uh_e:
-                    print("[+] Checking URLHaus data...")
-                    try:
-                        urlhaus = UrlHaus(conf["UrlHaus"]["key"])
-                        res = urlhaus.get_host(unbracket(args.IP))
-                    except UrlHausError:
-                        print("Error with the query")
-                    else:
-                        if "urls" in res:
-                            for r in res["urls"]:
-                                urls.append(
-                                    {
-                                        "date": parse(r["date_added"]).astimezone(
-                                            pytz.utc
-                                        ),
-                                        "url": r["url"],
-                                        "source": "UrlHaus",
-                                    }
-                                )
-                # VT
-                vt_e = plugins["vt"].test_config(conf)
-                if vt_e:
-                    if conf["VirusTotal"]["type"] != "public":
-                        print("[+] Downloading VT information....")
-                        vt = PrivateApi(conf["VirusTotal"]["key"])
-                        res = vt.get_ip_report(unbracket(args.IP))
-                        if "results" in res:
-                            if "resolutions" in res["results"]:
-                                for r in res["results"]["resolutions"]:
-                                    passive_dns.append(
-                                        {
-                                            "first": parse(
-                                                r["last_resolved"]
-                                            ).astimezone(pytz.utc),
-                                            "last": parse(
-                                                r["last_resolved"]
-                                            ).astimezone(pytz.utc),
-                                            "domain": r["hostname"],
-                                            "source": "VT",
-                                        }
-                                    )
-                            if "undetected_downloaded_samples" in res["results"]:
-                                for r in res["results"][
-                                    "undetected_downloaded_samples"
-                                ]:
-                                    files.append(
-                                        {
-                                            "hash": r["sha256"],
-                                            "date": parse(r["date"]),
-                                            "source": "VT",
-                                        }
-                                    )
-                            if "undetected_referrer_samples" in res["results"]:
-                                for r in res["results"]["undetected_referrer_samples"]:
-                                    if "date" in r:
-                                        files.append(
-                                            {
-                                                "hash": r["sha256"],
-                                                "date": parse(r["date"]),
-                                                "source": "VT",
-                                            }
-                                        )
-                                    else:
-                                        # FIXME : should consider data without dates
-                                        files.append(
-                                            {
-                                                "hash": r["sha256"],
-                                                "date": datetime.datetime(1970, 1, 1),
-                                                "source": "VT",
-                                            }
-                                        )
-                            if "detected_downloaded_samples" in res["results"]:
-                                for r in res["results"]["detected_downloaded_samples"]:
-                                    malware.append(
-                                        {
-                                            "hash": r["sha256"],
-                                            "date": parse(r["date"]),
-                                            "source": "VT",
-                                        }
-                                    )
-                            if "detected_referrer_samples" in res["results"]:
-                                for r in res["results"]["detected_referrer_samples"]:
-                                    if "date" in r:
-                                        malware.append(
-                                            {
-                                                "hash": r["sha256"],
-                                                "date": parse(r["date"]),
-                                                "source": "VT",
-                                            }
-                                        )
-                    else:
-                        vt_e = False
-
-                # Greynoise
-                gn_e = plugins["greynoise"].test_config(conf)
-                greynoise = []
-                if gn_e:
-                    print("[+] Downloading GreyNoise information....")
-                    logging.getLogger("greynoise").setLevel(logging.CRITICAL)
-                    gn = GreyNoise(conf['GreyNoise']['key'])
-                    greynoise = gn.ip(unbracket(args.IP))
-
-                tg_e = plugins["threatgrid"].test_config(conf)
-                if tg_e:
-                    print("[+] Downloading Threat Grid....")
-                    try:
-                        tg = ThreatGrid(conf["ThreatGrid"]["key"])
-                        res = tg.search_samples(unbracket(args.IP), type="ip")
-                        already = []
-                        if "items" in res:
-                            for r in res["items"]:
-                                if r["sample_sha256"] not in already:
-                                    d = parse(r["ts"])
-                                    d = d.replace(tzinfo=None)
-                                    malware.append(
-                                        {
-                                            "hash": r["sample_sha256"],
-                                            "date": d,
-                                            "source": "TG",
-                                        }
-                                    )
-                                    already.append(r["sample_sha256"])
-                    except ThreatGridError as e:
-                        print("Error with threat grid: {}".format(e.message))
-
-                # ThreatCrowd
-                print("[+] Downloading ThreatCrowd....")
-                tc = ThreatCrowd()
-                try:
-                    res = tc.ip(unbracket(args.IP))
-                    if "hashes" in res:
-                        for h in res["hashes"]:
-                            malware.append(
-                                {
-                                    "hash": h,
-                                    "date": None,
-                                    "source": "ThreatCrowd",
-                                }
-                            )
-                    if "resolutions" in res:
-                        for r in res["resolutions"]:
-                            d = parse(r["last_resolved"]).astimezone(pytz.utc)
-                            passive_dns.append({
-                                "first": d,
-                                "last": d,
-                                "domain": r["domain"].strip(),
-                                "source": "ThreatCrowd",
-                            })
-                except ThreatCrowdError as e:
-                    print("ThreatCrowd query failed: {}".format(e.message))
-
-                # ThreatMiner
-                print("[+] Downloading ThreatMiner....")
-                tm = ThreatMiner()
-                response = tm.get_report(unbracket(args.IP))
-                if response["status_code"] == "200":
-                    tmm = response["results"]
-                else:
-                    tmm = []
-                    if response["status_code"] != "404":
-                        print(
-                            "Request to ThreatMiner failed: {}".format(
-                                response["status_message"]
-                            )
-                        )
-                response = tm.get_related_samples(unbracket(args.IP))
-                if response["status_code"] == "200":
-                    for r in response["results"]:
-                        malware.append(
-                            {"hash": r, "date": None, "source": "ThreatMiner"}
-                        )
-
-                print("----------------- Intelligence Report")
-                ctor = CommandTor()
-                tor_list = ctor.get_list()
-                if tor_list:
-                    if unbracket(args.IP) in tor_list:
-                        print("{} is a Tor Exit node".format(unbracket(args.IP)))
-                else:
-                    print("Impossible to reach the Tor Exit Node list")
-                if otx_e:
-                    if len(otx_pulses):
-                        print("OTX:")
-                        for p in otx_pulses:
-                            print(
-                                "- %s (%s - %s)"
-                                % (
-                                    p["name"],
-                                    p["created"][:10],
-                                    "https://otx.alienvault.com/pulse/" + p["id"],
-                                )
-                            )
-                    else:
-                        print("OTX: Not found in any pulse")
-                if misp_e:
-                    if len(misp_results["Attribute"]) > 0:
-                        print("MISP:")
-                        for event in misp_results["Attribute"]:
-                            print(
-                                "- {} - {}".format(
-                                    event["Event"]["id"], event["Event"]["info"]
-                                )
-                            )
-                if len(greynoise) > 0:
-                    if "seen" in greynoise:
-                        if greynoise['seen']:
-                            print("GreyNoise: IP identified as")
-                            for key, value in greynoise.items():
-                                print(key, "->", value)
-                else:
-                    print("GreyNoise: Not found")
-                if pt_e:
-                    if "results" in pt_osint:
-                        if len(pt_osint["results"]):
-                            if len(pt_osint["results"]) == 1:
-                                if "name" in pt_osint["results"][0]:
-                                    print(
-                                        "PT: %s %s"
-                                        % (
-                                            pt_osint["results"][0]["name"],
-                                            pt_osint["results"][0]["sourceUrl"],
-                                        )
-                                    )
-                                else:
-                                    print(
-                                        "PT: %s" % pt_osint["results"][0]["sourceUrl"]
-                                    )
-                            else:
-                                print("PT:")
-                                for r in pt_osint["results"]:
-                                    if "name" in r:
-                                        print("-%s %s" % (r["name"], r["sourceUrl"]))
-                                    else:
-                                        print("-%s" % r["sourceUrl"])
-                        else:
-                            print("PT: Nothing found!")
-                    else:
-                        print("PT: Nothing found!")
-                # ThreatMiner
-                if len(tmm) > 0:
-                    print("ThreatMiner:")
-                    for r in tmm:
-                        print("- {} {} - {}".format(r["year"], r["filename"], r["URL"]))
-
-                if len(malware) > 0:
-                    print("----------------- Malware")
-                    for r in malware:
-                        print(
-                            "[%s] %s %s"
-                            % (
-                                r["source"],
-                                r["hash"],
-                                r["date"].strftime("%Y-%m-%d") if r["date"] else "",
-                            )
-                        )
-                if len(files) > 0:
-                    print("----------------- Files")
-                    for r in sorted(files, key=lambda x: x["date"]):
-                        print(
-                            "[%s] %s %s"
-                            % (r["source"], r["hash"], r["date"].strftime("%Y-%m-%d"))
-                        )
-                if len(passive_dns) > 0:
-                    print("----------------- Passive DNS")
-                    for r in sorted(
-                        passive_dns, key=lambda x: x["first"], reverse=True
-                    ):
-                        print(
-                            "[+] %-40s (%s -> %s)(%s)"
-                            % (
-                                r["domain"],
-                                r["first"].strftime("%Y-%m-%d"),
-                                r["last"].strftime("%Y-%m-%d"),
-                                r["source"],
-                            )
-                        )
-                if len(urls) > 0:
-                    print("----------------- Urls")
-                    for r in sorted(urls, key=lambda x: x["date"], reverse=True):
-                        print(
-                            "[%s] %s - %s"
-                            % (r["source"], r["url"], r["date"].strftime("%Y-%m-%d"))
-                        )
-            else:
-                self.parser.print_help()
+        ip = unbracket(args.IP)
+        if not is_ip(ip):
+            print("Invalid IP address")
+            sys.exit(1)
+        # FIXME: move code here in a library
+        ipinfo = self.ipinfo(ip)
+        print(
+            "MaxMind: Located in %s, %s" % (ipinfo["city"], ipinfo["country"])
+        )
+        if ipinfo["asn"] == 0:
+            print("MaxMind: IP not found in the ASN database")
         else:
-            self.parser.print_help()
+            print("MaxMind: ASN%i, %s" % (ipinfo["asn"], ipinfo["asn_name"]))
+            print("CAIDA Type: %s" % ipinfo["asn_type"])
+        try:
+            asndb2 = pyasn.pyasn(self.asncidr)
+            res = asndb2.lookup(ip)
+        except OSError:
+            print("Configuration files are not available")
+            print("Please run harpoon update before using harpoon")
+            sys.exit(1)
+        if res[1] is None:
+            print("IP not found in ASN database")
+        else:
+            # Search for name
+            f = open(self.asnname, "r")
+            found = False
+            line = f.readline()
+            name = ""
+            while not found and line != "":
+                s = line.split("|")
+                if s[0] == str(res[0]):
+                    name = s[1].strip()
+                    found = True
+                line = f.readline()
+
+            print("ASN %i - %s (range %s)" % (res[0], name, res[1]))
+        if ipinfo["hostname"] != "":
+            print("Hostname: %s" % ipinfo["hostname"])
+        if ipinfo["specific"] != "":
+            print("Specific: %s" % ipinfo["specific"])
+        ipy = IP(ip)
+        if ipy.iptype() == "PRIVATE":
+            "Private IP"
+        print("")
+        if ipy.version() == 4:
+            print("Censys:\t\thttps://censys.io/ipv4/%s" % ip)
+            print("Shodan:\t\thttps://www.shodan.io/host/%s" % ip)
+            print("IP Info:\thttp://ipinfo.io/%s" % ip)
+            print("BGP HE:\t\thttps://bgp.he.net/ip/%s" % ip)
+            print("IP Location:\thttps://www.iplocation.net/?query=%s" % ip)

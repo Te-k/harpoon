@@ -405,3 +405,67 @@ class CommandVirusTotal(Command):
                                     "source": "VT",
                                 }
                             )
+        elif type == "ip":
+            if conf["VirusTotal"]["type"] != "public":
+                print("[+] Downloading VT information....")
+                vt = PrivateApi(conf["VirusTotal"]["key"])
+                res = vt.get_ip_report(query)
+                if "results" in res:
+                    if "resolutions" in res["results"]:
+                        for r in res["results"]["resolutions"]:
+                            try:
+                                data["passive_dns"].append({
+                                    "first": parse(
+                                        r["last_resolved"]
+                                    ).astimezone(pytz.utc),
+                                    "last": parse(
+                                        r["last_resolved"]
+                                        ).astimezone(pytz.utc),
+                                    "domain": r["hostname"],
+                                    "source": "VT",
+                                })
+                            except TypeError:
+                                # Error with the date
+                                pass
+                    if "undetected_downloaded_samples" in res["results"]:
+                        for r in res["results"]["undetected_downloaded_samples"]:
+                            data["files"].append({
+                                "hash": r["sha256"],
+                                "date": parse(r["date"]).astimezone(pytz.utc) if "date" in r else "",
+                                "source": "VT",
+                            })
+                    if "undetected_referrer_samples" in res["results"]:
+                        for r in res["results"]["undetected_referrer_samples"]:
+                            data["files"].append(
+                                {
+                                    "hash": r["sha256"],
+                                    "date": parse(r["date"]).astimezone(
+                                        pytz.utc
+                                    )
+                                    if "date" in r
+                                    else "",
+                                    "source": "VT",
+                                }
+                            )
+                    if "detected_downloaded_samples" in res["results"]:
+                        for r in res["results"]["detected_downloaded_samples"]:
+                            data["malware"].append(
+                                {
+                                    "hash": r["sha256"],
+                                    "date": parse(r["date"]).astimezone(
+                                        pytz.utc
+                                    ),
+                                }
+                            )
+                    if "detected_urls" in res["results"]:
+                        for r in res["results"]["detected_urls"]:
+                            data["urls"].append(
+                                {
+                                    "date": parse(r["scan_date"]).astimezone(
+                                        pytz.utc
+                                    ),
+                                    "url": r["url"],
+                                    "ip": "",
+                                    "source": "VT",
+                                }
+                            )
