@@ -2,6 +2,8 @@
 import sys
 import json
 import hashlib
+import pytz
+from dateutil.parser import parse
 from harpoon.commands.base import Command
 from harpoon.lib.hybrid import HybridAnalysis, HybridAnalysisFailed
 from harpoon.lib.utils import json_serial
@@ -99,3 +101,19 @@ tag:teslacrypt
                 self.parser.print_help()
         else:
             self.parser.print_help()
+
+    def intel(self, type, query, data, conf):
+        ha = HybridAnalysis(conf['HybridAnalysis']['key'], conf['HybridAnalysis']['secret'])
+        if type == "domain":
+            print("[+] Downloading Hybrid Analysis info...")
+            try:
+                res = ha.search("domain:{}".format(query))
+            except HybridAnalysisFailed:
+                print("Query failed")
+            else:
+                for r in res["result"]:
+                    data["malware"].append({
+                        "source": "HybridAnalysis",
+                        "hash": r["sha256"],
+                        "date": parse(r["start_time"]).astimezone(pytz.utc)
+                    })

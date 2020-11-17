@@ -2,6 +2,8 @@
 import sys
 import json
 import datetime
+import pytz
+from dateutil.parser import parse
 from harpoon.commands.base import Command
 from harpoon.lib.utils import bracket, unbracket
 from pysecuritytrails import SecurityTrails, SecurityTrailsError
@@ -70,3 +72,20 @@ class CommandSecurityTrails(Command):
                 self.parser.print_help()
         else:
             self.parser.print_help()
+
+    def intel(self, type, query, data, conf):
+        client = SecurityTrails(conf['SecurityTrails']['key'])
+        if type == "domain":
+            print("[+] Downloading SecurityTrails information...")
+            try:
+                res = client.domain_history_dns(query)
+                for r in res["records"]:
+                    for ip in r["values"]:
+                        data["passive_dns"].append({
+                            "ip": ip["ip"],
+                            "source": "SecurityTrails",
+                            "first": parse(r['first_seen']).astimezone(pytz.utc),
+                            "last": parse(r['last_seen']).astimezone(pytz.utc)
+                        })
+            except SecurityTrailsError:
+                print("Security Trail request failed")

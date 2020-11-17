@@ -68,7 +68,7 @@ class CommandBinaryEdge(Command):
             help='Search for domain instead of email'
         )
         parser_d.set_defaults(which='dataleaks')
-        parser_e = subparsers.add_parser('domains', help='Search information on a domain')
+        parser_e = subparsers.add_parser('domain', help='Search information on a domain')
         parser_e.add_argument('DOMAIN', help='Domain to be requested')
         parser_e.add_argument('--page', '-p', type=int, default=1,
                 help='Get specific page')

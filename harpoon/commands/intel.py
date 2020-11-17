@@ -1,37 +1,8 @@
 #! /usr/bin/env python
-import datetime
-import glob
-import json
 import os
-import re
-import shutil
-import subprocess
 import sys
-import tarfile
-import urllib.request
-
-import geoip2.database
-import pyasn
-import pypdns
-import pytz
-import requests
-from dateutil.parser import parse
 from harpoon.commands.base import Command
-from harpoon.commands.umbrella import CommandUmbrella
-from harpoon.lib.robtex import Robtex, RobtexError
-from harpoon.lib.urlhaus import UrlHaus, UrlHausError
-from harpoon.lib.urlscan import UrlScan
-from harpoon.lib.utils import bracket, unbracket
-from harpoon.lib.threatcrowd import ThreatCrowd, ThreatCrowdError
-from IPy import IP
-from OTXv2 import IndicatorTypes, OTXv2
-from passivetotal.libs.dns import DnsRequest
-from passivetotal.libs.enrichment import EnrichmentRequest
-from pybinaryedge import BinaryEdge, BinaryEdgeException, BinaryEdgeNotFound
-from pymisp import ExpandedPyMISP
-from pythreatgrid2 import ThreatGrid, ThreatGridError
-from threatminer import ThreatMiner
-from virus_total_apis import PrivateApi, PublicApi
+from harpoon.lib.utils import unbracket
 
 
 class CommandIntel(Command):
@@ -71,7 +42,8 @@ class CommandIntel(Command):
                         "urls": [],
                         "malware": [],
                         "files": [],
-                        "reports": []
+                        "reports": [],
+                        #"subdomains": []
                 }
                 print("###################### %s ###################" % args.DOMAIN)
                 for p in plugins:
@@ -133,6 +105,10 @@ class CommandIntel(Command):
                                 r["date"].strftime("%Y-%m-%d"),
                             )
                         )
+                #if len(data["subdomains"]) > 0:
+                    #print("----------------- Subdomains")
+                    #for r in set(data["subdomains"]):
+                        #print(r)
                 if len(data["passive_dns"]) > 0:
                     print("----------------- Passive DNS")
                     for r in sorted(

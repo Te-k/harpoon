@@ -15,6 +15,7 @@ class CommandQuad9(Command):
     """
     name = "quad9"
     description = "Check if a domain is blocked by Quad9"
+    config = {'Quad9': []}
 
     def add_arguments(self, parser):
         parser.add_argument('DOMAIN',  help='Domain to be checked')
@@ -38,3 +39,25 @@ class CommandQuad9(Command):
             print("{} - NOT BLOCKED".format(args.DOMAIN))
         if args.verbose:
             print(json.dumps(r.json(), indent=4))
+
+    def intel(self, type, query, data, conf):
+        if type == "domain":
+            print("[+] Checking Quad9...")
+            params = {
+                'name': query,
+                'type': 'A',
+                'ct': 'application/dns-json',
+            }
+            r = requests.get("https://dns.quad9.net:5053/dns-query", params=params)
+            if r.status_code != 200:
+                print("Quad9 query failed")
+            else:
+                if r.json()['Status'] == 3:
+                    data["reports"].append({
+                        "title": "Domain blocked by Quad9",
+                        "date": "",
+                        "source": "Quad9",
+                        "url": ""
+                    })
+
+

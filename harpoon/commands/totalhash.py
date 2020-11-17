@@ -15,7 +15,7 @@ class CommandTotalHash(Command):
 
     * Check API usage: `harpoon totalhash usage`
     * Search for a file `harpoon totalhash search mutex:ASPLOG`
-    * Search with all results (/!\ earch 10 results is one query): `harpoon totalhash search -a mutex:ASPLOG`
+    * Search with all results (/!\ each 10 results is one query): `harpoon totalhash search -a mutex:ASPLOG`
     * Get a file analysis: `harpoon totalhash hash HASH`
     """
     name = "totalhash"
@@ -59,3 +59,14 @@ class CommandTotalHash(Command):
                 self.parser.print_help()
         else:
             self.parser.print_help()
+
+    def intel(self, type, query, data, conf):
+        th = TotalHash(conf['TotalHash']['user'], conf['TotalHash']['key'])
+        if type == "domain":
+            res = th.search('dnsrr:{}'.format(query))
+            for r in res['results']:
+                data["malware"].append({
+                    "source": "TotalHash",
+                    "date": None,
+                    "hash": r
+                })

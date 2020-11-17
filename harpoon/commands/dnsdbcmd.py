@@ -2,6 +2,8 @@
 import sys
 import json
 import datetime
+import pytz
+from dateutil.parser import parse
 from harpoon.commands.base import Command
 from harpoon.lib.utils import bracket, unbracket
 from dnsdb import Dnsdb
@@ -60,3 +62,20 @@ class DnsDbTotal(Command):
                 self.parser.print_help()
         else:
             self.parser.print_help()
+
+    def intel(self, type, query, data, conf):
+        if type == "domain":
+            dnsdb = Dnsdb(conf['Dnsdb']['key'])
+            results = dnsdb.search(name=query)
+            if results.status_code != 200:
+                print("Request failed : status code {}".format(results.status_code))
+            else:
+                for r in results.records:
+                    if r['rrtype'] in ['A', 'AAAA']:
+                        for ip in r['rdata']:
+                            data["passive_dns"].append({
+                                "ip": ip.strip(),
+                                "first": parse(r['time_first']).astimezone(pytz.utc),
+                                "last": parse(r['time_last']).astimezone(pytz.utc),
+                                "source": "DNSdb"
+                            })

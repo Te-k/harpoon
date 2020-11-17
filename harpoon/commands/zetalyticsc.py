@@ -2,6 +2,8 @@
 import sys
 import json
 import re
+import pytz
+from dateutil.parser import parse
 from harpoon.commands.base import Command
 from harpoon.lib.utils import unbracket
 from zetalytics import Zetalytics
@@ -312,3 +314,21 @@ class CommandZetalytics(Command):
                 self.parser.print_help()
         else:
             self.parser.print_help()
+
+    def intel(self, type, query, data, conf):
+        if type == "domain":
+            print("[+] Downloading Zetalytics information....")
+            zeta = Zetalytics(token=conf['Zetalytics']['token'])
+            res = zeta.domain2ip(q=query)
+            if "results" in res:
+                for domain in res["results"]:
+                    if domain["qname"] == query:
+                        data["passive_dns"].append({
+                            "ip": domain["value"],
+                            "source": "Zetalytics",
+                            "first": parse(domain['date']).astimezone(pytz.utc),
+                            "last": parse(domain['last_seen']).astimezone(pytz.utc),
+                        })
+                    #else:
+                        #data["subdomains"].append(domain["qname"])
+
