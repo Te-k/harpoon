@@ -370,6 +370,28 @@ class CommandVirusTotal(Command):
                                     "source": "VT",
                                 }
                             )
+                    if "undetected_communicating_samples" in res["results"]:
+                        for r in res["results"]["undetected_communicating_samples"]:
+                            data["malware"].append(
+                                {
+                                    "hash": r["sha256"],
+                                    "date": parse(r["date"]).astimezone(
+                                        pytz.utc
+                                    ),
+                                    "source": "VT"
+                                }
+                            )
+                    if "detected_communicating_samples" in res["results"]:
+                        for r in res["results"]["detected_communicating_samples"]:
+                            data["malware"].append(
+                                {
+                                    "hash": r["sha256"],
+                                    "date": parse(r["date"]).astimezone(
+                                        pytz.utc
+                                    ),
+                                    "source": "VT"
+                                }
+                            )
                     if "detected_downloaded_samples" in res["results"]:
                         for r in res["results"]["detected_downloaded_samples"]:
                             data["malware"].append(
@@ -444,6 +466,28 @@ class CommandVirusTotal(Command):
                                     )
                                     if "date" in r
                                     else "",
+                                    "source": "VT",
+                                }
+                            )
+                    if "undetected_communicating_samples" in res["results"]:
+                        for r in res["results"]["undetected_communicating_samples"]:
+                            data["malware"].append(
+                                {
+                                    "hash": r["sha256"],
+                                    "date": parse(r["date"]).astimezone(
+                                        pytz.utc
+                                    ),
+                                    "source": "VT",
+                                }
+                            )
+                    if "detected_communicating_samples" in res["results"]:
+                        for r in res["results"]["detected_communicating_samples"]:
+                            data["malware"].append(
+                                {
+                                    "hash": r["sha256"],
+                                    "date": parse(r["date"]).astimezone(
+                                        pytz.utc
+                                    ),
                                     "source": "VT",
                                 }
                             )
