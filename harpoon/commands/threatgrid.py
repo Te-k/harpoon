@@ -27,6 +27,7 @@ class CommandThreatGrid(Command):
         subparsers = parser.add_subparsers(help='Subcommand')
         parser_a = subparsers.add_parser('hash', help='Request info on a hash')
         parser_a.add_argument('HASH', help='Hash')
+        parser_a.add_argument('--json', '-j', action='store_true', help='Show raw json')
         parser_a.set_defaults(subcommand='hash')
         parser_b = subparsers.add_parser('search', help='Search in Total Hash database')
         parser_b.add_argument('--json', '-j', action='store_true', help='Show raw json')
@@ -64,11 +65,13 @@ class CommandThreatGrid(Command):
                     item = res['items'][0]
                     print("Sample submitted the %s: https://panacea.threatgrid.com/mask/samples/%s" % (item['submitted_at'], item['id']))
                     idd = item['id']
-
                     res = tg.get_sample_threats(idd)
-                    print('\nThreats:')
-                    for t in res['bis']:
-                        print("-%s" % t)
+                    if args.json:
+                        print(json.dumps(res, sort_keys=True, indent=4))
+                    else:
+                        print('\nThreats:')
+                        for t in res['bis']:
+                            print("-%s" % t)
                 else:
                     print('Hash not found')
             elif args.subcommand == 'networklist':
@@ -133,5 +136,19 @@ class CommandThreatGrid(Command):
                                 }
                             )
                             already.append(r["sample_sha256"])
+            except ThreatGridError as e:
+                print("Failed to connect to Threat Grid: %s" % e.message)
+        elif type =="hash":
+            print("[+] Checking ThreatGrid...")
+            try:
+                tg = ThreatGrid(conf["ThreatGrid"]["key"])
+                hash_type = {32: 'md5', 40: 'sha1', 64: 'sha256'}
+                res = tg.get_sample(query, type=hash_type[len(query)])
+                for item in res["items"]:
+                    data["samples"].append({
+                        "source": "ThreatGrid",
+                        "date": parse(item["submitted_at"]).astimezone(pytz.utc),
+                        "url": "https://panacea.threatgrid.com/mask/samples/{}".format(item['id'])
+                    })
             except ThreatGridError as e:
                 print("Failed to connect to Threat Grid: %s" % e.message)

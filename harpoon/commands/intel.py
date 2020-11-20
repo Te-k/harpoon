@@ -39,6 +39,14 @@ class CommandIntel(Command):
         parser_b.add_argument("--all", "-a", action="store_true",
                 help="Query all plugins configured and available")
         parser_b.set_defaults(subcommand="ip")
+        parser_c = subparsers.add_parser(
+            "hash", help="Gather Threat Intelligence information on a hash"
+        )
+        parser_c.add_argument("HASH", help="Hash")
+        parser_c.add_argument("--all", "-a", action="store_true",
+                help="Query all plugins configured and available")
+        parser_c.set_defaults(subcommand="hash")
+        self.parser = parser
         self.parser = parser
 
     def run(self, conf, args, plugins):
@@ -240,6 +248,76 @@ class CommandIntel(Command):
                     print("")
                 if sum([len(data[b]) for b in data]) == 0:
                     print("Nothing found")
+            elif args.subcommand == "hash":
+                data = {
+                        "samples": [],
+                        "urls": [],
+                        "network": [],
+                        "reports": []
+                }
+                print("############### {}".format(args.HASH))
+                for p in plugins:
+                    if args.all:
+                        if plugins[p].test_config(conf):
+                            plugins[p].intel("hash", args.HASH, data, conf)
+                    else:
+                        if plugins[p].test_config(conf) and plugins[p].check_intel(conf):
+                            plugins[p].intel("hash", args.HASH, data, conf)
+                print("")
+
+                if len(data["reports"]) > 0:
+                    print("----------------- Intelligence Report")
+                    for report in data["reports"]:
+                        print("{} - {} - {} - {}".format(
+                            report["date"].strftime("%Y-%m-%d") if report["date"] else "",
+                            report["title"],
+                            report["url"],
+                            report["source"]
+                        ))
+                    print("")
+
+                if len(data["samples"]) > 0:
+                    print("----------------- Samples")
+                    for sample in data["samples"]:
+                        print("{} - {} {}".format(
+                            sample["date"].strftime("%Y-%m-%d") if sample["date"] else "",
+                            sample["source"],
+                            sample["url"],
+                        ))
+                        if "infos" in sample:
+                            for info in sample["infos"]:
+                                print("- {} - {}".format(
+                                    info,
+                                    sample["infos"][info]
+                                ))
+                    print("")
+
+                if len(data["network"]) > 0:
+                    print("------------------ Network")
+                    for host in data["network"]:
+                        if "host2" in host:
+                            print("{:30} {} - {}".format(
+                                "{} ({})".format(host["host"], host["host2"]),
+                                host["source"],
+                                host["url"]
+                            ))
+                        else:
+                            print("{:30} {} - {}".format(
+                                host["host"],
+                                host["source"],
+                                host["url"]
+                            ))
+                    print("")
+
+                if len(data["urls"]) > 0:
+                    print("----------------- Urls")
+                    for report in data["urls"]:
+                        print("{} - {} - {}".format(
+                            report["url"],
+                            report["link"],
+                            report["source"]
+                        ))
+                    print("")
             else:
                 self.parser.print_help()
         else:

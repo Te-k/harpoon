@@ -271,3 +271,40 @@ class CommandOtx(Command):
                             })
             except AttributeError:
                 print("OTX crashed  ¯\_(ツ)_/¯")
+        elif type == "hash":
+            t = typeguess(query)
+            print("[+] Checking OTX...")
+            try:
+                otx = OTXv2(conf["AlienVaultOtx"]["key"])
+                res = otx.get_indicator_details_full(OTX_TYPES[t], query)
+                for pulse in res["general"]["pulse_info"]["pulses"]:
+                    data["reports"].append({
+                        "date": parse(pulse["created"]).astimezone(pytz.utc),
+                        "title": pulse["name"],
+                        "source": "OTX",
+                        "url": "https://otx.alienvault.com/pulse/{}".format(pulse["id"])
+                    })
+                if "analysis" in res:
+                    if "analysis" in res["analysis"]:
+                        if "plugins" in res["analysis"]["analysis"]:
+                            if "cuckoo" in res["analysis"]["analysis"]["plugins"]:
+                                done = []
+                                for d in res["analysis"]["analysis"]["plugins"]["cuckoo"]["result"]["network"]["domains"]:
+                                    data["network"].append({
+                                        "source": "OTX",
+                                        "url": "https://otx.alienvault.com/indicator/file/{}".format(query),
+                                        "host": d["domain"],
+                                        "host2": d["ip"]
+                                    })
+                                    done.append(d["ip"])
+                                    done.append(d["domain"])
+                                for ip in res["analysis"]["analysis"]["plugins"]["cuckoo"]["result"]["network"]["hosts"]:
+                                    if ip["ip"] not in done:
+                                        data["network"].append({
+                                            "source": "OTX",
+                                            "url": "https://otx.alienvault.com/indicator/file/{}".format(query),
+                                            "host": ip["ip"],
+                                        })
+
+            except AttributeError:
+                print("OTX crashed  ¯\_(ツ)_/¯")

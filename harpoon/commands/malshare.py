@@ -68,3 +68,17 @@ class CommandMalShare(Command):
                 self.parser.print_help()
         else:
             self.parser.print_help()
+
+    def intel(self, type, query, data, conf):
+        if type == "hash":
+            ms = MalShare(conf['MalShare']['key'])
+            try:
+                res = ms.file_info(query)
+            except MalShareNotFound:
+                pass
+            else:
+                data["samples"].append({
+                    "date": None,
+                    "source": "MalShare",
+                    "url": "https://malshare.com/sample.php?action=detail&hash={}".format(query)
+                })

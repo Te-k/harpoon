@@ -130,3 +130,35 @@ tag:teslacrypt
                         "hash": r["sha256"],
                         "date": parse(r["start_time"]).astimezone(pytz.utc)
                     })
+        elif type == "hash":
+            print("[+] Checking HybridAnalysis...")
+            try:
+                res = ha.get_report(query)
+            except HybridAnalysisFailed:
+                pass
+            else:
+                for sample in res:
+                    data["samples"].append({
+                        "source": "HybridAnalysis",
+                        "date": parse(sample["analysis_start_time"]).astimezone(pytz.utc),
+                        "url": "https://www.hybrid-analysis.com/sample/{}".format(sample["sha256"]),
+                        "infos": {
+                            "Verdict": sample["verdict"],
+                            "Submitname": sample["submitname"],
+                            "Malware Family": sample["vxfamily"]
+                            }
+                    })
+                    if "domains" in sample:
+                        for d in sample["domains"]:
+                            data["network"].append({
+                                "source": "HybridAnalysis",
+                                "url": "https://www.hybrid-analysis.com/sample/{}".format(sample["sha256"]),
+                                "host": d
+                            })
+                    if "hosts" in sample:
+                        for d in sample["hosts"]:
+                            data["network"].append({
+                                "source": "HybridAnalysis",
+                                "url": "https://www.hybrid-analysis.com/sample/{}".format(sample["sha256"]),
+                                "host": d
+                            })

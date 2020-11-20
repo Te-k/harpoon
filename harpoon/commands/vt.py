@@ -513,3 +513,37 @@ class CommandVirusTotal(Command):
                                     "source": "VT",
                                 }
                             )
+        elif type == "hash":
+            if conf["VirusTotal"]["type"] != "public":
+                print("[+] Checking VirusTotal...")
+                vt = PrivateApi(conf["VirusTotal"]["key"])
+                res = vt.get_file_report(query)
+                if res["results"]["response_code"] == 1:
+                    # Found
+                    data["samples"].append({
+                        "date": parse(res['results']['scan_date']).astimezone(pytz.utc),
+                        "source": "VT",
+                        "url": res['results']['permalink'],
+                        "infos": {
+                            "AV Result": "{} / {}".format(res['results']['positives'], res['results']['total']),
+                            "First Seen": res['results']["first_seen"],
+                            "File Names": ", ".join(res['results']["submission_names"][:5])
+                        }
+                    })
+                    if "ITW_urls" in res["results"]:
+                        for url in res['results']["ITW_urls"]:
+                            data["urls"].append({
+                                "url": url,
+                                "source": "VT",
+                                "link": res['results']['permalink']
+                            })
+                    if "additional_info" in res["results"]:
+                        if "behaviour-v1" in res["results"]["additional_info"]:
+                            if "network" in res['results']['additional_info']['behaviour-v1']:
+                                for d in res['results']['additional_info']['behaviour-v1']["network"]["dns"]:
+                                    data["network"].append({
+                                        "source": "VT",
+                                        "url": res['results']['permalink'],
+                                        "host": d["hostname"],
+                                        "ip": d["ip"]
+                                    })

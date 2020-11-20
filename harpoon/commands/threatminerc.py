@@ -260,3 +260,16 @@ class CommandThreatMiner(Command):
                     data["malware"].append(
                         {"hash": r, "date": None, "source": "ThreatMiner"}
                     )
+        elif type == "hash":
+            print("[+] Checking ThreatMiner...")
+            tm = ThreatMiner()
+            response = tm.get_report(query)
+            if response['status_code'] == '200':
+                if len(response['results']) > 0:
+                    for r in response['results']:
+                        data["reports"].append({
+                            "date": datetime.datetime(int(r["year"]), 1, 1),
+                            "title": r["filename"],
+                            "url": r["URL"],
+                            "source": "ThreatMiner"
+                        })

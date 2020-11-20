@@ -99,11 +99,14 @@ class TotalHash(object):
             else:
                 raise TotalHashError()
         else:
-            root = ET.fromstring(res.text)
+            try:
+                root = ET.fromstring(res.text)
+            except ET.ParseError:
+                raise TotalHashError()
+
             # May not be complete
             results = {
                 'sha1': root.attrib['sha1'],
-                'md5': root.attrib['md5'],
                 'time': parse(root.attrib['time']),
                 'url': 'https://totalhash.cymru.com/analysis/?%s' % root.attrib['sha1'],
                 'sections': [],
@@ -114,6 +117,10 @@ class TotalHash(object):
                 'imports': [],
                 'processes': []
             }
+            try:
+                results["md5"] = root.attrib['md5']
+            except KeyError:
+                pass
             try:
                 results['magic'] = root.findall('static/magic')[0].attrib['value']
             except IndexError:

@@ -119,7 +119,27 @@ class CommandThreatCrowd(Command):
                         })
             except ThreatCrowdError as e:
                 print("Connection to ThreatCrowd failed: {}".format(e.message))
-
-
-
-
+        elif type == "hash":
+            print("[+] Checking ThreatCrowd...")
+            if len(query.strip()) != 32:
+                print("ThreatCrowd only accepts md5 ¯\_(ツ)_/¯")
+                return
+            tc = ThreatCrowd()
+            try:
+                res = tc.file(query)
+                if "domains" in res:
+                    for d in res["domains"]:
+                        data["network"].append({
+                            "host": d,
+                            "source": "ThreatCrowd",
+                            "url": res["permalink"]
+                        })
+                if "ips" in res:
+                    for d in res["ips"]:
+                        data["network"].append({
+                            "host": d,
+                            "source": "ThreatCrowd",
+                            "url": res["permalink"]
+                        })
+            except ThreatCrowdError as e:
+                print("Connection to ThreatCrowd failed: {}".format(e.message))

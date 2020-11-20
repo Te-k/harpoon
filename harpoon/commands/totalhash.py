@@ -3,7 +3,7 @@ import sys
 import json
 import hashlib
 from harpoon.commands.base import Command
-from harpoon.lib.totalhash import TotalHash, TotalHashNotFound
+from harpoon.lib.totalhash import TotalHash, TotalHashNotFound, TotalHashError
 from harpoon.lib.utils import json_serial
 
 
@@ -64,19 +64,26 @@ class CommandTotalHash(Command):
         th = TotalHash(conf['TotalHash']['user'], conf['TotalHash']['key'])
         if type == "domain":
             print("[+] Checking TotalHash...")
-            res = th.search('dnsrr:{}'.format(query))
-            for r in res['results']:
-                data["malware"].append({
-                    "source": "TotalHash",
-                    "date": None,
-                    "hash": r
-                })
+            try:
+                res = th.search('dnsrr:{}'.format(query))
+                for r in res['results']:
+                    data["malware"].append({
+                        "source": "TotalHash",
+                        "date": None,
+                        "hash": r
+                    })
+            except TotalHashError:
+                print("TotalHash : request failed")
         elif type == "ip":
             print("[+] Checking TotalHash...")
-            res = th.search('ip:{}'.format(query))
-            for r in res['results']:
-                data["malware"].append({
-                    "source": "TotalHash",
-                    "date": None,
-                    "hash": r
-                })
+            try:
+                res = th.search('ip:{}'.format(query))
+                for r in res['results']:
+                    data["malware"].append({
+                        "source": "TotalHash",
+                        "date": None,
+                        "hash": r
+                    })
+            except TotalHashError:
+                print("TotalHash : request failed")
+        # TODO hash
