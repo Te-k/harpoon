@@ -138,7 +138,7 @@ class CommandIntel(Command):
                             % (
                                 r["ip"],
                                 r["first"].strftime("%Y-%m-%d"),
-                                r["last"].strftime("%Y-%m-%d"),
+                                r["last"].strftime("%Y-%m-%d") if r["last"] else "",
                                 r["source"],
                             )
                         )

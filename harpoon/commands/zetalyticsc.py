@@ -327,7 +327,7 @@ class CommandZetalytics(Command):
                             "ip": domain["value"],
                             "source": "Zetalytics",
                             "first": parse(domain['date']).astimezone(pytz.utc),
-                            "last": parse(domain['last_seen']).astimezone(pytz.utc),
+                            "last": parse(domain['last_seen']).astimezone(pytz.utc) if "last_seen" in domain else None,
                         })
                     #else:
                         #data["subdomains"].append(domain["qname"])
