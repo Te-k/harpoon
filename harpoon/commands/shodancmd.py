@@ -38,6 +38,8 @@ class CommandShodan(Command):
         parser_c = subparsers.add_parser('ssh', help='Write ssh history from Shodan historical data')
         parser_c.add_argument('IP', help='IP address')
         parser_c.set_defaults(subcommand='ssh')
+        parser_d = subparsers.add_parser('quota', help='Information on quota of your shodan account')
+        parser_d.set_defaults(subcommand='quota')
         self.parser = parser
 
     def run(self, conf, args, plugins):
@@ -137,6 +139,9 @@ class CommandShodan(Command):
                                 val['last'].strftime('%Y-%m-%d')
                             )
                         )
+            elif args.subcommand == 'quota':
+                res = api.info()
+                print(json.dumps(res, sort_keys=True, indent=4))
             else:
                 self.parser.print_help()
         else:
