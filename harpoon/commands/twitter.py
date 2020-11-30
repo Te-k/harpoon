@@ -37,9 +37,10 @@ class CommandTwitter(Command):
             print(json.dumps(a._json, sort_keys=True, indent=4, separators=(',', ': ')))
         elif args.tweets:
             a = bird.get_user_tweets(args.tweets)
+            tweets = []
             for page in a:
-                # FIXME : improve this
-                print(json.dumps(page._json, sort_keys=True, indent=4, separators=(',', ': ')))
+                tweets.append(page._json)
+            print(json.dumps(tweets, sort_keys=True, indent=4, separators=(',', ': ')))
         elif args.tweet:
             a = bird.get_tweet(args.tweet)
             print(json.dumps(a._json, sort_keys=True, indent=4, separators=(',', ': ')))
