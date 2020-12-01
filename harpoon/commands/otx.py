@@ -11,7 +11,6 @@ OTX_TYPES = {
     "domain": IndicatorTypes.DOMAIN,
     "IPv4": IndicatorTypes.IPv4,
     "IPv6": IndicatorTypes.IPv6,
-    "hostname": IndicatorTypes.HOSTNAME,
     "url": IndicatorTypes.URL,
     "md5": IndicatorTypes.FILE_HASH_MD5,
     "sha1": IndicatorTypes.FILE_HASH_SHA1,
@@ -228,6 +227,15 @@ class CommandOtx(Command):
                                 "ip": "",
                                 "source": "OTX",
                             })
+                # Some pulses have domains as hostnames
+                res = otx.get_indicator_details_full(IndicatorTypes.HOSTNAME, query)
+                for pulse in res["general"]["pulse_info"]["pulses"]:
+                    data["reports"].append({
+                        "date": parse(pulse["created"]).astimezone(pytz.utc),
+                        "title": pulse["name"],
+                        "source": "OTX",
+                        "url": "https://otx.alienvault.com/pulse/{}".format(pulse["id"])
+                    })
             except AttributeError:
                 print("OTX crashed  ¯\_(ツ)_/¯")
         elif type == "ip":
