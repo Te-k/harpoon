@@ -123,11 +123,14 @@ class CommandIp(Command):
         Depending on geoipupdate version it can be stored in:
         /usr/share/GeoIP/
         /var/lib/GeoIP
+        /usr/local/var/GeoIP/
         """
         if os.path.isfile("/usr/share/GeoIP/GeoLite2-City.mmdb"):
             self.geocity = "/usr/share/GeoIP/GeoLite2-City.mmdb"
         elif os.path.isfile("/var/lib/GeoIP/GeoLite2-City.mmdb"):
             self.geocity = "/var/lib/GeoIP/GeoLite2-City.mmdb"
+        elif os.path.isfile("/usr/local/var/GeoIP/GeoLite2-City.mmdb"):
+            self.geocity = "/usr/local/var/GeoIP/GeoLite2-City.mmdb"
         else:
             print("Impossible to find GeoIP db")
             print("Make sure you have geoipupdate correctly configured")
@@ -137,6 +140,8 @@ class CommandIp(Command):
             self.geoasn = "/usr/share/GeoIP/GeoLite2-ASN.mmdb"
         elif os.path.isfile("/var/lib/GeoIP/GeoLite2-ASN.mmdb"):
             self.geoasn = "/var/lib/GeoIP/GeoLite2-ASN.mmdb"
+        elif os.path.isfile("/usr/local/var/GeoIP/GeoLite2-ASN.mmdb"):
+            self.geoasn = "/usr/local/var/GeoIP/GeoLite2-ASN.mmdb"
         else:
             print("Impossible to find GeoIP ASN db")
             print("Make sure you have geoipupdate correctly configured")
