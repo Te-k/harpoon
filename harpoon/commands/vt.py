@@ -499,6 +499,7 @@ class CommandVirusTotal(Command):
                                     "date": parse(r["date"]).astimezone(
                                         pytz.utc
                                     ),
+                                    "source": "VT"
                                 }
                             )
                     if "detected_urls" in res["results"]:

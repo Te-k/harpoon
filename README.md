@@ -75,6 +75,7 @@ otx                 Requests information from AlienVault OTX
 permacc             Request Perma.cc information through the API
 pgp                 Search for information in PGP key servers
 pt                  Requests Passive Total database
+pulsedive           Request PulseDive API
 quad9               Check if a domain is blocked by Quad9
 robtex              Search in Robtex API (https://www.robtex.com/api/)
 safebrowsing        Check if the given domain is in Google safe Browsing list
@@ -121,6 +122,7 @@ You can get information on each command with `harpoon help COMMAND`
 * [OpenCage](https://opencagedata.com/)
 * [PassiveTotal](https://community.riskiq.com/registration)
 * [Permacc](https://perma.cc/)
+* [PulseDive](https://pulsedive.com/)
 * [Security Trails](https://securitytrails.com/)
 * [Shodan](https://account.shodan.io/register)
 * [SpyOnWeb](https://api.spyonweb.com/)
