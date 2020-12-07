@@ -14,14 +14,22 @@ class CommandUmbrella(Command):
 
     **Check if a domain is in Umbrella Top 1 million domains**
 
-    * `harpoon umbrella DOMAIN`
+    * `harpoon umbrella domain DOMAIN`
+    * Check a list of domains in a file : `harpoon umbrella list FILE`
     """
     name = "umbrella"
     description = "Check if a domain is in Umbrella Top 1 million domains"
     topfile = os.path.join(os.path.expanduser("~"), ".config/harpoon/umbrellatop1m.csv")
 
     def add_arguments(self, parser):
-        parser.add_argument('DOMAIN',  help='Domain')
+        subparsers = parser.add_subparsers(help='Subcommand')
+        parser_a = subparsers.add_parser('domain', help='Check a domain on Umbrella')
+        parser_a.add_argument('DOMAIN',  help='DOMAIN to be queried')
+        parser_a.set_defaults(subcommand='domain')
+        parser_b = subparsers.add_parser('list', help='Check a list of domains')
+        parser_b.add_argument('FILE',  help='File containing list of domains')
+        parser_b.set_defaults(subcommand='list')
+
         self.parser = parser
 
     def update(self):
@@ -58,11 +66,38 @@ class CommandUmbrella(Command):
         return None
 
     def run(self, conf, args, plugins):
-        rank = self.check(unbracket(args.DOMAIN))
-        if rank:
-            print("Found ranked {}".format(rank))
+        if 'subcommand' in args:
+            if args.subcommand == 'domain':
+                rank = self.check(unbracket(args.DOMAIN))
+                if rank:
+                    print("Found ranked {}".format(rank))
+                else:
+                    print("Not found")
+            elif args.subcommand == 'list':
+                umbrella = {}
+                with open(self.topfile) as f:
+                    for l in f.read().split('\n'):
+                        if l.strip() == '':
+                            continue
+                        ll = l.strip().split(',')
+                        umbrella[ll[1]] = ll[0]
+
+                with open(args.FILE) as f:
+                    data = f.read().split('\n')
+                data.remove('')
+
+                for d in data:
+                    if d.strip() == "":
+                        continue
+                    if d.strip() in umbrella.keys():
+                        print("{} in the umbrella list at {} position".format(
+                            d.strip(),
+                            umbrella[d.strip()]
+                        ))
+            else:
+                self.parser.print_help()
         else:
-            print("Not found")
+            self.parser.print_help()
 
     def intel(self, type, query, data, conf):
         if type == "domain":
