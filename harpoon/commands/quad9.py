@@ -33,8 +33,12 @@ class CommandQuad9(Command):
         if r.status_code != 200:
             print('Problem querying quad9 :(')
             sys.exit(1)
-        if r.json()['Status'] == 3:
-            print("{} - BLOCKED".format(args.DOMAIN))
+        res = r.json()
+        if res['Status'] == 3:
+            if "Authority" in res:
+                print("{} - NXDOMAIN".format(args.DOMAIN))
+            else:
+                print("{} - BLOCKED".format(args.DOMAIN))
         else:
             print("{} - NOT BLOCKED".format(args.DOMAIN))
         if args.verbose:
@@ -52,12 +56,14 @@ class CommandQuad9(Command):
             if r.status_code != 200:
                 print("Quad9 query failed")
             else:
-                if r.json()['Status'] == 3:
-                    data["reports"].append({
-                        "title": "Domain blocked by Quad9",
-                        "date": "",
-                        "source": "Quad9",
-                        "url": ""
-                    })
+                res = r.json()
+                if res['Status'] == 3:
+                    if "Authority" not in res:
+                        data["reports"].append({
+                            "title": "Domain blocked by Quad9",
+                            "date": "",
+                            "source": "Quad9",
+                            "url": ""
+                        })
 
 
