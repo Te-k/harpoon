@@ -32,6 +32,33 @@ pip3 install .
 
 You may want to install [harpoontools](https://github.com/Te-k/harpoontools) to have additional commands using harpoon features.
 
+## Updating harpoon
+
+Check if you have the latest version running:
+
+```
+git pull origin master
+```
+
+Reinstall the binary:
+
+```
+pip install .
+```
+
+In case you are missing some plugins or modules (ex: `ModuleNotFoundError: No module named "pygreynoisev1"`). You need to add those modules to your Python environement as such:
+
+```
+pip install NAME_OF_THE_MODULE
+```
+
+You can also upgrade `pip` (but this shouldn't change the way you do the steps
+described above):
+
+```
+/usr/bin/python3 -m pip install --upgrade pip
+```
+
 ## Configuration
 
 To configure harpoon, run `harpoon config` and fill in the needed API keys.
