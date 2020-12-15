@@ -124,7 +124,7 @@ class CommandZetalytics(Command):
                     else:
                         for r in res['results']:
                             print("{:12}{:35} {:20} {}".format(
-                                r['last_seen'],
+                                r['last_seen'] if "last_seen" in r else "",
                                 r['qname'],
                                 r['domain'],
                                 r['value']
@@ -139,7 +139,7 @@ class CommandZetalytics(Command):
                     else:
                         for r in res['results']:
                             print("{:12} {:30} {}".format(
-                                r['last_seen'],
+                                r['last_seen'] if "last_seen" in r else "",
                                 r['qname'],
                                 r['value']
                             ))
@@ -153,7 +153,7 @@ class CommandZetalytics(Command):
                     else:
                         for r in res['results']:
                             print("{:12} {:30} {}".format(
-                                r['last_seen'],
+                                r['last_seen'] if "last_seen" in r else "",
                                 r['qname'],
                                 r['value']
                             ))
@@ -170,7 +170,7 @@ class CommandZetalytics(Command):
                     else:
                         for r in res['results']:
                             print("{:12} {:30} {}".format(
-                                r['last_seen'],
+                                r['last_seen'] if "last_seen" in r else "",
                                 r['qname'],
                                 r['value']
                             ))
@@ -289,7 +289,7 @@ class CommandZetalytics(Command):
                         for r in res['results']:
                             print("{} - {} - {}".format(
                                 r['date'],
-                                r['last_seen'],
+                                r['last_seen'] if "last_seen" in r else "",
                                 r['qname']
                             ))
             elif  args.subcommand == "ip2malwaredns":
@@ -340,5 +340,5 @@ class CommandZetalytics(Command):
                         "domain": domain["qname"],
                         "source": "Zetalytics",
                         "first": parse(domain['date']).astimezone(pytz.utc),
-                        "last": parse(domain['last_seen']).astimezone(pytz.utc),
+                        "last": parse(domain['last_seen']).astimezone(pytz.utc) if "last_seen" in domain else None,
                     })

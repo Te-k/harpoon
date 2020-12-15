@@ -95,7 +95,7 @@ class CommandUrlhaus(Command):
 
     def intel(self, type, query, data, conf):
         if type in ["domain", "ip"]:
-            print("[+] Downloading URLHaus information...")
+            print("[+] Checking URLHaus...")
             try:
                 urlhaus = UrlHaus(conf["UrlHaus"]["key"])
                 res = urlhaus.get_host(query)
