@@ -40,65 +40,77 @@ Then run `harpoon update` to download needed files. Check what plugins are confi
 
 See the [wiki](https://github.com/Te-k/harpoon/wiki) for more information.
 
+## Updating Harpoon
+
+If you installed harpoon from [pypi](https://pypi.org/project/harpoon/), just do `pip install -U harpoon`.
+
+If you installed harpoon from the git repository, go to the repository and use the following commands:
+```
+git pull origin master
+pip install .
+```
+
 # Usage
 
 After configuration the following plugins are available within the `harpoon` command:
 
 ```
-asn                 Gather information on an ASN
-binaryedge          Request BinaryEdge API
-cache               Requests webpage cache from different sources
-censys              Request information from Censys database (https://censys.io/)
-certspotter         Get certificates from https://sslmate.com/certspotter
-circl               Request the CIRCL passive DNS database
-config              Configure Harpoon
-crtsh               Search in https://crt.sh/ (Certificate Transparency database)
-cybercure           Check if intelligence on an IP exists in cybercure.ai
-dns                 Map DNS information for a domain or an IP
-dnsdb               Requests Farsight DNSDB
-fullcontact         Requests Full Contact API (https://www.fullcontact.com/)
-github              Request Github information through the API
-googl               Requests Google url shortener API
-greynoise           Request Grey Noise API
-help                Give help on an Harpoon command
-hibp                Request Have I Been Pwned API (https://haveibeenpwned.com/)
-hunter              Request hunter.io information through the API
-hybrid              Requests Hybrid Analysis platform
-intel               Gather information on a domain
-ip                  Gather information on an IP address
-ipinfo              Request ipinfo.io information
-koodous             Request Koodous API
-malshare            Requests MalShare database
-misp                Get information from a MISP server through the API
-numverify           Query phone number information from NumVerify
-opencage            Forward/Reverse geocoding using OpenCage Geocoder API
-otx                 Requests information from AlienVault OTX
-permacc             Request Perma.cc information through the API
-pgp                 Search for information in PGP key servers
-pt                  Requests Passive Total database
-pulsedive           Request PulseDive API
-quad9               Check if a domain is blocked by Quad9
-robtex              Search in Robtex API (https://www.robtex.com/api/)
-safebrowsing        Check if the given domain is in Google safe Browsing list
-save                Save a webpage in cache platforms
-screenshot          Takes a screenshot of a webpage
-securitytrails      Requests SecurityTrails database
-shodan              Requests Shodan API
-spyonweb            Search in SpyOnWeb through the API
-telegram            Request information from Telegram through the API
-threatcrowd         Request the ThreatCrowd API
-threatgrid          Request Threat Grid API
-threatminer         Requests TreatMiner database https://www.threatminer.org/
-tor                 Check if an IP is a Tor exit node listed in the public list
-totalhash           Request Total Hash API
-twitter             Requests Twitter API
-umbrella            Check if a domain is in Umbrella Top 1 million domains
-update              Update Harpoon data
-urlhaus             Request urlhaus.abuse.ch API
-urlscan             Search and submit urls to urlscan.io
-vt                  Request Virus Total API
-xforce              Query IBM Xforce Exchange API
-zetalytics          Requests Zetalytics API
+    asn                 Gather information on an ASN
+    binaryedge          Request BinaryEdge API
+    cache               Requests webpage cache from different sources
+    censys              Request information from Censys database (https://censys.io/)
+    certspotter         Get certificates from https://sslmate.com/certspotter
+    circl               Request the CIRCL passive DNS database
+    config              Configure Harpoon
+    crtsh               Search in https://crt.sh/ (Certificate Transparency database)
+    cybercure           Search cybercure.ai intelligence database for specific indicators.
+    dns                 Map DNS information for a domain or an IP
+    dnsdb               Requests Farsight DNSDB
+    email               Gather information on an email address
+    fullcontact         Requests Full Contact API (https://www.fullcontact.com/)
+    github              Request Github information through the API
+    googl               Requests Google url shortener API
+    greynoise           Request Grey Noise API
+    help                Give help on an Harpoon command
+    hibp                Request Have I Been Pwned API (https://haveibeenpwned.com/)
+    hunter              Request hunter.io information through the API
+    hybrid              Requests Hybrid Analysis platform
+    intel               Gather information on a domain
+    ip                  Gather information on an IP address
+    ipinfo              Request ipinfo.io information
+    koodous             Request Koodous API
+    malshare            Requests MalShare database
+    misp                Get information from a MISP server through the API
+    numverify           Query phone number information from NumVerify
+    opencage            Forward/Reverse Geocoding using OpenCage
+    otx                 Requests information from AlienVault OTX
+    permacc             Request Perma.cc information through the API
+    pgp                 Search for information in PGP key servers
+    pt                  Requests Passive Total database
+    pulsedive           Request PulseDive API
+    quad9               Check if a domain is blocked by Quad9
+    robtex              Search in Robtex API (https://www.robtex.com/api/)
+    safebrowsing        Check if the given domain is in Google safe Browsing list
+    save                Save a webpage in cache platforms
+    screenshot          Takes a screenshot of a webpage
+    securitytrails      Requests SecurityTrails database
+    shodan              Requests Shodan API
+    spyonweb            Search in SpyOnWeb through the API
+    subdomains          Research subdomains of a domain
+    telegram            Request information from Telegram through the API
+    threatcrowd         Request the ThreatCrowd API
+    threatgrid          Request Threat Grid API
+    threatminer         Requests TreatMiner database https://www.threatminer.org/
+    tor                 Check if an IP is a Tor exit node listed in the public list
+    totalhash           Request Total Hash API
+    twitter             Requests Twitter API
+    umbrella            Check if a domain is in Umbrella Top 1 million domains
+    update              Update Harpoon data
+    urlhaus             Request urlhaus.abuse.ch API
+    urlscan             Search and submit urls to urlscan.io
+    vt                  Request Virus Total API
+    xforce              Query IBM Xforce Exchange API
+    zetalytics          Search in Zetalytics database
 ```
 
 You can get information on each command with `harpoon help COMMAND`
