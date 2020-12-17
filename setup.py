@@ -5,14 +5,14 @@ with open("README.md", "r") as fh:
 
 setup(
     name="harpoon",
-    version="0.1.5",
+    version="0.1.6",
     description="Another OSINT CLI tool",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Te-k/harpoon",
     author="Tek",
     author_email="tek@randhome.io",
-    keywords="osint",
+    keywords="osint threatintel",
     include_package_data=True,
     install_requires=[
         "requests",
@@ -60,7 +60,6 @@ setup(
     package_dir={"harpoon.lib": "harpoon/lib"},
     package_data={"harpoon": ["harpoon/data/*.conf"]},
     entry_points={"console_scripts": ["harpoon=harpoon.main:main"]},
-
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
