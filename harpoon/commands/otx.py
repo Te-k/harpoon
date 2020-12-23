@@ -170,20 +170,23 @@ class CommandOtx(Command):
                         t = args.type
 
                     print("========== %s" % d.strip())
-                    res = otx.get_indicator_details_full(
-                        OTX_TYPES[t],
-                        d.strip()
-                    )
-                    if len(res["general"]["pulse_info"]["pulses"]) > 0:
-                        print("Listed in %s pulses" % len(res["general"]["pulse_info"]["pulses"]))
-                        for p in res["general"]["pulse_info"]["pulses"]:
-                            print("\t-%s" % p["name"])
-                            print("\t\t%s" % p["description"].replace("\n", " "))
-                            print("\t\tCreated: %s" % p["created"])
-                            print("\t\tReferences: %s" % ", ".join(p["references"]))
-                            print("\t\tid: %s" % p["id"])
-                    else:
-                        print("Not listed in any pulse")
+                    try:
+                        res = otx.get_indicator_details_full(
+                            OTX_TYPES[t],
+                            d.strip()
+                        )
+                        if len(res["general"]["pulse_info"]["pulses"]) > 0:
+                            print("Listed in %s pulses" % len(res["general"]["pulse_info"]["pulses"]))
+                            for p in res["general"]["pulse_info"]["pulses"]:
+                                print("\t-%s" % p["name"])
+                                print("\t\t%s" % p["description"].replace("\n", " "))
+                                print("\t\tCreated: %s" % p["created"])
+                                print("\t\tReferences: %s" % ", ".join(p["references"]))
+                                print("\t\tid: %s" % p["id"])
+                        else:
+                            print("Not listed in any pulse")
+                    except OTXv2.BadRequest:
+                        print("Request failed")
         else:
             self.parser.print_help()
 
