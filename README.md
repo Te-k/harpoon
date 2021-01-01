@@ -120,7 +120,7 @@ You can get information on each command with `harpoon help COMMAND`
 * [AlienVault OTX](https://otx.alienvault.com/)
 * [BinaryEdge](https://www.binaryedge.io/)
 * [Censys](https://censys.io/register)
-* [CertSpotter](https://sslmate.com/certspotter/pricing) : paid plans provide search in expired certificates (little interests imho, just use crtsh or censys). You don't need an account for actual certificates
+* [CertSpotter](https://sslmate.com/certspotter/pricing) : paid plans provide search in expired certificates (little interests imho, just use crtsh or censys). You don't need an account for current certificates
 * [CIRCL Passive DNS](https://www.circl.lu/services/passive-dns/)
 * [Farsight Dnsdb](https://www.farsightsecurity.com/dnsdb-community-edition/)
 * [FullContact](https://dashboard.fullcontact.com/register)
