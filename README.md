@@ -144,6 +144,7 @@ You can get information on each command with `harpoon help COMMAND`
 * [Total Hash](https://totalhash.cymru.com/contact-us/)
 * [Twitter](https://developer.twitter.com/en/docs/ads/general/guides/getting-started)
 * [UrlHaus](https://urlhaus.abuse.ch/api/#account)
+* [UrlScan](https://urlscan.io/)
 * Virus Total : for public, create an account and get the API key in the [Settings page](https://www.virustotal.com/#/settings/apikey)
 * [Zetalytics](https://zetalytics.com/)
 

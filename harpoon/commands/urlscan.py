@@ -1,11 +1,11 @@
 #! /usr/bin/env python
 import sys
 import json
-import requests
+import time
 import pytz
 from dateutil.parser import parse
 from harpoon.commands.base import Command
-from harpoon.lib.urlscan import UrlScan
+from harpoon.lib.urlscan import UrlScan, UrlScanQuotaExceeded, UrlScanError
 
 
 class CommandUrlscan(Command):
@@ -19,6 +19,7 @@ class CommandUrlscan(Command):
     """
     name = "urlscan"
     description = "Search and submit urls to urlscan.io"
+    # Key is optional
     config = {'UrlScan': []}
 
     def add_arguments(self, parser):
@@ -27,33 +28,88 @@ class CommandUrlscan(Command):
         parser_a.add_argument('QUERY', help='DOMAIN to be queried')
         parser_a.add_argument('--raw', '-r', action='store_true', help='Shows raw results')
         parser_a.set_defaults(subcommand='search')
+        parser_b = subparsers.add_parser('list', help='Search list of domains or IPs in urlscan')
+        parser_b.add_argument('FILE', help='File containing IPs or domains')
+        parser_b.set_defaults(subcommand='list')
         parser_c = subparsers.add_parser('view', help='View urlscan analysis')
         parser_c.add_argument('UID', help='UId of the analysis')
         parser_c.set_defaults(subcommand='view')
+        parser_d = subparsers.add_parser('quota', help='Show quota')
+        parser_d.set_defaults(subcommand='quota')
         self.parser = parser
 
     def run(self, conf, args, plugins):
         if 'subcommand' in args:
-            us = UrlScan()
+            # Optional key
+            try:
+                key = conf['UrlScan']['key']
+                if key.strip() != "":
+                    us = UrlScan(key)
+                else:
+                    us = UrlScan()
+            except KeyError:
+                us = UrlScan()
             if args.subcommand == 'search':
                 # Search
-                res = us.search(args.QUERY)
-                if args.raw:
-                    print(json.dumps(res, sort_keys=True, indent=4))
+                try:
+                    res = us.search(args.QUERY)
+                except UrlScanError as e:
+                    print("Error: {}".format(e.message))
                 else:
-                    if len(res['results']) > 0:
-                        for r in res['results']:
-                            print("{} - {} - {} - https://urlscan.io/result/{}".format(
-                                r["task"]["time"],
-                                r["page"]["url"],
-                                r["page"]["ip"] if "ip" in r["page"] else "",
-                                r["_id"]
-                                )
-                            )
+                    if args.raw:
+                        print(json.dumps(res, sort_keys=True, indent=4))
                     else:
-                        print("No results for this query")
+                        if len(res['results']) > 0:
+                            for r in res['results']:
+                                print("{} - {} - {} - https://urlscan.io/result/{}".format(
+                                    r["task"]["time"],
+                                    r["page"]["url"],
+                                    r["page"]["ip"] if "ip" in r["page"] else "",
+                                    r["_id"]
+                                    )
+                                )
+                        else:
+                            print("No results for this query")
             elif args.subcommand == 'view':
-                print(json.dumps(us.view(args.UID), sort_keys=True, indent=4))
+                try:
+                    print(json.dumps(us.view(args.UID), sort_keys=True, indent=4))
+                except UrlScanError as e:
+                    print("Error: {}".format(e.message))
+            elif args.subcommand == 'list':
+                with open(args.FILE) as f:
+                    data = f.read().split('\n')
+                for d in data:
+                    d = d.strip()
+                    if d == "":
+                        continue
+                    print("##### {}".format(d))
+                    try:
+                        res = us.search(d)
+                    except UrlScanQuotaExceeded as e:
+                        duration = int(e.message[-13:-9]) + 10
+                        print("Out of quota, waiting for {} seconds".format(duration))
+                        time.sleep(duration)
+                        res = us.search(d)
+                    if 'results' in res:
+                        if len(res['results']) > 0:
+                            for r in res['results']:
+                                print("{} - {} - {} - https://urlscan.io/result/{}".format(
+                                    r["task"]["time"],
+                                    r["page"]["url"],
+                                    r["page"]["ip"] if "ip" in r["page"] else "",
+                                    r["_id"]
+                                ))
+                        else:
+                            print("Nothing found")
+                    else:
+                        print("Nothing found")
+                    # brief sleeping time to avoid overloading URL Scan
+                    time.sleep(0.5)
+            elif args.subcommand == 'quota':
+                if us.api_key:
+                    print(json.dumps(us.quota(), sort_keys=True, indent=4))
+                else:
+                    print("You need to configure a UrlScan key to check your quota")
             else:
                 self.parser.print_help()
         else:
