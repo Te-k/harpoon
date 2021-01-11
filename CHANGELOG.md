@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Upgrade lxml to 4.6.2 and pycrtsh to 0.3.4 following a security issue in lxml
+
 ## 0.1.6 - 2020-12-17
 
 - Added the [Koodous plugin](https://github.com/Te-k/harpoon/issues/116)
