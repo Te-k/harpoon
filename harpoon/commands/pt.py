@@ -3,6 +3,7 @@ import sys
 import json
 import datetime
 import pytz
+import requests
 from dateutil.parser import parse
 from harpoon.commands.base import Command
 from harpoon.lib.utils import bracket, unbracket
