@@ -6,6 +6,8 @@ class Command(object):
     def config_needed(self):
         if self.config is None:
             return False
+        if len(list(self.config.keys())) == 0:
+            return False
         pname = list(self.config.keys())[0]
         return (len(self.config[pname]) > 0)
 
