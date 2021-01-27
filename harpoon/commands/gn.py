@@ -29,6 +29,7 @@ class CommandGreyNoise(Command):
 
     def add_arguments(self, parser):
         parser.add_argument("--ip", "-i", help="Query an IP address")
+        parser.add_argument("--list", "-l", help="List tags", action="store_true")
         parser.add_argument(
             "--query",
             "-q",
