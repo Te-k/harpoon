@@ -1,10 +1,15 @@
 #! /usr/bin/env python3
 import json
-import sys
 import logging
+import sys
 
+import requests
 from greynoise import GreyNoise
 from harpoon.commands.base import Command
+
+
+class GreynoiseError(Exception):
+    pass
 
 
 class CommandGreyNoise(Command):
@@ -13,7 +18,7 @@ class CommandGreyNoise(Command):
 
     See https://github.com/Grey-Noise-Intelligence/api.greynoise.io
 
-    * List tags: `harpoon greynoise -l`
+    * List tags: `harpoon greynoise -l` (default output as json)
     * Search for an IP: `harpoon greynoise -i IP`
     * Run a GNQL query: `harpoon greynoise -q "classification:malicious tags:'emotet'"`
     """
@@ -46,6 +51,19 @@ class CommandGreyNoise(Command):
                 print(k, ",", v)
         return
 
+    def get_list_tags(self):
+        try:
+            r = requests.get(
+                "http://api.greynoise.io:8888/v1/query/list",
+                headers={"User-Agent": "Harpoon (https://github.com/Te-k/harpoon)"},
+            )
+            if r.ok:
+                return r.json()["tags"]
+            else:
+                raise GreynoiseError(e)
+        except Exception as e:
+            raise GreynoiseError(e)
+
     def run(self, conf, args, plugins):
         logging.getLogger("greynoise").setLevel(logging.CRITICAL)
         gn = GreyNoise(api_key=conf["GreyNoise"]["key"])
@@ -54,6 +72,9 @@ class CommandGreyNoise(Command):
             self.print_results(res, args)
         elif args.query:
             res = gn.query(args.query)
+            self.print_results(res, args)
+        elif args.list:
+            res = self.get_list_tags()
             self.print_results(res, args)
         else:
             self.parser.print_help()
@@ -65,9 +86,13 @@ class CommandGreyNoise(Command):
             gn = GreyNoise(api_key=conf["GreyNoise"]["key"])
             res = gn.ip(query)
             if res["seen"]:
-                data["reports"].append({
-                    "url": "https://viz.greynoise.io/ip/{}".format(query),
-                    "title": "Seen by GreyNoise as {}".format(", ".join(res["tags"])),
-                    "date": None,
-                    "source": "GreyNoise"
-                })
+                data["reports"].append(
+                    {
+                        "url": "https://viz.greynoise.io/ip/{}".format(query),
+                        "title": "Seen by GreyNoise as {}".format(
+                            ", ".join(res["tags"])
+                        ),
+                        "date": None,
+                        "source": "GreyNoise",
+                    }
+                )
