@@ -1,10 +1,9 @@
 #! /usr/bin/env python3
 import json
 import logging
-import sys
 
-import requests
 from greynoise import GreyNoise
+
 from harpoon.commands.base import Command
 
 
@@ -16,7 +15,10 @@ class CommandGreyNoise(Command):
     """
     # GreyNoise
 
-    See https://github.com/Grey-Noise-Intelligence/api.greynoise.io
+    See https://developer.greynoise.io/
+
+    * To use GreyNoise Community (Free) API, set api_type = "community" in config.
+    * Commuinty API only supports IP lookup command
 
     * List tags: `harpoon greynoise -l` (default output as json)
     * Search for an IP: `harpoon greynoise -i IP`
@@ -24,8 +26,8 @@ class CommandGreyNoise(Command):
     """
 
     name = "greynoise"
-    description = "Request Grey Noise API"
-    config = {"GreyNoise": ["key"]}
+    description = "Request information from GreyNoise API"
+    config = {"GreyNoise": ["key", "api_type"]}
 
     def add_arguments(self, parser):
         parser.add_argument("--ip", "-i", help="Query an IP address")
@@ -52,22 +54,19 @@ class CommandGreyNoise(Command):
                 print(k, ",", v)
         return
 
-    def get_list_tags(self):
-        try:
-            r = requests.get(
-                "http://api.greynoise.io:8888/v1/query/list",
-                headers={"User-Agent": "Harpoon (https://github.com/Te-k/harpoon)"},
-            )
-            if r.ok:
-                return r.json()["tags"]
-            else:
-                raise GreynoiseError(e)
-        except Exception as e:
-            raise GreynoiseError(e)
-
     def run(self, conf, args, plugins):
         logging.getLogger("greynoise").setLevel(logging.CRITICAL)
-        gn = GreyNoise(api_key=conf["GreyNoise"]["key"])
+        if conf["GreyNoise"]["api_type"].lower() == "community":
+            gn = GreyNoise(
+                api_key=conf["GreyNoise"]["key"],
+                integration_name="Harpoon (https://github.com/Te-k/harpoon)",
+                offering="community",
+            )
+        else:
+            gn = GreyNoise(
+                api_key=conf["GreyNoise"]["key"],
+                integration_name="Harpoon (https://github.com/Te-k/harpoon)",
+            )
         if args.ip:
             res = gn.ip(args.ip)
             self.print_results(res, args)
@@ -75,7 +74,7 @@ class CommandGreyNoise(Command):
             res = gn.query(args.query)
             self.print_results(res, args)
         elif args.list:
-            res = self.get_list_tags()
+            res = gn.metadata()
             self.print_results(res, args)
         else:
             self.parser.print_help()
@@ -84,16 +83,36 @@ class CommandGreyNoise(Command):
         if type == "ip":
             print("[+] Checking GreyNoise...")
             logging.getLogger("greynoise").setLevel(logging.CRITICAL)
-            gn = GreyNoise(api_key=conf["GreyNoise"]["key"])
-            res = gn.ip(query)
-            if res["seen"]:
-                data["reports"].append(
-                    {
-                        "url": "https://viz.greynoise.io/ip/{}".format(query),
-                        "title": "Seen by GreyNoise as {}".format(
-                            ", ".join(res["tags"])
-                        ),
-                        "date": None,
-                        "source": "GreyNoise",
-                    }
+            if conf["GreyNoise"]["api_type"].lower() == "community":
+                gn = GreyNoise(
+                    api_key=conf["GreyNoise"]["key"],
+                    integration_name="Harpoon (https://github.com/Te-k/harpoon)",
+                    offering="community",
                 )
+                res = gn.ip(query)
+                if res["noise"]:
+                    data["reports"].append(
+                        {
+                            "url": "https://viz.greynoise.io/ip/{}".format(query),
+                            "title": "Seen by GreyNoise as {}".format(res["name"]),
+                            "date": None,
+                            "source": "GreyNoise",
+                        }
+                    )
+            else:
+                gn = GreyNoise(
+                    api_key=conf["GreyNoise"]["key"],
+                    integration_name="Harpoon (https://github.com/Te-k/harpoon)",
+                )
+                res = gn.ip(query)
+                if res["seen"]:
+                    data["reports"].append(
+                        {
+                            "url": "https://viz.greynoise.io/ip/{}".format(query),
+                            "title": "Seen by GreyNoise as {}".format(
+                                ", ".join(res["tags"])
+                            ),
+                            "date": None,
+                            "source": "GreyNoise",
+                        }
+                    )

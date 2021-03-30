@@ -52,7 +52,7 @@ setup(
         "phonenumbers==8.12.4",
         "threatminer==1.0",
         "zetalytics-api==1.0.1",
-        "greynoise",
+        "greynoise>=0.8.0",
     ],
     python_requires=">=3.5",
     license="GPLv3",
