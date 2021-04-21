@@ -17,9 +17,12 @@ class UrlScan(object):
         self.api_key = key
 
     def _get(self, url, params):
-        headers = {'user-agent': "harpoon ()"}
+        headers = {
+            "User-Agent": "Harpoon (https://github.com/Te-k/harpoon)",
+            "Content-Type": "application/json"
+        }
         if self.api_key:
-            headers['API-Key'] = self.api_key
+            headers["API-Key"] = self.api_key
         r = requests.get(url, params=params, headers=headers)
         if r.status_code != 200:
             if r.status_code == 429:
@@ -28,7 +31,8 @@ class UrlScan(object):
                 else:
                     raise UrlScanQuotaExceeded("Quota exceeded")
             else:
-                raise UrlScanError("Invalid HTTP Code returned: {}".format(r.status_code))
+                raise UrlScanError(
+                    "Invalid HTTP Code returned: {}".format(r.status_code))
         res = r.json()
         if "status" in res:
             if res['status'] == 429:
@@ -38,8 +42,6 @@ class UrlScan(object):
     def search(self, query, size=100, offset=0):
         params = {
             'q': query,
-            'size': size,
-            'offset': offset
         }
         return self._get(self.url + "search/", params)
 
@@ -48,4 +50,3 @@ class UrlScan(object):
 
     def quota(self):
         return self._get("https://urlscan.io/user/quotas/", {})
-
