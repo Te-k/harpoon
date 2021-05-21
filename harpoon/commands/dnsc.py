@@ -45,7 +45,7 @@ class CommandDns(Command):
             # That's an IP address
             ptr_n = str(reversename.from_address(unbracket(args.TARGET)))
             try:
-                answer = [entry for entry in resolver.query(ptr_n, "PTR")][0]
+                answer = [entry for entry in resolver.resolve(ptr_n, "PTR")][0]
                 print("%s - %s" % (ptr_n, str(answer)))
             except (resolver.NXDOMAIN, resolver.NoAnswer):
                 print("%s - %s" % (ptr_n, "NXDOMAIN"))
@@ -54,7 +54,7 @@ class CommandDns(Command):
             if args.extended:
                 for a in self.all_types:
                     try:
-                        answers = resolver.query(unbracket(args.TARGET), a)
+                        answers = resolver.resolve(unbracket(args.TARGET), a)
                         for rdata in answers:
                             print(a, ':', rdata.to_text())
                     except Exception as e:
@@ -64,7 +64,7 @@ class CommandDns(Command):
                 # A
                 print("# A")
                 try:
-                    answers = resolver.query(target, 'A')
+                    answers = resolver.resolve(target, 'A')
                 except (resolver.NoAnswer, resolver.NXDOMAIN):
                     print("No A entry")
                 except resolver.NoNameservers:
@@ -87,7 +87,7 @@ class CommandDns(Command):
                 print("")
                 print("# AAAA")
                 try:
-                    answers = resolver.query(target, 'AAAA')
+                    answers = resolver.resolve(target, 'AAAA')
                     for rdata in answers:
                         print(rdata.address)
                 except (resolver.NoAnswer, resolver.NXDOMAIN):
@@ -100,7 +100,7 @@ class CommandDns(Command):
                 # DNS Servers
                 print("\n# NS")
                 try:
-                    answers = resolver.query(target, 'NS')
+                    answers = resolver.resolve(target, 'NS')
                 except (resolver.NoAnswer, resolver.NXDOMAIN, resolver.NoNameservers):
                     # That's pretty unlikely
                     print("No NS entry configured")
@@ -122,7 +122,7 @@ class CommandDns(Command):
                             )
                         else:
                             try:
-                                ip = [b.address for b in resolver.query(ttarget, 'A')][0]
+                                ip = [b.address for b in resolver.resolve(ttarget, 'A')][0]
                             except resolver.NXDOMAIN:
                                 # Hostname without IPv4
                                 print(ttarget)
@@ -142,7 +142,7 @@ class CommandDns(Command):
                 # MX
                 print("\n# MX:")
                 try:
-                    answers = resolver.query(target, 'MX')
+                    answers = resolver.resolve(target, 'MX')
                 except (resolver.NoAnswer, resolver.NXDOMAIN):
                     print("No MX entry configured")
                 except resolver.NoNameservers:
@@ -165,7 +165,7 @@ class CommandDns(Command):
                             )
                         else:
                             try:
-                                ip = [b.address for b in resolver.query(rdata.exchange, 'A')][0]
+                                ip = [b.address for b in resolver.resolve(rdata.exchange, 'A')][0]
                             except (resolver.NoAnswer, resolver.NXDOMAIN):
                                 # Hostname without IPv4
                                 print("%i %s" % (rdata.preference, rdata.exchange))
@@ -186,7 +186,7 @@ class CommandDns(Command):
                 # SOA
                 print("\n# SOA")
                 try:
-                    answers = resolver.query(target, 'SOA')
+                    answers = resolver.resolve(target, 'SOA')
                 except (resolver.NoAnswer, resolver.NXDOMAIN):
                     print("No SOA entry configured")
                 except resolver.NoNameservers:
@@ -201,7 +201,7 @@ class CommandDns(Command):
                 # TXT
                 print("\n# TXT:")
                 try:
-                    answers = resolver.query(target, 'TXT')
+                    answers = resolver.resolve(target, 'TXT')
                 except (resolver.NoAnswer, resolver.NXDOMAIN):
                     print("No TXT entry configured")
                 except resolver.NoNameservers:

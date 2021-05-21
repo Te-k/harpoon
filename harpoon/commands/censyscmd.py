@@ -2,7 +2,8 @@
 import sys
 import json
 import censys
-from censys import ipv4, certificates
+from censys.search import CensysIPv4, CensysCertificates
+from censys.search import CensysHosts
 from harpoon.commands.base import Command
 
 
@@ -15,6 +16,7 @@ class CommandCensys(Command):
     * Query information on an IP: `harpoon censys ip 172.217.2.174`
     * Query a certificate: `harpoon censys certificate ID`
     * Search for subdomains based on certificates : `harpoon censys subdomains DOMAIN`
+    * Search for hosts: `harpoon censys search QUERY -p 20`
     """
     name = "censys"
     description = "Request information from Censys database (https://censys.io/)"
@@ -32,11 +34,17 @@ class CommandCensys(Command):
         parser_b.set_defaults(subcommand='cert')
         parser_c = subparsers.add_parser('subdomains', help='Query certificates for a domain looking for subdomains')
         parser_c.add_argument('DOMAIN', help='Domain')
-        parser_c.add_argument('--verbose', '-v', action='store_true',
-                help='Verbose')
+        parser_c.add_argument('--verbose', '-v', action='store_true', help='Verbose')
         parser_c.set_defaults(subcommand='subdomains')
         parser_d = subparsers.add_parser('account', help='Get account information including quota')
         parser_d.set_defaults(subcommand='account')
+        parser_e = subparsers.add_parser('search', help='Search for hosts using Censys V2 syntax')
+        parser_e.add_argument('QUERY', help='Censys v2 query')
+        parser_e.add_argument('--pages', '-p', default=10, type=int,
+                help='Number of pages (100 results per page, each page costs 1 quota)')
+        parser_e.add_argument('--verbose', '-v', action='store_true', help='Verbose mode (display more than just the IP address)')
+        parser_e.add_argument('--file', '-f', action='store_true', help='Read the query from a file')
+        parser_e.set_defaults(subcommand='search')
         self.parser = parser
 
     def get_subdomains(self, conf, domain, verbose, only_sub=False):
@@ -70,7 +78,7 @@ class CommandCensys(Command):
     def run(self, conf, args, plugins):
         if 'subcommand' in args:
             if args.subcommand == 'ip':
-                api = ipv4.CensysIPv4(conf['Censys']['id'], conf['Censys']['secret'])
+                api = CensysIPv4(conf['Censys']['id'], conf['Censys']['secret'])
                 if args.search:
                     res = api.search(args.IP)
                     for r in res:
@@ -96,7 +104,7 @@ class CommandCensys(Command):
                         print('IP not found')
             elif args.subcommand == 'cert':
                 try:
-                    c = certificates.CensysCertificates(conf['Censys']['id'], conf['Censys']['secret'])
+                    c = CensysCertificates(conf['Censys']['id'], conf['Censys']['secret'])
                     res = c.view(args.ID)
                 except censys.base.CensysNotFoundException:
                     print("Certificate not found")
@@ -107,10 +115,31 @@ class CommandCensys(Command):
                 for d in subdomains:
                     print(d)
             elif args.subcommand == 'account':
-                api = ipv4.CensysIPv4(conf['Censys']['id'], conf['Censys']['secret'])
+                api = CensysIPv4(conf['Censys']['id'], conf['Censys']['secret'])
                 # Gets account data
                 account = api.account()
                 print(json.dumps(account, sort_keys=True, indent=4))
+            elif args.subcommand == 'search':
+                api = CensysHosts(conf['Censys']['id'], conf['Censys']['secret'])
+                if args.file:
+                    with open(args.QUERY) as f:
+                        query = f.read().strip()
+                else:
+                    query = args.QUERY
+                print("Searching for {}".format(query))
+                for page in api.search(query, per_page=100, pages=args.pages):
+                    for host in page:
+                        if args.verbose:
+                            try:
+                                print("{} - [{}] - [{}]".format(
+                                    host["ip"],
+                                    ", ".join([str(a["port"]) + "/" + a["service_name"] for a in host["services"]]),
+                                    host["autonomous_system"]["asn"] + " / " + host["autonomous_system"]["name"]
+                                ))
+                            except KeyError:
+                                print(host["ip"])
+                        else:
+                            print(host["ip"])
             else:
                 self.parser.print_help()
         else:
