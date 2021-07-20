@@ -34,6 +34,17 @@ pip3 install .
 
 You may want to install [harpoontools](https://github.com/Te-k/harpoontools) to have additional commands using harpoon features.
 
+### Running as a Docker container
+If you would like to run harpoon as a Docker container:
+
+```
+git clone https://github.com/Te-k/harpoon.git
+cd harpoon
+docker build -t harpoon:latest .
+docker run -it harpoon:latest /bin/bash
+```
+You can add your API keys in `harpoon/data/harpoon_keys.conf` so that you don't have to add the keys every time you run the docker container.
+
 ## Configuration
 
 To configure harpoon, run `harpoon config` and fill in the needed API keys.

@@ -12,4 +12,4 @@ RUN pip3 install .
 
 RUN mkdir -p ~/.config/harpoon
 
-RUN mv harpoon/data/harpoon.conf ~/.config/harpoon/config
+RUN mv harpoon/data/harpoon_keys.conf ~/.config/harpoon/config
