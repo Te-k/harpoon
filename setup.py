@@ -53,6 +53,7 @@ setup(
         "threatminer==1.0",
         "zetalytics-api==1.0.1",
         "greynoise>=0.8.0",
+        "pyhashlookup==0.9"
     ],
     python_requires=">=3.5",
     license="GPLv3",

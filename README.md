@@ -73,6 +73,7 @@ After configuration the following plugins are available within the `harpoon` com
     github              Request Github information through the API
     googl               Requests Google url shortener API
     greynoise           Request information from GreyNoise API (pick Community or Enterprise via api_type config)
+    hashlookup          Request CIRCL Hash Lookup db
     help                Give help on an Harpoon command
     hibp                Request Have I Been Pwned API (https://haveibeenpwned.com/)
     hunter              Request hunter.io information through the API
