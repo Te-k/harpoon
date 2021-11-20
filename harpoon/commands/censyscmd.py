@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 import sys
 import json
+import time
 import censys
 from censys.search import CensysIPv4, CensysCertificates
 from censys.search import CensysHosts
@@ -44,6 +45,7 @@ class CommandCensys(Command):
                 help='Number of pages (100 results per page, each page costs 1 quota)')
         parser_e.add_argument('--verbose', '-v', action='store_true', help='Verbose mode (display more than just the IP address)')
         parser_e.add_argument('--file', '-f', action='store_true', help='Read the query from a file')
+        parser_e.add_argument('--output', '-o', help='Output file (stdout if not provided)')
         parser_e.set_defaults(subcommand='search')
         self.parser = parser
 
@@ -127,19 +129,41 @@ class CommandCensys(Command):
                 else:
                     query = args.QUERY
                 print("Searching for {}".format(query))
+                if args.output:
+                    fout = open(args.output, "w+")
+                    total = 0
                 for page in api.search(query, per_page=100, pages=args.pages):
-                    for host in page:
-                        if args.verbose:
-                            try:
-                                print("{} - [{}] - [{}]".format(
+                    if args.output:
+                        for host in page:
+                            if args.verbose:
+                                fout.write("{},{},{},{}\n".format(
                                     host["ip"],
-                                    ", ".join([str(a["port"]) + "/" + a["service_name"] for a in host["services"]]),
-                                    host["autonomous_system"]["asn"] + " / " + host["autonomous_system"]["name"]
+                                    host["location"]["country"],
+                                    host["autonomous_system"]["asn"],
+                                    host["autonomous_system"]["name"]
                                 ))
-                            except KeyError:
+                            else:
+                                fout.write("{}\n".format(host["ip"]))
+                        total += len(page)
+                        print("{} ips written in {}".format(
+                            total,
+                            args.output
+                        ))
+                    else:
+                        for host in page:
+                            if args.verbose:
+                                try:
+                                    print("{} - [{}] - [{}]".format(
+                                        host["ip"],
+                                        ", ".join([str(a["port"]) + "/" + a["service_name"] for a in host["services"]]),
+                                        host["autonomous_system"]["asn"] + " / " + host["autonomous_system"]["name"]
+                                    ))
+                                except KeyError:
+                                    print(host["ip"])
+                            else:
                                 print(host["ip"])
-                        else:
-                            print(host["ip"])
+                    # To avoid rate limiting
+                    time.sleep(0.5)
             else:
                 self.parser.print_help()
         else:

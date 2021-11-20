@@ -58,7 +58,7 @@ class CommandSafeBrowsing(Command):
                 with open(args.FILE, 'r') as f:
                     data = f.read()
                 domains = [d.strip() for d in data.split()]
-                res = sb.lookup_urls(domains)
+                res = sb.lookup_urls(["http://" + d + "/" if not d.startswith("http") else d for d in domains])
                 if args.format == "txt":
                     for domain in res:
                         if res[domain]["malicious"]:
