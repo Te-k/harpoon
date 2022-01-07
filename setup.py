@@ -19,7 +19,7 @@ setup(
         "configparser",
         "tweepy>=3.8.0",
         "passivetotal",
-        "beautifulsoup4==4.9.1",
+        "beautifulsoup4==4.10.0",
         "lxml==4.6.5",
         "censys==2.0.9",
         "shodan",
@@ -45,7 +45,7 @@ setup(
         "pybinaryedge==0.5",
         "spyonweb==0.1",
         "pythreatgrid2==0.1.1",
-        "pycrtsh==0.3.5",
+        "pycrtsh==0.3.7",
         "pysafebrowsing==0.1.1",
         "dnsdb==0.2.5",
         "pysecuritytrails==0.1.3",
@@ -53,7 +53,7 @@ setup(
         "threatminer==1.0",
         "zetalytics-api==1.0.1",
         "greynoise>=0.8.0",
-        "pyhashlookup==0.9"
+        "pyhashlookup==1.1.1"
     ],
     python_requires=">=3.5",
     license="GPLv3",
