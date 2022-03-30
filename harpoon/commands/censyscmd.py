@@ -16,7 +16,6 @@ class CommandCensys(Command):
 
     * Query information on an IP: `harpoon censys ip 172.217.2.174`
     * Query a certificate: `harpoon censys certificate ID`
-    * Search for subdomains based on certificates : `harpoon censys subdomains DOMAIN`
     * Search for hosts: `harpoon censys search QUERY -p 20`
     """
     name = "censys"
@@ -65,10 +64,6 @@ class CommandCensys(Command):
                     print("Certificate not found")
                 else:
                     print(json.dumps(res, sort_keys=True, indent=4, separators=(',', ': ')))
-            elif args.subcommand == 'subdomains':
-                subdomains = self.get_subdomains(conf, args.DOMAIN, args.verbose)
-                for d in subdomains:
-                    print(d)
             elif args.subcommand == 'search':
                 api = CensysHosts(conf['Censys']['id'], conf['Censys']['secret'])
                 if args.file:
