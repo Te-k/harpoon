@@ -47,7 +47,6 @@ setup(
         "pythreatgrid2==0.1.1",
         "pycrtsh==0.3.7",
         "pysafebrowsing==0.1.2",
-        "dnsdb==0.2.5",
         "pysecuritytrails==0.1.3",
         "phonenumbers==8.12.4",
         "threatminer==1.0",

@@ -1,12 +1,11 @@
 #! /usr/bin/env python
 import sys
 import json
-import datetime
 import pytz
-from dateutil.parser import parse
+from datetime import datetime
 from harpoon.commands.base import Command
-from harpoon.lib.utils import bracket, unbracket
-from dnsdb import Dnsdb
+from harpoon.lib.utils import bracket, unbracket, ts_to_str
+from harpoon.lib.dnsdb import DnsDB, DNSDBError
 
 
 class DnsDbTotal(Command):
@@ -32,30 +31,32 @@ class DnsDbTotal(Command):
 
 
     def run(self, conf, args, plugins):
-        dnsdb = Dnsdb(conf['Dnsdb']['key'])
+        dnsdb = DnsDB(conf['Dnsdb']['key'])
         if 'subcommand' in args:
             if args.subcommand == "domain":
-                results = dnsdb.search(name=args.DOMAIN)
-                if results.status_code != 200:
-                    print("Request failed : status code {}".format(results.status_code))
+                try:
+                    results = dnsdb.rrset_lookup(unbracket(args.DOMAIN))
+                except DNSDBError as e:
+                    print("Request failed : {}".format(e))
                 else:
-                    for r in results.records:
+                    for r in results:
                         print("{}\t{}\t{}\t{}".format(
                             r['rrtype'],
-                            r['time_first'],
-                            r['time_last'],
+                            ts_to_str(r['time_first']),
+                            ts_to_str(r['time_last']),
                             "/ ".join(r['rdata'])
                         ))
             elif args.subcommand == "ip":
-                results = dnsdb.search(ip=args.IP)
-                if results.status_code != 200:
-                    print("Request failed : status code {}".format(results.status_code))
+                try:
+                    results = dnsdb.rdata_lookup(unbracket(args.IP), type="ip")
+                except DNSDBError as e:
+                    print("Request failed : {}".format(e))
                 else:
-                    for r in results.records:
+                    for r in results:
                         print("{}\t{}\t{}\t{}".format(
                             r["rrtype"],
-                            r["time_first"],
-                            r["time_last"],
+                            ts_to_str(r["time_first"]),
+                            ts_to_str(r["time_last"]),
                             r["rrname"]
                         ))
             else:
@@ -66,35 +67,34 @@ class DnsDbTotal(Command):
     def intel(self, type, query, data, conf):
         if type == "domain":
             print("[+] Checking DNSdb...")
-            dnsdb = Dnsdb(conf['Dnsdb']['key'])
-            results = dnsdb.search(name=query)
-            if results.status_code != 200:
-                print("Request failed : status code {}".format(results.status_code))
-            else:
-                for r in results.records:
-                    if r['rrtype'] in ['A', 'AAAA']:
-                        for ip in r['rdata']:
-                            data["passive_dns"].append({
-                                "ip": ip.strip(),
-                                "first": parse(r['time_first']).astimezone(pytz.utc),
-                                "last": parse(r['time_last']).astimezone(pytz.utc),
-                                "source": "DNSdb"
-                            })
-        elif type == "ip":
-            print("[+] Checking DNSdb...")
-            dnsdb = Dnsdb(conf['Dnsdb']['key'])
-            results = dnsdb.search(ip=query)
-            if results.status_code != 200:
-                if results.status_code != 404:
-                    print("Request failed : status code {}".format(results.status_code))
-            else:
-                for r in results.records:
-                    if r['rrtype'] in ['A', 'AAAA']:
+            dnsdb = DnsDB(conf['Dnsdb']['key'])
+            try:
+                results = dnsdb.rrset_lookup(unbracket(query))
+            except DNSDBError:
+                print("Request failed")
+                return
+            for r in results:
+                if r['rrtype'] in ['A', 'AAAA']:
+                    for ip in r['rdata']:
                         data["passive_dns"].append({
-                            "domain": r["rrname"].strip(),
-                            "first": parse(r['time_first']).astimezone(pytz.utc),
-                            "last": parse(r['time_last']).astimezone(pytz.utc),
+                            "ip": ip.strip(),
+                            "first": datetime.fromtimestamp(r['time_first']).astimezone(pytz.utc),
+                            "last": datetime.fromtimestamp(r['time_last']).astimezone(pytz.utc),
                             "source": "DNSdb"
                         })
-
-
+        elif type == "ip":
+            print("[+] Checking DNSdb...")
+            dnsdb = DnsDB(conf['Dnsdb']['key'])
+            try:
+                results = dnsdb.rdata_lookup(unbracket(query), type="ip")
+            except DNSDBError:
+                print("Request to DNSDB failed")
+                return
+            for r in results:
+                if r['rrtype'] in ['A', 'AAAA']:
+                    data["passive_dns"].append({
+                        "domain": r["rrname"].strip(),
+                        "first": datetime.fromtimestamp(r['time_first']).astimezone(pytz.utc),
+                        "last": datetime.fromtimestamp(r['time_last']).astimezone(pytz.utc),
+                        "source": "DNSdb"
+                    })

@@ -3,19 +3,23 @@ from IPy import IP
 from urllib.parse import urlparse, parse_qs
 from datetime import date, datetime
 
+
 def unbracket(domain):
     """Remove protective bracket from a domain"""
     return domain.replace("[.]", ".")
+
 
 def bracket(domain):
     """Add protective bracket to a domain"""
     last_dot = domain.rfind(".")
     return domain[:last_dot] + "[.]" + domain[last_dot+1:]
 
+
 def json_serial(obj):
     if isinstance(obj, (datetime, date)):
         return obj.isoformat()
     raise TypeError ("Type %s not serializable" % type(obj))
+
 
 def same_url(url1, url2):
     """
@@ -47,6 +51,7 @@ def same_url(url1, url2):
                 return True
     return False
 
+
 def typeguess(indicator):
     """
     Guess the type of the indicator
@@ -68,6 +73,7 @@ def typeguess(indicator):
         except ValueError:
             return "domain"
 
+
 def is_ip(target):
     """
     Test if a string is an IP address
@@ -80,3 +86,6 @@ def is_ip(target):
             return False
     else:
         return False
+
+def ts_to_str(ts):
+    return datetime.fromtimestamp(ts).isoformat()
