@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 import os
 import sys
+import traceback
 from harpoon.commands.base import Command
 from harpoon.lib.utils import unbracket, is_ip
 
@@ -62,12 +63,16 @@ class CommandIntel(Command):
                 }
                 print("###################### %s ###################" % args.DOMAIN)
                 for p in plugins:
-                    if args.all:
-                        if plugins[p].test_config(conf):
-                            plugins[p].intel("domain", unbracket(args.DOMAIN), data, conf)
-                    else:
-                        if plugins[p].test_config(conf) and plugins[p].check_intel(conf):
-                            plugins[p].intel("domain", unbracket(args.DOMAIN), data, conf)
+                    try:
+                        if args.all:
+                            if plugins[p].test_config(conf):
+                                plugins[p].intel("domain", unbracket(args.DOMAIN), data, conf)
+                        else:
+                            if plugins[p].test_config(conf) and plugins[p].check_intel(conf):
+                                plugins[p].intel("domain", unbracket(args.DOMAIN), data, conf)
+                    except Exception:
+                        print("Command {} failed".format(p))
+                        traceback.print_exc()
                 print("")
 
                 if len(data["reports"]) > 0:
@@ -124,10 +129,6 @@ class CommandIntel(Command):
                             )
                         )
                     print("")
-                #if len(data["subdomains"]) > 0:
-                    #print("----------------- Subdomains")
-                    #for r in set(data["subdomains"]):
-                        #print(r)
                 if len(data["passive_dns"]) > 0:
                     print("----------------- Passive DNS")
                     for r in sorted(
@@ -160,12 +161,16 @@ class CommandIntel(Command):
                 }
                 print("###################### %s ###################" % args.IP)
                 for p in plugins:
-                    if args.all:
-                        if plugins[p].test_config(conf):
-                            plugins[p].intel("ip", unbracket(args.IP), data, conf)
-                    else:
-                        if plugins[p].test_config(conf) and plugins[p].check_intel(conf):
-                            plugins[p].intel("ip", unbracket(args.IP), data, conf)
+                    try:
+                        if args.all:
+                            if plugins[p].test_config(conf):
+                                plugins[p].intel("ip", unbracket(args.IP), data, conf)
+                        else:
+                            if plugins[p].test_config(conf) and plugins[p].check_intel(conf):
+                                plugins[p].intel("ip", unbracket(args.IP), data, conf)
+                    except Exception:
+                        print("Command {} failed".format(p))
+                        traceback.print_exc()
                 print("")
 
                 if len(data["reports"]) > 0:
@@ -257,12 +262,16 @@ class CommandIntel(Command):
                 }
                 print("############### {}".format(args.HASH))
                 for p in plugins:
-                    if args.all:
-                        if plugins[p].test_config(conf):
-                            plugins[p].intel("hash", args.HASH, data, conf)
-                    else:
-                        if plugins[p].test_config(conf) and plugins[p].check_intel(conf):
-                            plugins[p].intel("hash", args.HASH, data, conf)
+                    try:
+                        if args.all:
+                            if plugins[p].test_config(conf):
+                                plugins[p].intel("hash", args.HASH, data, conf)
+                        else:
+                            if plugins[p].test_config(conf) and plugins[p].check_intel(conf):
+                                plugins[p].intel("hash", args.HASH, data, conf)
+                    except Exception:
+                        print("Command {} failed".format(p))
+                        traceback.print_exc()
                 print("")
 
                 if len(data["reports"]) > 0:
