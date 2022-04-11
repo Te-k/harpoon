@@ -55,9 +55,4 @@ class CommandHibp(Command):
                 else:
                     print("Account found in %i breaches\n" % len(res))
                     for r in res:
-                        print("%s\n%s\n%s\n" % (
-                                r['Name'],
-                                r['BreachDate'],
-                                r['Description']
-                            )
-                        )
+                        print(r["Name"])
