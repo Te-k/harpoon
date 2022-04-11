@@ -1,4 +1,5 @@
 import requests
+from requests.auth import HTTPBasicAuth
 import json
 
 
@@ -9,49 +10,31 @@ class CertSpotterError(Exception):
 
 
 class CertSpotter(object):
-    def __init__(self, key=''):
-        if key == '':
-            self.authenticated = False
-        else:
-            self.authenticated = True
+    def __init__(self, key=None):
         self.key = key
+        self.base_url = "https://api.certspotter.com/"
 
-    def list(self, domain, expired=False, duplicate=False):
-        if expired and not self.authenticated:
-            raise CertSpotter("You are not allowed to search fo expired certificate without key")
+    @property
+    def authenticated(self):
+        return (self.key is not None)
+
+    def _get(self, query, params={}):
         if self.authenticated:
             r = requests.get(
-                "https://certspotter.com/api/v0/certs",
-                params = {'domain': domain, 'expired': expired, 'duplicate': duplicate },
-                auth=(self.key, '')
+                self.base_url + query,
+                params=params,
+                auth=HTTPBasicAuth(self.key, "")
             )
         else:
             r = requests.get(
-                "https://certspotter.com/api/v0/certs",
-                params = {'domain': domain, 'expired': expired, 'duplicate': duplicate }
+                self.base_url + query,
+                params=params
             )
         if r.status_code == 200:
             return r.json()
         else:
             raise CertSpotterError("Invalid HTTP status code %i" % r.status_code)
 
-    def get_cert(self, sha256):
-        r = requests.get("https://certspotter.com/api/v0/certs/" + sha256)
-        if r.status_code == 200:
-            return r.json()
-        else:
-            raise CertSpotterError("Invalid HTTP status code %i" % r.status_code)
 
-    def get_cert_pem(self, sha256):
-        r = requests.get("https://certspotter.com/api/v0/certs/" + sha256 + '.pem')
-        if r.status_code == 200:
-            return r.text
-        else:
-            raise CertSpotterError("Invalid HTTP status code %i" % r.status_code)
-
-    def get_cert_der(self, sha256):
-        r = requests.get("https://certspotter.com/api/v0/certs/" + sha256 + '.der')
-        if r.status_code == 200:
-            return r.text
-        else:
-            raise CertSpotterError("Invalid HTTP status code %i" % r.status_code)
+    def search(self, domain, include_subdomains=False):
+        return self._get("v1/issuances", params = {'domain': domain, "expand": ["dns_names", "issuer", "cert"], "include_subdomains": include_subdomains})

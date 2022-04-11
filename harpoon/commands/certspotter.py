@@ -12,10 +12,8 @@ class CommandCertSpotter(Command):
 
     Search in Certificate Transparency database Cert Spotter https://sslmate.com/certspotter. Only actual certificate can be searched without paid plan
 
-    * Search for certificates of a domain : `harpoon certspotter search DOMAIN`
-    * Search for certificates of a domain including expired certificates : `harpoon certspotter search DOMAIN -a` (paid plans only)
-    * Get information on a certificate: `harpoon certspotter cert SHA256`
-
+    * Search certificates for a domain : `harpoon certspotter search DOMAIN`
+    * Search certificates for a domain and its subdomains : `harpoon certspotter search -s DOMAIN`
     """
     name = "certspotter"
     description = "Get certificates from https://sslmate.com/certspotter"
@@ -25,11 +23,8 @@ class CommandCertSpotter(Command):
         subparsers = parser.add_subparsers(help='Subcommand')
         parser_a = subparsers.add_parser('search', help='Search certificates for a domain')
         parser_a.add_argument('DOMAIN', help='domain')
-        parser_a.add_argument('--all', '-a', help='List all certificates including expired one too (API key needed)', action='store_true')
+        parser_a.add_argument('--subdomains', '-s', help='Search for the domain and its subdomains', action='store_true')
         parser_a.set_defaults(subcommand='search')
-        parser_b = subparsers.add_parser('cert', help='Show information on a certificate')
-        parser_b.add_argument('SHA256', help='Sha256 of the certificate')
-        parser_b.set_defaults(subcommand='cert')
         self.parser = parser
 
     def run(self, conf, args, plugins):
@@ -40,22 +35,13 @@ class CommandCertSpotter(Command):
 
         if 'subcommand' in args:
             if args.subcommand == 'search':
-                if args.all:
-                    if cs.authenticated:
-                        try:
-                            res = cs.list(unbracket(args.DOMAIN), expired=True)
-                        except CertSpotterError:
-                            print("Error with the API, likely because you need a paid plan to search expired certs. Check censys or crtsh plugins instead")
-                            sys.exit(1)
-                    else:
-                        print("API key needed for expired certificated")
-                        sys.exit(1)
+                try:
+                    res = cs.search(unbracket(args.DOMAIN), include_subdomains=args.subdomains)
+                except CertSpotterError:
+                    print("Error with the API, likely because you need a paid plan to search expired certs. Check censys or crtsh plugins instead")
+                    sys.exit(1)
                 else:
-                    res = cs.list(unbracket(args.DOMAIN))
-                print(json.dumps(res, sort_keys=True, indent=4, separators=(',', ': '), default=json_serial))
-            elif args.subcommand == "cert":
-                res = cs.get_cert(args.SHA256)
-                print(json.dumps(res, sort_keys=True, indent=4, separators=(',', ': '), default=json_serial))
+                    print(json.dumps(res, sort_keys=True, indent=4, separators=(',', ': '), default=json_serial))
             else:
                 self.parser.print_help()
         else:
