@@ -47,7 +47,16 @@ class CommandIntel(Command):
         parser_c.add_argument("--all", "-a", action="store_true",
                 help="Query all plugins configured and available")
         parser_c.set_defaults(subcommand="hash")
-        self.parser = parser
+        parser_d.add_argument("DOMAIN", help="Subdomain")
+        parser_d.add_argument('--verbose', '-v', action='store_true', help='Verbose mode')
+        parser_d.add_argument(
+            '--source', '-s',
+            choices=['all', 'censys', 'pt', 'vt'],
+            default='all',
+            help='Source of the research'
+        )
+        parser_d.set_defaults(subcommand="subdomain")
+        # self.parser = parser
         self.parser = parser
 
     def run(self, conf, args, plugins):
@@ -59,7 +68,7 @@ class CommandIntel(Command):
                         "malware": [],
                         "files": [],
                         "reports": [],
-                        #"subdomains": []
+                        "subdomains": []
                 }
                 print("###################### %s ###################" % args.DOMAIN)
                 for p in plugins:
@@ -327,6 +336,24 @@ class CommandIntel(Command):
                             report["source"]
                         ))
                     print("")
+            elif args.subcommand == "subdomain":
+                data = {
+                    "subdomains": [],
+                }
+                print("############### {}".format(args.DOMAIN))
+                for p in plugins:
+                    try:
+                        if args.all:
+                            if plugin[p].test_config(conf):
+                                plugins[p].intel("subdomain", args.DOMAIN, data, conf)
+                        else:
+                            if plugins[p].test_config(conf) and plugins[p].check_intel(conf):
+                                plugins[p].intel("subdomain", args.DOMAIN, data, conf)
+                    except Exception:
+                        print("Command {} failed".format(p))
+                        traceback.print_exc()
+                print("")
+
             else:
                 self.parser.print_help()
         else:
