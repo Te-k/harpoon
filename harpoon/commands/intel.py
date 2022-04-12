@@ -343,12 +343,16 @@ class CommandIntel(Command):
                 print("############### {}".format(args.DOMAIN))
                 for p in plugins:
                     try:
-                        if args.all:
-                            if plugin[p].test_config(conf):
-                                plugins[p].intel("subdomain", args.DOMAIN, data, conf)
-                        else:
-                            if plugins[p].test_config(conf) and plugins[p].check_intel(conf):
-                                plugins[p].intel("subdomain", args.DOMAIN, data, conf)
+                        if plugins[p].test_config(conf):
+                        cmd = subdomains.CommandSubdomains()
+                        subs = cmd.run(
+                            conf,
+                            args,
+                            args.source,
+                        )
+                        for d in subs:
+                            print(d)
+                        
                     except Exception:
                         print("Command {} failed".format(p))
                         traceback.print_exc()
