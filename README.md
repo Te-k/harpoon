@@ -14,12 +14,6 @@ As a pre-requesite for Harpoon, you need to install [lxml](https://lxml.de/insta
 
 You need to have [geoipupdate](https://github.com/maxmind/geoipupdate) installed and [correctly configured](https://dev.maxmind.com/geoip/geoipupdate/) to use geolocation correctly (make sure you to have `GeoLite2-Country GeoLite2-City GeoLite2-ASN` as `EditionIDs`).
 
-If you want to use the screenshot plugin, you need phantomjs and npm installed:
-
-```
-npm install -g phantomjs
-```
-
 ## Installing harpoon
 
 You can simply install the package from [pypi](https://pypi.org/project/harpoon/) with `pip install harpoon`
@@ -71,7 +65,6 @@ After configuration the following plugins are available within the `harpoon` com
     email               Gather information on an email address
     fullcontact         Requests Full Contact API (https://www.fullcontact.com/)
     github              Request Github information through the API
-    googl               Requests Google url shortener API
     greynoise           Request information from GreyNoise API (pick Community or Enterprise via api_type config)
     hashlookup          Request CIRCL Hash Lookup db
     help                Give help on an Harpoon command
@@ -95,7 +88,6 @@ After configuration the following plugins are available within the `harpoon` com
     robtex              Search in Robtex API (https://www.robtex.com/api/)
     safebrowsing        Check if the given domain is in Google safe Browsing list
     save                Save a webpage in cache platforms
-    screenshot          Takes a screenshot of a webpage
     securitytrails      Requests SecurityTrails database
     shodan              Requests Shodan API
     spyonweb            Search in SpyOnWeb through the API
