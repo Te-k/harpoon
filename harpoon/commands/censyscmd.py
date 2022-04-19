@@ -140,7 +140,15 @@ class CommandCensys(Command):
                     "source": "Censys"
                 })
 
-    # def get_subdomains(self, conf, query, verbose):
-    #     api = CensysHosts(conf['Censys']['id'], conf['Censys']['secret'])
-    #     domains = api.view(query)
-    #     print(domains)
+    def get_subdomains(self, conf, query, verbose):
+        api = CensysHosts(conf['Censys']['id'], conf['Censys']['secret'])
+        raw = api.search(query)
+        cleaned = raw.view_all()
+        for host in cleaned:
+            for i in cleaned[host]['services']:
+                try:
+                    leaf_data = i['tls']['certificates']['leaf_data']['names']
+                except:
+                    pass
+
+        return leaf_data

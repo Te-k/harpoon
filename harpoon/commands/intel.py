@@ -363,21 +363,35 @@ class CommandIntel(Command):
                     "subdomains": [],
                 }
                 print("############### {}".format(args.DOMAIN))
-                for p in plugins:
-                    if args.source == 'all':
-                        try:
-                            if plugins[p].test_config(conf):
-                                cmd = CommandSubdomains()
-                                subs = cmd.run(
-                                    conf,
-                                    args,
-                                    plugins,
-                                )
-                                for d in subs:
-                                    print(d)
-                        except Exception:
-                            print("Command {} failed".format(p))
-                            traceback.print_exc()
+                cmd = CommandSubdomains()
+                # small elif tric to prevent overloading the API quotas
+                if args.source == 'vt' and plugins['vt'].test_config(conf):
+                    cmd.run(
+                        conf,
+                        args,
+                        plugins,
+                    )
+                elif args.source == 'pt' and plugins['pt'].test_config(conf):
+                    cmd.run(
+                        conf,
+                        args,
+                        plugins,
+                    )
+                elif args.source == 'censys' and plugins['censys'].test_config(conf):
+                    cmd.run(
+                        conf,
+                        args,
+                        plugins,
+                    )
+                elif args.source == 'all':
+                    cmd.run(
+                        conf,
+                        args,
+                        plugins,
+                    )
+                else:
+                    # unecessary paranoid check
+                    print("Error, check the configuration for:", args.source)
                 print("")
 
             else:

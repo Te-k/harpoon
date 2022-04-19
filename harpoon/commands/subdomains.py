@@ -39,10 +39,11 @@ class CommandSubdomains(Command):
             conf,
             domain,
             verbose,
-            only_sub=True
         )
         for d in subdomains:
             print(d)
+
+        print('')
 
     def pt(self, domain, conf, verbose):
         client = EnrichmentRequest(
@@ -54,6 +55,8 @@ class CommandSubdomains(Command):
         for d in res['subdomains']:
             print('%s.%s' % (d, domain))
 
+        print('')
+
     def vt(self, domain, conf, verbose):
         print('## Searching subdomains in Virus Total')
         if conf["VirusTotal"]["type"] == "public":
@@ -61,6 +64,10 @@ class CommandSubdomains(Command):
         else:
             vt = PrivateApi(conf["VirusTotal"]["key"])
         res = vt.get_domain_report(domain)
+
+        if res['response_code'] == 204:
+            print("VT quota exceeded!")
+
         try:
             for d in res['results']['subdomains']:
                 print(d)
@@ -70,12 +77,12 @@ class CommandSubdomains(Command):
     def run(self, conf, args, plugins):
         if args.source == 'all':
             # Search subdomains through a search in Censys certificates
-            # if plugins['censys'].test_config(conf):
-            #     try:
-            #         self.censys_certs(unbracket(args.DOMAIN),
-            #                           conf, args.verbose)
-            #     except CensysRateLimitExceededException:
-            #         print('Quota exceeded!')
+            if plugins['censys'].test_config(conf):
+                try:
+                    self.censys_certs(unbracket(args.DOMAIN),
+                                      conf, args.verbose)
+                except CensysRateLimitExceededException:
+                    print('Quota exceeded!')
             if plugins['pt'].test_config(conf):
                 self.pt(unbracket(args.DOMAIN), conf, args.verbose)
             if plugins['vt'].test_config(conf):
