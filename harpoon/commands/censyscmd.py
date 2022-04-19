@@ -24,48 +24,61 @@ class CommandCensys(Command):
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(help='Subcommand')
-        parser_a = subparsers.add_parser('ip', help='Get information on an IP address')
+        parser_a = subparsers.add_parser(
+            'ip', help='Get information on an IP address')
         parser_a.add_argument('IP', help='IP to be searched')
         parser_a.add_argument('--events', '-e', action='store_true',
-                help='Show events for this IP')
+                              help='Show events for this IP')
         parser_a.set_defaults(subcommand='ip')
-        parser_b = subparsers.add_parser('cert', help='Get information on a certificate')
+        parser_b = subparsers.add_parser(
+            'cert', help='Get information on a certificate')
         parser_b.add_argument('ID', help='ID of the certificate')
         parser_b.set_defaults(subcommand='cert')
-        parser_e = subparsers.add_parser('search', help='Search for hosts using Censys V2 syntax')
+        parser_e = subparsers.add_parser(
+            'search', help='Search for hosts using Censys V2 syntax')
         parser_e.add_argument('QUERY', help='Censys v2 query')
         parser_e.add_argument('--pages', '-p', default=10, type=int,
-                help='Number of pages (100 results per page, each page costs 1 quota)')
-        parser_e.add_argument('--verbose', '-v', action='store_true', help='Verbose mode (display more than just the IP address)')
-        parser_e.add_argument('--file', '-f', action='store_true', help='Read the query from a file')
-        parser_e.add_argument('--output', '-o', help='Output file (stdout if not provided)')
+                              help='Number of pages (100 results per page, each page costs 1 quota)')
+        parser_e.add_argument('--verbose', '-v', action='store_true',
+                              help='Verbose mode (display more than just the IP address)')
+        parser_e.add_argument(
+            '--file', '-f', action='store_true', help='Read the query from a file')
+        parser_e.add_argument(
+            '--output', '-o', help='Output file (stdout if not provided)')
         parser_e.set_defaults(subcommand='search')
         self.parser = parser
 
     def run(self, conf, args, plugins):
         if 'subcommand' in args:
             if args.subcommand == 'ip':
-                api = CensysHosts(conf['Censys']['id'], conf['Censys']['secret'])
+                api = CensysHosts(conf['Censys']['id'],
+                                  conf['Censys']['secret'])
                 if args.events:
                     res = api.view_host_events(args.IP)
-                    print(json.dumps(res, sort_keys=True, indent=4, separators=(',', ': ')))
+                    print(json.dumps(res, sort_keys=True,
+                          indent=4, separators=(',', ': ')))
                 else:
                     try:
                         ip = api.view(args.IP)
-                        print(json.dumps(ip, sort_keys=True, indent=4, separators=(',', ': ')))
+                        print(json.dumps(ip, sort_keys=True,
+                              indent=4, separators=(',', ': ')))
                     except censys.base.CensysNotFoundException:
                         print('IP not found')
             elif args.subcommand == 'cert':
                 try:
-                    print("Viewing certs is not implemented yet, seeing hosts for this cert:")
-                    c = CensysCerts(conf['Censys']['id'], conf['Censys']['secret'])
+                    print(
+                        "Viewing certs is not implemented yet, seeing hosts for this cert:")
+                    c = CensysCerts(conf['Censys']['id'],
+                                    conf['Censys']['secret'])
                     res = c.get_hosts_by_cert(args.ID)
                 except censys.base.CensysNotFoundException:
                     print("Certificate not found")
                 else:
-                    print(json.dumps(res, sort_keys=True, indent=4, separators=(',', ': ')))
+                    print(json.dumps(res, sort_keys=True,
+                          indent=4, separators=(',', ': ')))
             elif args.subcommand == 'search':
-                api = CensysHosts(conf['Censys']['id'], conf['Censys']['secret'])
+                api = CensysHosts(conf['Censys']['id'],
+                                  conf['Censys']['secret'])
                 if args.file:
                     with open(args.QUERY) as f:
                         query = f.read().strip()
@@ -98,8 +111,11 @@ class CommandCensys(Command):
                                 try:
                                     print("{} - [{}] - [{}]".format(
                                         host["ip"],
-                                        ", ".join([str(a["port"]) + "/" + a["service_name"] for a in host["services"]]),
-                                        host["autonomous_system"]["asn"] + " / " + host["autonomous_system"]["name"]
+                                        ", ".join(
+                                            [str(a["port"]) + "/" + a["service_name"] for a in host["services"]]),
+                                        host["autonomous_system"]["asn"] +
+                                        " / " +
+                                        host["autonomous_system"]["name"]
                                     ))
                                 except KeyError:
                                     print(host["ip"])
@@ -123,3 +139,8 @@ class CommandCensys(Command):
                     "info": service["service_name"],
                     "source": "Censys"
                 })
+
+    # def get_subdomains(self, conf, query, verbose):
+    #     api = CensysHosts(conf['Censys']['id'], conf['Censys']['secret'])
+    #     domains = api.view(query)
+    #     print(domains)

@@ -1,8 +1,10 @@
 #! /usr/bin/env python
+from operator import sub
 import os
 import sys
 import traceback
 from harpoon.commands.base import Command
+from harpoon.commands.subdomains import CommandSubdomains
 from harpoon.lib.utils import unbracket, is_ip
 
 
@@ -20,9 +22,12 @@ class CommandIntel(Command):
     geocity = os.path.join(
         os.path.expanduser("~"), ".config/harpoon/GeoLite2-City.mmdb"
     )
-    geoasn = os.path.join(os.path.expanduser("~"), ".config/harpoon/GeoLite2-ASN.mmdb")
-    asnname = os.path.join(os.path.expanduser("~"), ".config/harpoon/asnnames.csv")
-    asncidr = os.path.join(os.path.expanduser("~"), ".config/harpoon/asncidr.dat")
+    geoasn = os.path.join(os.path.expanduser(
+        "~"), ".config/harpoon/GeoLite2-ASN.mmdb")
+    asnname = os.path.join(os.path.expanduser(
+        "~"), ".config/harpoon/asnnames.csv")
+    asncidr = os.path.join(os.path.expanduser(
+        "~"), ".config/harpoon/asncidr.dat")
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(help="Subcommand")
@@ -31,54 +36,61 @@ class CommandIntel(Command):
         )
         parser_a.add_argument("DOMAIN", help="Domain")
         parser_a.add_argument("--all", "-a", action="store_true",
-                help="Query all plugins configured and available")
+                              help="Query all plugins configured and available")
         parser_a.set_defaults(subcommand="domain")
         parser_b = subparsers.add_parser(
             "ip", help="Gather Threat Intelligence information on an IP address"
         )
         parser_b.add_argument("IP", help="IP address")
         parser_b.add_argument("--all", "-a", action="store_true",
-                help="Query all plugins configured and available")
+                              help="Query all plugins configured and available")
         parser_b.set_defaults(subcommand="ip")
         parser_c = subparsers.add_parser(
             "hash", help="Gather Threat Intelligence information on a hash"
         )
         parser_c.add_argument("HASH", help="Hash")
         parser_c.add_argument("--all", "-a", action="store_true",
-                help="Query all plugins configured and available")
+                              help="Query all plugins configured and available")
         parser_c.set_defaults(subcommand="hash")
+
+        parser_d = subparsers.add_parser(
+            "subdomain", help="Gather Threat Intelligence information on subdomains of a given domain"
+        )
         parser_d.add_argument("DOMAIN", help="Subdomain")
-        parser_d.add_argument('--verbose', '-v', action='store_true', help='Verbose mode')
+        parser_d.add_argument(
+            '--verbose', '-v', action='store_true', help='Verbose mode')
         parser_d.add_argument(
             '--source', '-s',
-            choices=['all', 'censys', 'pt', 'vt'],
+            choices=['all', 'vt', 'censys', 'pt'],
             default='all',
             help='Source of the research'
         )
         parser_d.set_defaults(subcommand="subdomain")
-        # self.parser = parser
         self.parser = parser
 
     def run(self, conf, args, plugins):
         if "subcommand" in args:
             if args.subcommand == "domain":
                 data = {
-                        "passive_dns": [],
-                        "urls": [],
-                        "malware": [],
-                        "files": [],
-                        "reports": [],
-                        "subdomains": []
+                    "passive_dns": [],
+                    "urls": [],
+                    "malware": [],
+                    "files": [],
+                    "reports": [],
+                    "subdomains": []
                 }
-                print("###################### %s ###################" % args.DOMAIN)
+                print("###################### %s ###################" %
+                      args.DOMAIN)
                 for p in plugins:
                     try:
                         if args.all:
                             if plugins[p].test_config(conf):
-                                plugins[p].intel("domain", unbracket(args.DOMAIN), data, conf)
+                                plugins[p].intel("domain", unbracket(
+                                    args.DOMAIN), data, conf)
                         else:
                             if plugins[p].test_config(conf) and plugins[p].check_intel(conf):
-                                plugins[p].intel("domain", unbracket(args.DOMAIN), data, conf)
+                                plugins[p].intel("domain", unbracket(
+                                    args.DOMAIN), data, conf)
                     except Exception:
                         print("Command {} failed".format(p))
                         traceback.print_exc()
@@ -88,7 +100,8 @@ class CommandIntel(Command):
                     print("----------------- Intelligence Report")
                     for report in data["reports"]:
                         print("{} - {} - {} - {}".format(
-                            report["date"].strftime("%Y-%m-%d") if report["date"] else "",
+                            report["date"].strftime(
+                                "%Y-%m-%d") if report["date"] else "",
                             report["title"],
                             report["url"],
                             report["source"]
@@ -102,7 +115,8 @@ class CommandIntel(Command):
                             % (
                                 r["source"],
                                 r["hash"],
-                                r["date"].strftime("%Y-%m-%d") if r["date"] else "",
+                                r["date"].strftime(
+                                    "%Y-%m-%d") if r["date"] else "",
                             )
                         )
                     print("")
@@ -131,11 +145,11 @@ class CommandIntel(Command):
                     print("----------------- Urls")
                     for r in sorted(data["urls"], key=lambda x: x["date"], reverse=True):
                         print("{:9} {} - {} {}".format(
-                                "[" + r["source"] + "]",
-                                r["url"],
-                                r["ip"],
-                                r["date"].strftime("%Y-%m-%d"),
-                            )
+                            "[" + r["source"] + "]",
+                            r["url"],
+                            r["ip"],
+                            r["date"].strftime("%Y-%m-%d"),
+                        )
                         )
                     print("")
                 if len(data["passive_dns"]) > 0:
@@ -148,7 +162,8 @@ class CommandIntel(Command):
                             % (
                                 r["ip"],
                                 r["first"].strftime("%Y-%m-%d"),
-                                r["last"].strftime("%Y-%m-%d") if r["last"] else "",
+                                r["last"].strftime(
+                                    "%Y-%m-%d") if r["last"] else "",
                                 r["source"],
                             )
                         )
@@ -161,22 +176,24 @@ class CommandIntel(Command):
                     print("Invalid IP address")
                     sys.exit(1)
                 data = {
-                        "passive_dns": [],
-                        "urls": [],
-                        "malware": [],
-                        "files": [],
-                        "reports": [],
-                        "ports": []
+                    "passive_dns": [],
+                    "urls": [],
+                    "malware": [],
+                    "files": [],
+                    "reports": [],
+                    "ports": []
                 }
                 print("###################### %s ###################" % args.IP)
                 for p in plugins:
                     try:
                         if args.all:
                             if plugins[p].test_config(conf):
-                                plugins[p].intel("ip", unbracket(args.IP), data, conf)
+                                plugins[p].intel(
+                                    "ip", unbracket(args.IP), data, conf)
                         else:
                             if plugins[p].test_config(conf) and plugins[p].check_intel(conf):
-                                plugins[p].intel("ip", unbracket(args.IP), data, conf)
+                                plugins[p].intel(
+                                    "ip", unbracket(args.IP), data, conf)
                     except Exception:
                         print("Command {} failed".format(p))
                         traceback.print_exc()
@@ -186,7 +203,8 @@ class CommandIntel(Command):
                     print("----------------- Intelligence Report")
                     for report in data["reports"]:
                         print("{} - {} - {} - {}".format(
-                            report["date"].strftime("%Y-%m-%d") if report["date"] else "",
+                            report["date"].strftime(
+                                "%Y-%m-%d") if report["date"] else "",
                             report["title"],
                             report["url"],
                             report["source"]
@@ -200,7 +218,8 @@ class CommandIntel(Command):
                             % (
                                 r["source"],
                                 r["hash"],
-                                r["date"].strftime("%Y-%m-%d") if r["date"] else "",
+                                r["date"].strftime(
+                                    "%Y-%m-%d") if r["date"] else "",
                             )
                         )
                     print("")
@@ -229,11 +248,11 @@ class CommandIntel(Command):
                     print("----------------- Urls")
                     for r in sorted(data["urls"], key=lambda x: x["date"], reverse=True):
                         print("{:9} {} - {} {}".format(
-                                "[" + r["source"] + "]",
-                                r["url"],
-                                r["ip"],
-                                r["date"].strftime("%Y-%m-%d"),
-                            )
+                            "[" + r["source"] + "]",
+                            r["url"],
+                            r["ip"],
+                            r["date"].strftime("%Y-%m-%d"),
+                        )
                         )
                     print("")
                 if len(data["ports"]) > 0:
@@ -255,7 +274,8 @@ class CommandIntel(Command):
                             % (
                                 r["domain"],
                                 r["first"].strftime("%Y-%m-%d"),
-                                r["last"].strftime("%Y-%m-%d") if r["last"] else "",
+                                r["last"].strftime(
+                                    "%Y-%m-%d") if r["last"] else "",
                                 r["source"],
                             )
                         )
@@ -264,10 +284,10 @@ class CommandIntel(Command):
                     print("Nothing found")
             elif args.subcommand == "hash":
                 data = {
-                        "samples": [],
-                        "urls": [],
-                        "network": [],
-                        "reports": []
+                    "samples": [],
+                    "urls": [],
+                    "network": [],
+                    "reports": []
                 }
                 print("############### {}".format(args.HASH))
                 for p in plugins:
@@ -287,7 +307,8 @@ class CommandIntel(Command):
                     print("----------------- Intelligence Report")
                     for report in data["reports"]:
                         print("{} - {} - {} - {}".format(
-                            report["date"].strftime("%Y-%m-%d") if report["date"] else "",
+                            report["date"].strftime(
+                                "%Y-%m-%d") if report["date"] else "",
                             report["title"],
                             report["url"],
                             report["source"]
@@ -298,7 +319,8 @@ class CommandIntel(Command):
                     print("----------------- Samples")
                     for sample in data["samples"]:
                         print("{} - {} {}".format(
-                            sample["date"].strftime("%Y-%m-%d") if sample["date"] else "",
+                            sample["date"].strftime(
+                                "%Y-%m-%d") if sample["date"] else "",
                             sample["source"],
                             sample["url"],
                         ))
@@ -342,20 +364,20 @@ class CommandIntel(Command):
                 }
                 print("############### {}".format(args.DOMAIN))
                 for p in plugins:
-                    try:
-                        if plugins[p].test_config(conf):
-                        cmd = subdomains.CommandSubdomains()
-                        subs = cmd.run(
-                            conf,
-                            args,
-                            args.source,
-                        )
-                        for d in subs:
-                            print(d)
-                        
-                    except Exception:
-                        print("Command {} failed".format(p))
-                        traceback.print_exc()
+                    if args.source == 'all':
+                        try:
+                            if plugins[p].test_config(conf):
+                                cmd = CommandSubdomains()
+                                subs = cmd.run(
+                                    conf,
+                                    args,
+                                    plugins,
+                                )
+                                for d in subs:
+                                    print(d)
+                        except Exception:
+                            print("Command {} failed".format(p))
+                            traceback.print_exc()
                 print("")
 
             else:

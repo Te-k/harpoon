@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 from harpoon.commands.base import Command
 from harpoon.commands.censyscmd import CommandCensys
+from censys.asm import AsmClient
 from harpoon.lib.utils import unbracket
 from passivetotal.libs.enrichment import EnrichmentRequest
 from virus_total_apis import PublicApi, PrivateApi
@@ -21,7 +22,8 @@ class CommandSubdomains(Command):
 
     def add_arguments(self, parser):
         parser.add_argument('DOMAIN', help='Domain')
-        parser.add_argument('--verbose', '-v', action='store_true', help='Verbose mode')
+        parser.add_argument('--verbose', '-v',
+                            action='store_true', help='Verbose mode')
         parser.add_argument(
             '--source', '-s',
             choices=['all', 'censys', 'pt', 'vt'],
@@ -68,12 +70,12 @@ class CommandSubdomains(Command):
     def run(self, conf, args, plugins):
         if args.source == 'all':
             # Search subdomains through a search in Censys certificates
-            if plugins['censys'].test_config(conf):
-                try:
-                    self.censys_certs(unbracket(args.DOMAIN), conf, args.verbose)
-                except CensysRateLimitExceededException:
-                    print('Quota exceeded!')
-            # Get subdomains through passive total
+            # if plugins['censys'].test_config(conf):
+            #     try:
+            #         self.censys_certs(unbracket(args.DOMAIN),
+            #                           conf, args.verbose)
+            #     except CensysRateLimitExceededException:
+            #         print('Quota exceeded!')
             if plugins['pt'].test_config(conf):
                 self.pt(unbracket(args.DOMAIN), conf, args.verbose)
             if plugins['vt'].test_config(conf):
@@ -82,7 +84,8 @@ class CommandSubdomains(Command):
         elif args.source == 'censys':
             if plugins['censys'].test_config(conf):
                 try:
-                    self.censys_certs(unbracket(args.DOMAIN), conf, args.verbose)
+                    self.censys_certs(unbracket(args.DOMAIN),
+                                      conf, args.verbose)
                 except CensysRateLimitExceededException:
                     print('Quota exceeded!')
             else:
