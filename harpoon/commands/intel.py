@@ -56,16 +56,7 @@ class CommandIntel(Command):
         parser_d = subparsers.add_parser(
             "subdomain", help="Gather Threat Intelligence information on subdomains of a given domain"
         )
-        parser_d.add_argument("DOMAIN", help="Subdomain")
-        parser_d.add_argument(
-            '--verbose', '-v', action='store_true', help='Verbose mode')
-        parser_d.add_argument(
-            '--source', '-s',
-            choices=['all', 'vt', 'censys', 'pt'],
-            default='all',
-            help='Source of the research'
-        )
-        parser_d.set_defaults(subcommand="subdomain")
+
         self.parser = parser
 
     def run(self, conf, args, plugins):
@@ -168,6 +159,12 @@ class CommandIntel(Command):
                             )
                         )
                     print("")
+                if len(data['subdomains']) > 0:
+                    print('-------------------- Subdomains')
+                    for r in data['subdomains']:
+                        print(
+                            "[%s] %s" % (r['source'], r['domain'])
+                        )
                 if sum([len(data[b]) for b in data]) == 0:
                     print("Nothing found")
             # ------------------------------ IP -------------------------------
@@ -358,41 +355,6 @@ class CommandIntel(Command):
                             report["source"]
                         ))
                     print("")
-            elif args.subcommand == "subdomain":
-                data = {
-                    "subdomains": [],
-                }
-                print("############### {}".format(args.DOMAIN))
-                cmd = CommandSubdomains()
-                # small elif tric to prevent overloading the API quotas
-                if args.source == 'vt' and plugins['vt'].test_config(conf):
-                    cmd.run(
-                        conf,
-                        args,
-                        plugins,
-                    )
-                elif args.source == 'pt' and plugins['pt'].test_config(conf):
-                    cmd.run(
-                        conf,
-                        args,
-                        plugins,
-                    )
-                elif args.source == 'censys' and plugins['censys'].test_config(conf):
-                    cmd.run(
-                        conf,
-                        args,
-                        plugins,
-                    )
-                elif args.source == 'all':
-                    cmd.run(
-                        conf,
-                        args,
-                        plugins,
-                    )
-                else:
-                    # unecessary paranoid check
-                    print("Error, check the configuration for:", args.source)
-                print("")
 
             else:
                 self.parser.print_help()

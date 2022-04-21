@@ -34,31 +34,29 @@ class CommandSubdomains(Command):
 
     def censys_certs(self, domain, conf, verbose):
         censys_cmd = CommandCensys()
-        print('## Searching through Censys certificates')
+        print('[+] Searching through Censys certificates')
         subdomains = censys_cmd.get_subdomains(
             conf,
             domain,
             verbose,
         )
-        for d in subdomains:
-            print(d)
-
-        print('')
+        return subdomains
 
     def pt(self, domain, conf, verbose):
         client = EnrichmentRequest(
             conf["PassiveTotal"]["username"],
             conf["PassiveTotal"]['key']
         )
-        print('## Searching subdomains in Passive Total')
+        print('[+] Searching subdomains in Passive Total')
         res = client.get_subdomains(query=domain)
-        for d in res['subdomains']:
-            print('%s.%s' % (d, domain))
+        cleaned = []
+        for sub in res['subdomains']:
+            cleaned.append(sub+'.'+domain)
 
-        print('')
+        return cleaned
 
     def vt(self, domain, conf, verbose):
-        print('## Searching subdomains in Virus Total')
+        print('[+] Searching subdomains in Virus Total')
         if conf["VirusTotal"]["type"] == "public":
             vt = PublicApi(conf["VirusTotal"]["key"])
         else:
@@ -67,11 +65,30 @@ class CommandSubdomains(Command):
 
         if res['response_code'] == 204:
             print("VT quota exceeded!")
+            return []
+        else:
+            return res['results']['subdomains']
 
-        try:
-            for d in res['results']['subdomains']:
-                print(d)
-        except KeyError:
+    def prepare_data(self, subdomains=dict, data=dict, source=str):
+        if len(subdomains) > 0:
+            for domain in subdomains:
+                data['subdomains'].append(
+                    {"source": source, "domain": domain})
+
+    def intel(self, type, query, data, conf):
+        if type == "domain":
+            try:
+                subdomains = self.censys_certs(unbracket(query), conf, True)
+                self.prepare_data(subdomains, data, "Censys")
+
+            except CensysRateLimitExceededException:
+                print('Censys quota exceeded!')
+            subdomains = self.pt(unbracket(query), conf, True)
+            self.prepare_data(subdomains, data, "PassiveTotal")
+            subdomains = self.vt(unbracket(query), conf, True)
+            self.prepare_data(subdomains, data, "VirusTotal")
+
+        else:
             pass
 
     def run(self, conf, args, plugins):
@@ -79,31 +96,43 @@ class CommandSubdomains(Command):
             # Search subdomains through a search in Censys certificates
             if plugins['censys'].test_config(conf):
                 try:
-                    self.censys_certs(unbracket(args.DOMAIN),
-                                      conf, args.verbose)
+                    subs = self.censys_certs(
+                        unbracket(args.DOMAIN), conf, args.verbose)
+                    for sub in subs:
+                        print(sub)
                 except CensysRateLimitExceededException:
                     print('Quota exceeded!')
             if plugins['pt'].test_config(conf):
-                self.pt(unbracket(args.DOMAIN), conf, args.verbose)
+                subs = self.pt(unbracket(args.DOMAIN), conf, args.verbose)
+                for sub in subs:
+                    print(sub)
             if plugins['vt'].test_config(conf):
-                self.vt(unbracket(args.DOMAIN), conf, args.verbose)
+                subs = self.vt(unbracket(args.DOMAIN), conf, args.verbose)
+                for sub in subs:
+                    print(sub)
 
         elif args.source == 'censys':
             if plugins['censys'].test_config(conf):
                 try:
-                    self.censys_certs(unbracket(args.DOMAIN),
-                                      conf, args.verbose)
+                    subs = self.censys_certs(unbracket(args.DOMAIN),
+                                             conf, args.verbose)
+                    for sub in subs:
+                        print(sub)
                 except CensysRateLimitExceededException:
                     print('Quota exceeded!')
             else:
                 print('Please configure your Censys credentials')
         elif args.source == 'pt':
             if plugins['pt'].test_config(conf):
-                self.pt(unbracket(args.DOMAIN), conf, args.verbose)
+                subs = self.pt(unbracket(args.DOMAIN), conf, args.verbose)
+                for sub in subs:
+                    print(sub)
             else:
                 print('Please configure your Passive Total credentials')
         elif args.source == 'vt':
             if plugins['vt'].test_config(conf):
-                self.vt(unbracket(args.DOMAIN), conf, args.verbose)
+                subs = self.vt(unbracket(args.DOMAIN), conf, args.verbose)
+                for sub in subs:
+                    print(sub)
             else:
                 print('Please configure your VirusTotal credentials')
