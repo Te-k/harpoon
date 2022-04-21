@@ -5,6 +5,7 @@ import sys
 import traceback
 from harpoon.commands.base import Command
 from harpoon.commands.subdomains import CommandSubdomains
+from harpoon.commands.emailcmd import CommandEmail
 from harpoon.lib.utils import unbracket, is_ip
 
 
@@ -355,6 +356,14 @@ class CommandIntel(Command):
                             report["source"]
                         ))
                     print("")
+
+            elif args.subcommand == "email":
+                cmd = CommandEmail()
+                cmd.run(
+                    conf,
+                    args,
+                    plugins
+                )
 
             else:
                 self.parser.print_help()
