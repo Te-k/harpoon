@@ -18,7 +18,7 @@ class UrlScan(object):
 
     def _get(self, url, params):
         headers = {
-            "User-Agent": "Harpoon (https://github.com/Te-k/harpoon)",
+            "User-Agent": "phishtank/Harpoon (https://github.com/Te-k/harpoon)",
             "Content-Type": "application/json"
         }
         if self.api_key:
