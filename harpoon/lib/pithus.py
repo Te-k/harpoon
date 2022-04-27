@@ -70,13 +70,13 @@ class Pithus(object):
                 if res["score"] is not None:
                     print("Score:         ", res["score"])
 
-                if "highlight" in res["source"]:
-                    if len(res["highlight"]["permissions"]) > 0:
+                if "highlight" in res:
+                    if len(res["highlight"]) > 0:
                         print("")
-                        print("---- Highlighted permissions:")
-                        for perm in res["highlight"]["permissions"]:
-                            print(perm.replace(
-                                "<mark>", "").replace("</mark>", ""))
+                        print("---- Search matches:")
+                        for matches_key in res["highlight"]:
+                            for value in res["highlight"][matches_key]:
+                                print("{} - {}".format(matches_key, value.replace("<mark>", "").replace("</mark>", "")))
 
                 if len(res["source"]["features"]) > 0:
                     print("")

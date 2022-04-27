@@ -10,8 +10,11 @@ class CommandPithus(Command):
 
     Queries the Pithus API 
 
-    * Query the database: `harpoon pithus search SHA256`
-    * Advanced query: `harpoon pithus search 'permissions: *INTERNET'`
+    * Query the database: `harpoon pithus report SHA256`
+    * Query the status of an upload: `harpoon pithus status SHA256`
+    * Upload a sample: `harpoon pithus upload FILEPATH`
+    * Search the database: `harpoon pithus search SHA256`
+    * Advanced search example: `harpoon pithus search 'domains: *google.com && permissions: *INTERNET'`
 
     See: beta.pithus.org for documentation on the search options
     """
