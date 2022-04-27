@@ -64,7 +64,8 @@ class Pithus(object):
                       ["frosting_data"]["is_frosted"])
                 print("Uploaded at   ", res["source"]["uploaded_at"])
                 print("Signed        ", res["source"]["is_signed"])
-                print("Quark result  ", res["source"]["quark"]["threat_level"])
+                if "quark" in res["source"]:
+                    print("Quark result  ", res["source"]["quark"]["threat_level"])
 
                 if res["score"] is not None:
                     print("Score:         ", res["score"])
