@@ -190,13 +190,19 @@ class CommandIntel(Command):
                 for p in plugins:
                     try:
                         if args.all:
-                            if plugins[p].test_config(conf):
+                            if plugins[p].test_config():
                                 plugins[p].intel(
-                                    "ip", unbracket(args.IP), data, conf)
+                                    "ip",
+                                    unbracket(args.IP),
+                                    data
+                                )
                         else:
-                            if plugins[p].test_config(conf) and plugins[p].check_intel(conf):
+                            if plugins[p].test_config() and plugins[p].check_intel():
                                 plugins[p].intel(
-                                    "ip", unbracket(args.IP), data, conf)
+                                    "ip",
+                                    unbracket(args.IP),
+                                    data
+                                )
                     except Exception:
                         print("Command {} failed".format(p))
                         traceback.print_exc()

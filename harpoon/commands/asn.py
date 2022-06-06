@@ -4,10 +4,8 @@ import sys
 import json
 import requests
 import pyasn
-import gzip
-import urllib.request
 from harpoon.commands.base import Command
-from harpoon.lib.utils import bracket, unbracket
+
 
 class CommandAsn(Command):
     """
@@ -94,7 +92,7 @@ class CommandAsn(Command):
         f.close()
         return ''
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         if hasattr(args, 'ASN'):
             if args.ASN.lower().startswith("asn"):
                 asn = int(args.ASN[3:])

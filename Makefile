@@ -1,5 +1,9 @@
 PWD = $(shell pwd)
 
+
+test:
+	pytest
+
 clean:
 	rm -rf $(PWD)/build $(PWD)/dist $(PWD)/harpoon.egg-info
 

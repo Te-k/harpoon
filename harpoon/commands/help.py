@@ -1,7 +1,4 @@
 #! /usr/bin/env python
-import sys
-import os
-import io
 import consolemd
 from harpoon.commands.base import Command
 
@@ -19,7 +16,7 @@ class CommandHelp(Command):
     def add_arguments(self, parser):
         parser.add_argument('COMMAND', help='Show the help of the given command', nargs='?')
 
-    def run(self, conf, args, plugins, parser):
+    def run(self, args, plugins, parser):
         if args.COMMAND in plugins:
             renderer = consolemd.Renderer()
             # Remove empty space at the beginning of lines

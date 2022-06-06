@@ -22,9 +22,6 @@ class CommandBinaryEdge(Command):
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(help='Commands')
-        parser_a = subparsers.add_parser('config', help='Configure pybinary edge')
-        parser_a.add_argument('--key', '-k', help='Configure the API key')
-        parser_a.set_defaults(which='config')
         parser_b = subparsers.add_parser('ip', help='Query an IP address')
         parser_b.add_argument('IP', help='IP to be requested')
         parser_b.add_argument(
@@ -47,7 +44,8 @@ class CommandBinaryEdge(Command):
             '--dns', '-d', action='store_true',
             help='Requests images identified for an IP'
         )
-        parser_b.add_argument('--page', '-p', type=int, default=1,
+        parser_b.add_argument(
+            '--page', '-p', type=int, default=1,
             help='Get specific page')
         parser_b.set_defaults(which='ip')
         parser_c = subparsers.add_parser('search', help='Search in the database')
@@ -70,8 +68,9 @@ class CommandBinaryEdge(Command):
         parser_d.set_defaults(which='dataleaks')
         parser_e = subparsers.add_parser('domain', help='Search information on a domain')
         parser_e.add_argument('DOMAIN', help='Domain to be requested')
-        parser_e.add_argument('--page', '-p', type=int, default=1,
-                help='Get specific page')
+        parser_e.add_argument(
+            '--page', '-p', type=int, default=1,
+            help='Get specific page')
         parser_e.add_argument(
             '--subdomains', '-s', action='store_true',
             help='Returns subdomains'
@@ -79,8 +78,8 @@ class CommandBinaryEdge(Command):
         parser_e.set_defaults(which='domain')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
-        be = BinaryEdge(conf['BinaryEdge']['key'])
+    def run(self, args, plugins):
+        be = BinaryEdge(self._config_data['BinaryEdge']['key'])
         try:
             if hasattr(args, 'which'):
                 if args.which == 'ip':
@@ -129,51 +128,49 @@ class CommandBinaryEdge(Command):
         except BinaryEdgeException as e:
             print('Error: %s' % e.message)
 
-    def intel(self, type, query, data, conf):
-        if type == "domain":
-            print("[+] Downloading BinaryEdge information....")
-            try:
-                be = BinaryEdge(conf["BinaryEdge"]["key"])
-                res = be.domain_dns(query)
-                for d in res["events"]:
-                    if "A" in d:
-                        for a in d["A"]:
-                            data["passive_dns"].append(
-                                {
-                                    "ip": a,
-                                    "first": parse(d["updated_at"]).astimezone(pytz.utc),
-                                    "last": parse(d["updated_at"]).astimezone(pytz.utc),
-                                    "source": "BinaryEdge",
-                                }
-                            )
-            except BinaryEdgeException:
-                print(
-                    "You need a paid BinaryEdge subscription for this request"
-                )
-        elif type == "ip":
-            print("[+] Downloading BinaryEdge information....")
-            try:
-                be = BinaryEdge(conf["BinaryEdge"]["key"])
-                res = be.domain_ip(query)
-                for d in res["events"]:
-                    data["passive_dns"].append(
-                        {
-                            "domain": d["domain"],
-                            "first": parse(d["updated_at"]).astimezone(pytz.utc),
-                            "last": "",
-                            "source": "BinaryEdge",
-                        }
-                    )
-                res = be.host(query)
-                for d in res["events"]:
-                    data["ports"].append({
-                        "port": d["port"],
-                        "info": "",
-                        "source": "BinaryEdge"
-                    })
-            except BinaryEdgeException:
-                print(
-                    "You need a paid BinaryEdge subscription for this request"
-                )
+    def intel_domain(self, query, data):
+        print("[+] Downloading BinaryEdge information....")
+        try:
+            be = BinaryEdge(self._config_data["BinaryEdge"]["key"])
+            res = be.domain_dns(query)
+            for d in res["events"]:
+                if "A" in d:
+                    for a in d["A"]:
+                        data["passive_dns"].append(
+                            {
+                                "ip": a,
+                                "first": parse(d["updated_at"]).astimezone(pytz.utc),
+                                "last": parse(d["updated_at"]).astimezone(pytz.utc),
+                                "source": "BinaryEdge",
+                            }
+                        )
+        except BinaryEdgeException:
+            print(
+                "You need a paid BinaryEdge subscription for this request"
+            )
 
-
+    def intel_ip(self, query, data):
+        print("[+] Downloading BinaryEdge information....")
+        try:
+            be = BinaryEdge(self._config_data["BinaryEdge"]["key"])
+            res = be.domain_ip(query)
+            for d in res["events"]:
+                data["passive_dns"].append(
+                    {
+                        "domain": d["domain"],
+                        "first": parse(d["updated_at"]).astimezone(pytz.utc),
+                        "last": "",
+                        "source": "BinaryEdge",
+                    }
+                )
+            res = be.host(query)
+            for d in res["events"]:
+                data["ports"].append({
+                    "port": d["port"],
+                    "info": "",
+                    "source": "BinaryEdge"
+                })
+        except BinaryEdgeException:
+            print(
+                "You need a paid BinaryEdge subscription for this request"
+            )

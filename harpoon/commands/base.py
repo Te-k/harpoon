@@ -65,7 +65,7 @@ class Command(object):
                     return False
             else:
                 for d in self.config[pname]:
-                    if d not in self.config[pname]:
+                    if d not in self._config_data[pname]:
                         return False
                     else:
                         if self._config_data[pname][d] == '':
