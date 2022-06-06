@@ -128,7 +128,7 @@ class CommandCensys(Command):
         else:
             self.parser.print_help()
 
-    def intel(self, type, query, data, conf):
+    def intel(self, type, query, data):
         if type == "ip":
             print("[+] Checking Censys...")
             api = CensysHosts(conf['Censys']['id'], conf['Censys']['secret'])

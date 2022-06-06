@@ -27,7 +27,7 @@ class CommandConfig(Command):
         parser.add_argument('--check', '-c', action='store_true',
             help='Config harpoon configuration')
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         configdir = os.path.join(os.path.expanduser('~'), '.config/harpoon')
         configpath = os.path.join(os.path.expanduser('~'), '.config/harpoon/config')
         if args.show:

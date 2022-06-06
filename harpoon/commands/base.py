@@ -1,6 +1,34 @@
+class Subcommand(object):
+    """
+    Subcommand object that can be used by a Command
+    """
+    description = ""
+    cmd = ""
+
+    def __init__(self, conf):
+        self.data = {}
+        self._conf = conf
+
+    def add_arguments(self, parser):
+        pass
+
+    def run(self, args):
+        raise NotImplementedError()
+
+    def display(self, args):
+        """
+        Display data
+        """
+        pass
+
+
 class Command(object):
-    config = None # Describes the configuration params
+    config = None  # Describes the configuration params
     update_needed = False
+
+    def __init__(self, config):
+        self._subcommands = {}
+        self._config_data = config
 
     @property
     def config_needed(self):
@@ -14,7 +42,13 @@ class Command(object):
     def update(self):
         pass
 
-    def test_config(self, conf):
+    def add_subcommand(self, sc):
+        """
+        Adds a subcommand to the command
+        """
+        self._subcommands[sc.cmd] = sc(self._config_data)
+
+    def test_config(self):
         """
         Test that the config params defined are in the conf file
         """
@@ -24,21 +58,21 @@ class Command(object):
             return True
         else:
             pname = list(self.config.keys())[0]
-            if pname not in conf:
+            if pname not in self._config_data:
                 if len(self.config[pname]) == 0:
                     return True
                 else:
                     return False
             else:
                 for d in self.config[pname]:
-                    if d not in conf[pname]:
+                    if d not in self.config[pname]:
                         return False
                     else:
-                        if conf[pname][d] == '':
+                        if self._config_data[pname][d] == '':
                             return False
             return True
 
-    def check_intel(self, conf):
+    def check_intel(self):
         """
         Check if intel is disabled in the configuration
         """
@@ -48,23 +82,60 @@ class Command(object):
             return True
         else:
             pname = list(self.config.keys())[0]
-            if pname not in conf:
+            if pname not in self._config_data:
                 return True
             else:
-                if "intel" not in conf[pname]:
+                if "intel" not in self._config_data[pname]:
                     return True
                 else:
-                    return (conf[pname]["intel"].lower() != "false")
-    def intel(self, type, query, data, conf):
+                    return (self._config_data[pname]["intel"].lower() != "false")
+
+    def intel(self, type, query, data):
         """
         Add information to the global intel command
         type : can be ip or domain (string)
         query : domain or ip address (string)
         data : contains data depending on the type
             For domains: passive_dns, urls, malware, files, reports
-        conf : configuration
+        """
+        if type == "ip":
+            self.intel_ip(query, data)
+        elif type == "domain":
+            self.intel_domain(query, data)
+
+    def intel_ip(self, query, data):
+        """
+        Adds information to the global intel command
+        """
+        pass
+
+    def intel_domain(self, query, data):
+        """
+        Adds information to the global intel command
         """
         pass
 
     def add_arguments(self, parser):
-        pass
+        if len(self._subcommands) > 0:
+            subparser = parser.add_subparsers(help='Subcommand')
+            for sc in self._subcommands.values():
+                p = subparser.add_parser(sc.cmd, help=sc.description)
+                sc.add_arguments(p)
+                p.set_defaults(subcommand=sc.cmd)
+        self._parser = parser
+
+    def run(self, args, plugins):
+        """
+        Run the command
+        """
+        if len(self._subcommands) > 0:
+            if 'subcommand' in args:
+                if args.subcommand in self._subcommands.keys():
+                    self._subcommands[args.subcommand].run(args)
+                    self._subcommands[args.subcommand].display(args)
+                else:
+                    self._parser.print_help()
+            else:
+                self._parser.print_help()
+        else:
+            raise NotImplementedError()

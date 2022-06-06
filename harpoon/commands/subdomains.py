@@ -75,18 +75,19 @@ class CommandSubdomains(Command):
                 data['subdomains'].append(
                     {"source": source, "domain": domain})
 
-    def intel(self, type, query, data, conf):
+    def intel(self, type, query, data):
         if type == "domain":
             try:
-                subdomains = self.censys_certs(unbracket(query), conf, True)
-                self.prepare_data(subdomains, data, "Censys")
+                #subdomains = self.censys_certs(unbracket(query), self._confif_data, True)
+                #self.prepare_data(subdomains, data, "Censys")
+                pass
 
             except CensysRateLimitExceededException:
                 print('Censys quota exceeded!')
-            subdomains = self.pt(unbracket(query), conf, True)
-            self.prepare_data(subdomains, data, "PassiveTotal")
-            subdomains = self.vt(unbracket(query), conf, True)
-            self.prepare_data(subdomains, data, "VirusTotal")
+            #subdomains = self.pt(unbracket(query), conf, True)
+            #self.prepare_data(subdomains, data, "PassiveTotal")
+            #subdomains = self.vt(unbracket(query), conf, True)
+            #self.prepare_data(subdomains, data, "VirusTotal")
 
         else:
             pass

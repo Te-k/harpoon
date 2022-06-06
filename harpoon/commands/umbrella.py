@@ -99,7 +99,7 @@ class CommandUmbrella(Command):
         else:
             self.parser.print_help()
 
-    def intel(self, type, query, data, conf):
+    def intel(self, type, query, data):
         if type == "domain":
             rank = self.check(query)
             if rank:

@@ -60,7 +60,7 @@ class CommandIntel(Command):
 
         self.parser = parser
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         if "subcommand" in args:
             if args.subcommand == "domain":
                 data = {
@@ -76,13 +76,18 @@ class CommandIntel(Command):
                 for p in plugins:
                     try:
                         if args.all:
-                            if plugins[p].test_config(conf):
-                                plugins[p].intel("domain", unbracket(
-                                    args.DOMAIN), data, conf)
+                            if plugins[p].test_config():
+                                plugins[p].intel(
+                                        "domain",
+                                        unbracket(args.DOMAIN),
+                                        data)
                         else:
-                            if plugins[p].test_config(conf) and plugins[p].check_intel(conf):
-                                plugins[p].intel("domain", unbracket(
-                                    args.DOMAIN), data, conf)
+                            if plugins[p].test_config() and plugins[p].check_intel():
+                                plugins[p].intel(
+                                    "domain",
+                                    unbracket(args.DOMAIN),
+                                    data
+                                )
                     except Exception:
                         print("Command {} failed".format(p))
                         traceback.print_exc()

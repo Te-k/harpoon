@@ -61,7 +61,7 @@ class CommandKoodous(Command):
         else:
             self.parser.print_help()
 
-    def intel(self, type, query, data, conf):
+    def intel(self, type, query, data):
         if type == "hash":
             if len(query) == 64:
                 try:

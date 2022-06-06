@@ -13,6 +13,7 @@ class Robtex(object):
     """
     Library to request Robtex API
     https://www.robtex.com/api/
+    TODO : support the API
     """
     def _request(self, path):
         r = requests.get("https://freeapi.robtex.com" + path)

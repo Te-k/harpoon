@@ -18,26 +18,31 @@ def load_config():
     return config
 
 
-def init_plugins():
+def init_plugins(config):
+    """
+    Find all the plugins available and init them
+    """
     plugin_dir = os.path.dirname(os.path.realpath(__file__)) + '/commands'
     plugin_files = [x[:-3] for x in os.listdir(plugin_dir) if x.endswith(".py")]
     sys.path.insert(0, plugin_dir)
     for plugin in plugin_files:
-        mod = __import__(plugin)
+        mod = __import__(plugin)  # noqa: F841
 
     PLUGINS = {}
     for plugin in Command.__subclasses__():
-        PLUGINS[plugin.name] = plugin()
+        PLUGINS[plugin.name] = plugin(config)
     return PLUGINS
 
 
 def main():
+    signal.signal(signal.SIGINT, handle_stop)
+    config = load_config()
+
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(help='Commands')
-    signal.signal(signal.SIGINT, handle_stop)
 
     # Init plugins
-    plugins = init_plugins()
+    plugins = init_plugins(config)
     for p in sorted(plugins.keys()):
         sp = subparsers.add_parser(
             plugins[p].name,
@@ -47,20 +52,22 @@ def main():
         sp.set_defaults(command=p)
 
     args = parser.parse_args()
-    config = load_config()
+
+    # Run the plugin
     if hasattr(args, 'command'):
         # Config plugin need plugin list
-        if not plugins[args.command].test_config(config):
+        if not plugins[args.command].test_config():
             print('Invalid configuration for this plugin, quitting...')
             sys.exit(1)
         else:
-            # Ugly
+            # FIXME : ugly
             if args.command == "help":
-                plugins[args.command].run(config, args, plugins, parser)
+                plugins[args.command].run(args, plugins, parser)
             else:
-                plugins[args.command].run(config, args, plugins)
+                plugins[args.command].run(args, plugins)
     else:
         parser.print_help()
+
 
 if __name__ == "__main__":
     main()
