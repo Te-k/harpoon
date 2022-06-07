@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-import sys
 import json
 import pytz
 from dateutil.parser import parse
@@ -39,15 +38,21 @@ class CommandOtx(Command):
     """
     name = "otx"
     description = "Requests information from AlienVault OTX"
-    config = { 'AlienVaultOtx': ['key']}
+    config = {'AlienVaultOtx': ['key']}
 
     def add_arguments(self, parser):
+        # TODO: rewrite as subcommands
         parser.add_argument('--pulse', '-p',  help='Event infos')
         parser.add_argument('--search', '-s',  help='Search for indicators')
         parser.add_argument('--file', '-f',  help='Check from a list of indicators in a file')
         parser.add_argument('--raw', '-r', help='Print raw information', action='store_true')
         parser.add_argument('--json', '-j', help='Print json information', action='store_true')
-        parser.add_argument('--type', '-t', help='Type for search', default="guess", choices=["guess", "domain", "IPv4", "IPv6", "url", "md5", "sha1", "sha256", "pehash", "imphash", "cidr", "file_path", "hostname", "mutex", "cve"])
+        parser.add_argument(
+            '--type', '-t',
+            help='Type for search',
+            default="guess",
+            choices=["guess", "domain", "IPv4", "IPv6", "url", "md5", "sha1",
+                     "sha256", "pehash", "imphash", "cidr", "file_path", "hostname", "mutex", "cve"])
         self.parser = parser
 
     def run(self, args, plugins):
@@ -141,7 +146,7 @@ class CommandOtx(Command):
                         for u in res['url_list']['url_list']:
                             if "result" in u:
                                 if "urlworker" in u["result"]:
-                                    if "ip" in u["result"]["urlworker"] :
+                                    if "ip" in u["result"]["urlworker"]:
                                         print("\t[%s] %s on IP %s" % (
                                                 u["date"],
                                                 u["url"],
@@ -190,132 +195,132 @@ class CommandOtx(Command):
         else:
             self.parser.print_help()
 
-    def intel(self, type, query, data):
-        if type == "domain":
-            print("[+] Checking OTX...")
-            try:
-                otx = OTXv2(self._config_data["AlienVaultOtx"]["key"])
-                res = otx.get_indicator_details_full(IndicatorTypes.DOMAIN, query)
-                for pulse in res["general"]["pulse_info"]["pulses"]:
-                    data["reports"].append({
-                        "date": parse(pulse["created"]).astimezone(pytz.utc),
-                        "title": pulse["name"],
+    def intel_domain(self, query, data):
+        print("[+] Checking OTX...")
+        try:
+            otx = OTXv2(self._config_data["AlienVaultOtx"]["key"])
+            res = otx.get_indicator_details_full(IndicatorTypes.DOMAIN, query)
+            for pulse in res["general"]["pulse_info"]["pulses"]:
+                data["reports"].append({
+                    "date": parse(pulse["created"]).astimezone(pytz.utc),
+                    "title": pulse["name"],
+                    "source": "OTX",
+                    "url": "https://otx.alienvault.com/pulse/{}".format(pulse["id"])
+                })
+            # Get Passive DNS
+            if "passive_dns" in res:
+                for r in res["passive_dns"]["passive_dns"]:
+                    data["passive_dns"].append({
+                        "ip": r["hostname"],
+                        "first": parse(r["first"]).astimezone(pytz.utc),
+                        "last": parse(r["last"]).astimezone(pytz.utc),
                         "source": "OTX",
-                        "url": "https://otx.alienvault.com/pulse/{}".format(pulse["id"])
                     })
-                # Get Passive DNS
-                if "passive_dns" in res:
-                    for r in res["passive_dns"]["passive_dns"]:
-                        data["passive_dns"].append({
-                            "ip": r["hostname"],
-                            "first": parse(r["first"]).astimezone(pytz.utc),
-                            "last": parse(r["last"]).astimezone(pytz.utc),
+            if "url_list" in res:
+                for r in res["url_list"]["url_list"]:
+                    if "result" in r:
+                        data["urls"].append({
+                            "date": parse(r["date"]).astimezone(pytz.utc),
+                            "url": r["url"],
+                            "ip": r["result"]["urlworker"]["ip"]
+                            if "ip" in r["result"]["urlworker"]
+                            else "",
                             "source": "OTX",
                         })
-                if "url_list" in res:
-                    for r in res["url_list"]["url_list"]:
-                        if "result" in r:
-                            data["urls"].append({
-                                "date": parse(r["date"]).astimezone(pytz.utc),
-                                "url": r["url"],
-                                "ip": r["result"]["urlworker"]["ip"]
-                                if "ip" in r["result"]["urlworker"]
-                                else "",
-                                "source": "OTX",
-                            })
-                        else:
-                            data["urls"].append({
-                                "date": parse(r["date"]).astimezone(pytz.utc),
-                                "url": r["url"],
-                                "ip": "",
-                                "source": "OTX",
-                            })
-                # Some pulses have domains as hostnames
-                res = otx.get_indicator_details_full(IndicatorTypes.HOSTNAME, query)
-                for pulse in res["general"]["pulse_info"]["pulses"]:
-                    data["reports"].append({
-                        "date": parse(pulse["created"]).astimezone(pytz.utc),
-                        "title": pulse["name"],
-                        "source": "OTX",
-                        "url": "https://otx.alienvault.com/pulse/{}".format(pulse["id"])
-                    })
-            except AttributeError:
-                print("OTX crashed  ¯\_(ツ)_/¯")
-        elif type == "ip":
-            print("[+] Checking OTX...")
-            try:
-                otx = OTXv2(self._config_data["AlienVaultOtx"]["key"])
-                res = otx.get_indicator_details_full(IndicatorTypes.IPv4, query)
-                for pulse in res["general"]["pulse_info"]["pulses"]:
-                    data["reports"].append({
-                        "date": parse(pulse["created"]).astimezone(pytz.utc),
-                        "title": pulse["name"],
-                        "source": "OTX",
-                        "url": "https://otx.alienvault.com/pulse/{}".format(pulse["id"])
-                    })
-                # Get Passive DNS
-                if "passive_dns" in res:
-                    for r in res["passive_dns"]["passive_dns"]:
-                        data["passive_dns"].append({
-                            "domain": r["hostname"],
-                            "first": parse(r["first"]).astimezone(pytz.utc),
-                            "last": parse(r["last"]).astimezone(pytz.utc),
+                    else:
+                        data["urls"].append({
+                            "date": parse(r["date"]).astimezone(pytz.utc),
+                            "url": r["url"],
+                            "ip": "",
                             "source": "OTX",
                         })
-                if "url_list" in res:
-                    for r in res["url_list"]["url_list"]:
-                        if "result" in r:
-                            data["urls"].append({
-                                "date": parse(r["date"]).astimezone(pytz.utc),
-                                "url": r["url"],
-                                "ip": r["result"]["urlworker"]["ip"]
-                                if "ip" in r["result"]["urlworker"]
-                                else "",
-                                "source": "OTX",
-                            })
-                        else:
-                            data["urls"].append({
-                                "date": parse(r["date"]).astimezone(pytz.utc),
-                                "url": r["url"],
-                                "ip": "",
-                                "source": "OTX",
-                            })
-            except AttributeError:
-                print("OTX crashed  ¯\_(ツ)_/¯")
-        elif type == "hash":
-            t = typeguess(query)
-            print("[+] Checking OTX...")
-            try:
-                otx = OTXv2(self._config_data["AlienVaultOtx"]["key"])
-                res = otx.get_indicator_details_full(OTX_TYPES[t], query)
-                for pulse in res["general"]["pulse_info"]["pulses"]:
-                    data["reports"].append({
-                        "date": parse(pulse["created"]).astimezone(pytz.utc),
-                        "title": pulse["name"],
+            # Some pulses have domains as hostnames
+            res = otx.get_indicator_details_full(IndicatorTypes.HOSTNAME, query)
+            for pulse in res["general"]["pulse_info"]["pulses"]:
+                data["reports"].append({
+                    "date": parse(pulse["created"]).astimezone(pytz.utc),
+                    "title": pulse["name"],
+                    "source": "OTX",
+                    "url": "https://otx.alienvault.com/pulse/{}".format(pulse["id"])
+                })
+        except AttributeError:
+            print("OTX crashed  ¯\\_(ツ)_/¯")
+
+    def intel_ip(self, query, data):
+        print("[+] Checking OTX...")
+        try:
+            otx = OTXv2(self._config_data["AlienVaultOtx"]["key"])
+            res = otx.get_indicator_details_full(IndicatorTypes.IPv4, query)
+            for pulse in res["general"]["pulse_info"]["pulses"]:
+                data["reports"].append({
+                    "date": parse(pulse["created"]).astimezone(pytz.utc),
+                    "title": pulse["name"],
+                    "source": "OTX",
+                    "url": "https://otx.alienvault.com/pulse/{}".format(pulse["id"])
+                })
+            # Get Passive DNS
+            if "passive_dns" in res:
+                for r in res["passive_dns"]["passive_dns"]:
+                    data["passive_dns"].append({
+                        "domain": r["hostname"],
+                        "first": parse(r["first"]).astimezone(pytz.utc),
+                        "last": parse(r["last"]).astimezone(pytz.utc),
                         "source": "OTX",
-                        "url": "https://otx.alienvault.com/pulse/{}".format(pulse["id"])
                     })
-                if "analysis" in res:
-                    if "analysis" in res["analysis"]:
-                        if "plugins" in res["analysis"]["analysis"]:
-                            if "cuckoo" in res["analysis"]["analysis"]["plugins"]:
-                                done = []
-                                for d in res["analysis"]["analysis"]["plugins"]["cuckoo"]["result"]["network"]["domains"]:
+            if "url_list" in res:
+                for r in res["url_list"]["url_list"]:
+                    if "result" in r:
+                        data["urls"].append({
+                            "date": parse(r["date"]).astimezone(pytz.utc),
+                            "url": r["url"],
+                            "ip": r["result"]["urlworker"]["ip"]
+                            if "ip" in r["result"]["urlworker"]
+                            else "",
+                            "source": "OTX",
+                        })
+                    else:
+                        data["urls"].append({
+                            "date": parse(r["date"]).astimezone(pytz.utc),
+                            "url": r["url"],
+                            "ip": "",
+                            "source": "OTX",
+                        })
+        except AttributeError:
+            print("OTX crashed  ¯\\_(ツ)_/¯")
+
+    def intel_hash(self, query, data):
+        print("[+] Checking OTX...")
+        t = typeguess(query)
+        try:
+            otx = OTXv2(self._config_data["AlienVaultOtx"]["key"])
+            res = otx.get_indicator_details_full(OTX_TYPES[t], query)
+            for pulse in res["general"]["pulse_info"]["pulses"]:
+                data["reports"].append({
+                    "date": parse(pulse["created"]).astimezone(pytz.utc),
+                    "title": pulse["name"],
+                    "source": "OTX",
+                    "url": "https://otx.alienvault.com/pulse/{}".format(pulse["id"])
+                })
+            if "analysis" in res:
+                if "analysis" in res["analysis"]:
+                    if "plugins" in res["analysis"]["analysis"]:
+                        if "cuckoo" in res["analysis"]["analysis"]["plugins"]:
+                            done = []
+                            for d in res["analysis"]["analysis"]["plugins"]["cuckoo"]["result"]["network"]["domains"]:
+                                data["network"].append({
+                                    "source": "OTX",
+                                    "url": "https://otx.alienvault.com/indicator/file/{}".format(query),
+                                    "host": d["domain"],
+                                    "host2": d["ip"]
+                                })
+                                done.append(d["ip"])
+                                done.append(d["domain"])
+                            for ip in res["analysis"]["analysis"]["plugins"]["cuckoo"]["result"]["network"]["hosts"]:
+                                if ip["ip"] not in done:
                                     data["network"].append({
                                         "source": "OTX",
                                         "url": "https://otx.alienvault.com/indicator/file/{}".format(query),
-                                        "host": d["domain"],
-                                        "host2": d["ip"]
+                                        "host": ip["ip"],
                                     })
-                                    done.append(d["ip"])
-                                    done.append(d["domain"])
-                                for ip in res["analysis"]["analysis"]["plugins"]["cuckoo"]["result"]["network"]["hosts"]:
-                                    if ip["ip"] not in done:
-                                        data["network"].append({
-                                            "source": "OTX",
-                                            "url": "https://otx.alienvault.com/indicator/file/{}".format(query),
-                                            "host": ip["ip"],
-                                        })
-
-            except AttributeError:
-                print("OTX crashed  ¯\_(ツ)_/¯")
+        except AttributeError:
+            print("OTX crashed  ¯\\_(ツ)_/¯")

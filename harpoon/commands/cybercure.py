@@ -30,7 +30,8 @@ class CommandCyberCure(Command):
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(help='Subcommand')
-        parser_a = subparsers.add_parser('ip', help='Returns a response whether an indicator exists in cybercure.ai database, if it is exists it will provide also a link for visual presentation of the indicator history.')
+        parser_a = subparsers.add_parser('ip', help="Returns a response whether an\
+                indicator exists in cybercure.ai database")
         parser_a.add_argument('IP', help='IP address')
         parser_a.set_defaults(subcommand='ip')
         parser_b = subparsers.add_parser('file', help='Information on a list of IPs')
@@ -38,7 +39,7 @@ class CommandCyberCure(Command):
         parser_b.set_defaults(subcommand='file')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         cybercure = CyberCure(token='reserved_for_future')
         if 'subcommand' in args:
             if args.subcommand == 'ip':
@@ -62,7 +63,7 @@ class CommandCyberCure(Command):
                         except CyberCureError:
                             print("%s;;" % ip)
                         else:
-                            print ("%s;%s;%s" % (
+                            print("{};{};{}".format(
                                     ip,
                                     infos['exists'],
                                     infos['visual'] if 'visual' in infos else ''
