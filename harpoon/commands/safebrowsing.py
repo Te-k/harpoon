@@ -1,7 +1,9 @@
 #! /usr/bin/env python
 import sys
+import json
 from harpoon.commands.base import Command
-from pysafebrowsing import SafeBrowsing
+from pysafebrowsing.api import SafeBrowsing, SafeBrowsingInvalidApiKey, SafeBrowsingWeirdError
+
 
 class CommandSafeBrowsing(Command):
     """
@@ -17,6 +19,7 @@ class CommandSafeBrowsing(Command):
     config = {'SafeBrowsing': ['key']}
 
     def add_arguments(self, parser):
+        # FIXME: migrate to subcommands
         subparsers = parser.add_subparsers(help='SubCommands')
         parser_b = subparsers.add_parser('url', help='Query an URL')
         parser_b.add_argument('URL', help='URL to be requested')
@@ -24,13 +27,14 @@ class CommandSafeBrowsing(Command):
         parser_b.set_defaults(subcommand='url')
         parser_c = subparsers.add_parser('file', help='Check domains or urls from a file')
         parser_c.add_argument('FILE', help='File path')
-        parser_c.add_argument('--format', '-f', help='Output format',
+        parser_c.add_argument(
+            '--format', '-f', help='Output format',
             choices=["json", "csv", "txt"], default="txt")
         parser_c.set_defaults(subcommand='file')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
-        sb = SafeBrowsing(conf['SafeBrowsing']['key'])
+    def run(self, args, plugins):
+        sb = SafeBrowsing(self._config_data['SafeBrowsing']['key'])
         if 'subcommand' in args:
             if args.subcommand == 'url':
                 try:

@@ -23,7 +23,7 @@ class CommandQuad9(Command):
         parser.add_argument('--verbose', '-v', action='store_true',  help='Display results')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         params = {
             'name': args.DOMAIN,
             'type': args.type,
@@ -44,26 +44,23 @@ class CommandQuad9(Command):
         if args.verbose:
             print(json.dumps(r.json(), indent=4))
 
-    def intel(self, type, query, data, conf):
-        if type == "domain":
-            print("[+] Checking Quad9...")
-            params = {
-                'name': query,
-                'type': 'A',
-                'ct': 'application/dns-json',
-            }
-            r = requests.get("https://dns.quad9.net:5053/dns-query", params=params)
-            if r.status_code != 200:
-                print("Quad9 query failed")
-            else:
-                res = r.json()
-                if res['Status'] == 3:
-                    if "Authority" not in res:
-                        data["reports"].append({
-                            "title": "Domain blocked by Quad9",
-                            "date": "",
-                            "source": "Quad9",
-                            "url": ""
-                        })
-
-
+    def intel_domain(self, query, data):
+        print("[+] Checking Quad9...")
+        params = {
+            'name': query,
+            'type': 'A',
+            'ct': 'application/dns-json',
+        }
+        r = requests.get("https://dns.quad9.net:5053/dns-query", params=params)
+        if r.status_code != 200:
+            print("Quad9 query failed")
+        else:
+            res = r.json()
+            if res['Status'] == 3:
+                if "Authority" not in res:
+                    data["reports"].append({
+                        "title": "Domain blocked by Quad9",
+                        "date": "",
+                        "source": "Quad9",
+                        "url": ""
+                    })
