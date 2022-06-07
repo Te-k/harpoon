@@ -1,8 +1,4 @@
 #! /usr/bin/env python
-import argparse
-import configparser
-import os
-import sys
 import json
 from harpoon.commands.base import Command
 from spyonweb import SpyOnWeb, SpyOnWebNotFound, SpyOnWebInvalidToken, SpyOnWebError
@@ -28,40 +24,45 @@ class CommandSpyonweb(Command):
         subparsers = parser.add_subparsers(help='Subcommands')
         parser_b = subparsers.add_parser('domain', help='Query a domain')
         parser_b.add_argument('DOMAIN', help='Domain to be requested')
-        parser_b.add_argument('--raw', '-r', action='store_true',
-                help='Print raw list of domains')
+        parser_b.add_argument(
+            '--raw', '-r', action='store_true',
+            help='Print raw list of domains')
         parser_b.set_defaults(subcommand='domain')
         parser_c = subparsers.add_parser('adsense', help='Query an adsense id')
         parser_c.add_argument('ID', help='id to be requested')
-        parser_c.add_argument('--raw', '-r', action='store_true',
-                help='Print raw list of domains')
+        parser_c.add_argument(
+            '--raw', '-r', action='store_true',
+            help='Print raw list of domains')
         parser_c.set_defaults(subcommand='adsense')
         parser_d = subparsers.add_parser('analytics', help='Query a Google Analytics id')
         parser_d.add_argument('ID', help='id to be requested')
-        parser_d.add_argument('--raw', '-r', action='store_true',
-                help='Print raw list of domains')
+        parser_d.add_argument(
+            '--raw', '-r', action='store_true',
+            help='Print raw list of domains')
         parser_d.set_defaults(subcommand='analytics')
         parser_e = subparsers.add_parser('ip', help='Query an IP Address')
         parser_e.add_argument('IP', help='IP address to be requested')
-        parser_e.add_argument('--raw', '-r', action='store_true',
-                help='Print raw list of domains')
+        parser_e.add_argument(
+            '--raw', '-r', action='store_true',
+            help='Print raw list of domains')
         parser_e.set_defaults(subcommand='ip')
         parser_f = subparsers.add_parser('nsdomain', help='Query an Name Server domain')
         parser_f.add_argument('DOMAIN', help='Name Server Domain to be requested')
-        parser_f.add_argument('--raw', '-r', action='store_true',
-                help='Print raw list of domains')
+        parser_f.add_argument(
+            '--raw', '-r', action='store_true',
+            help='Print raw list of domains')
         parser_f.set_defaults(subcommand='nsdomain')
         parser_g = subparsers.add_parser('nsip', help='Query a Name Server IP address')
         parser_g.add_argument('IP', help='Name Server IP Address to be requested')
-        parser_g.add_argument('--raw', '-r', action='store_true',
-                help='Print raw list of domains')
+        parser_g.add_argument(
+            '--raw', '-r', action='store_true',
+            help='Print raw list of domains')
         parser_g.set_defaults(subcommand='nsip')
         self.parser = parser
 
-
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         if hasattr(args, 'subcommand'):
-            s = SpyOnWeb(conf['SpyOnWeb']['token'])
+            s = SpyOnWeb(self._config_data['SpyOnWeb']['token'])
             if args.subcommand == 'domain':
                 try:
                     res = s.summary(args.DOMAIN)

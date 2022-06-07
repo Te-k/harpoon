@@ -1,11 +1,10 @@
 #! /usr/bin/env python
-import sys
 import json
 import datetime
 import pytz
 from dateutil.parser import parse
 from harpoon.commands.base import Command
-from harpoon.lib.utils import bracket, unbracket
+from harpoon.lib.utils import unbracket
 from threatminer import ThreatMiner
 
 
@@ -68,8 +67,8 @@ class CommandThreatMiner(Command):
         parser_k.set_defaults(subcommand='subdomain')
         self.parser = parser
 
-
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
+        # FIXME : migrate to subcommands
         if 'subcommand' in args:
             tm = ThreatMiner()
             if args.subcommand == 'report':
@@ -199,77 +198,78 @@ class CommandThreatMiner(Command):
         else:
             self.parser.print_help()
 
-    def intel(self, type, query, data, conf):
-        if type == "domain":
-            print("[+] Checking ThreatMiner...")
-            tm = ThreatMiner()
-            response = tm.passive_dns(query)
-            if response['status_code'] == '200':
-                for r in response['results']:
-                    data["passive_dns"].append({
-                        "ip": r["ip"],
-                        "first": parse(r["first_seen"]).astimezone(pytz.utc),
-                        "last": parse(r["last_seen"]).astimezone(pytz.utc),
-                        "source": "ThreatMiner"
-                    })
-            response = tm.get_report(query)
-            if response["status_code"] == "200":
-                for r in response["results"]:
-                    data["reports"].append({
-                        "date": datetime.datetime(int(r["year"]), 1, 1),
-                        "title": r["filename"],
-                        "url": r["URL"],
-                        "source": "ThreatMiner"
-                    })
-            else:
-                print(
-                    "Request to ThreatMiner failed: {}".format(
-                        response["status_message"]
-                    )
+    def intel_domain(self, query, data):
+        print("[+] Checking ThreatMiner...")
+        tm = ThreatMiner()
+        response = tm.passive_dns(query)
+        if response['status_code'] == '200':
+            for r in response['results']:
+                data["passive_dns"].append({
+                    "ip": r["ip"],
+                    "first": parse(r["first_seen"]).astimezone(pytz.utc),
+                    "last": parse(r["last_seen"]).astimezone(pytz.utc),
+                    "source": "ThreatMiner"
+                })
+        response = tm.get_report(query)
+        if response["status_code"] == "200":
+            for r in response["results"]:
+                data["reports"].append({
+                    "date": datetime.datetime(int(r["year"]), 1, 1),
+                    "title": r["filename"],
+                    "url": r["URL"],
+                    "source": "ThreatMiner"
+                })
+        else:
+            print(
+                "Request to ThreatMiner failed: {}".format(
+                    response["status_message"]
                 )
-            response = tm.get_related_samples(query)
-            if response["status_code"] == "200":
-                for r in response["results"]:
-                    data["malware"].append(
-                        {"hash": r, "date": None, "source": "ThreatMiner"}
-                    )
-        elif type == "ip":
-            print("[+] Checking ThreatMiner...")
-            tm = ThreatMiner()
-            response = tm.passive_dns(query)
-            if response['status_code'] == '200':
+            )
+        response = tm.get_related_samples(query)
+        if response["status_code"] == "200":
+            for r in response["results"]:
+                data["malware"].append(
+                    {"hash": r, "date": None, "source": "ThreatMiner"}
+                )
+
+    def intel_ip(self, query, data):
+        print("[+] Checking ThreatMiner...")
+        tm = ThreatMiner()
+        response = tm.passive_dns(query)
+        if response['status_code'] == '200':
+            for r in response['results']:
+                data["passive_dns"].append({
+                    "domain": r["domain"],
+                    "first": parse(r["first_seen"]).astimezone(pytz.utc),
+                    "last": parse(r["last_seen"]).astimezone(pytz.utc),
+                    "source": "ThreatMiner"
+                })
+        response = tm.get_report(query)
+        if response["status_code"] == "200":
+            for r in response["results"]:
+                data["reports"].append({
+                    "date": datetime.datetime(int(r["year"]), 1, 1),
+                    "title": r["filename"],
+                    "url": r["URL"],
+                    "source": "ThreatMiner"
+                })
+        response = tm.get_related_samples(query)
+        if response["status_code"] == "200":
+            for r in response["results"]:
+                data["malware"].append(
+                    {"hash": r, "date": None, "source": "ThreatMiner"}
+                )
+
+    def intel_hash(self, query, data):
+        print("[+] Checking ThreatMiner...")
+        tm = ThreatMiner()
+        response = tm.get_report(query)
+        if response['status_code'] == '200':
+            if len(response['results']) > 0:
                 for r in response['results']:
-                    data["passive_dns"].append({
-                        "domain": r["domain"],
-                        "first": parse(r["first_seen"]).astimezone(pytz.utc),
-                        "last": parse(r["last_seen"]).astimezone(pytz.utc),
-                        "source": "ThreatMiner"
-                    })
-            response = tm.get_report(query)
-            if response["status_code"] == "200":
-                for r in response["results"]:
                     data["reports"].append({
                         "date": datetime.datetime(int(r["year"]), 1, 1),
                         "title": r["filename"],
                         "url": r["URL"],
                         "source": "ThreatMiner"
                     })
-            response = tm.get_related_samples(query)
-            if response["status_code"] == "200":
-                for r in response["results"]:
-                    data["malware"].append(
-                        {"hash": r, "date": None, "source": "ThreatMiner"}
-                    )
-        elif type == "hash":
-            print("[+] Checking ThreatMiner...")
-            tm = ThreatMiner()
-            response = tm.get_report(query)
-            if response['status_code'] == '200':
-                if len(response['results']) > 0:
-                    for r in response['results']:
-                        data["reports"].append({
-                            "date": datetime.datetime(int(r["year"]), 1, 1),
-                            "title": r["filename"],
-                            "url": r["URL"],
-                            "source": "ThreatMiner"
-                        })

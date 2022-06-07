@@ -7,7 +7,7 @@ class Subcommand(object):
 
     def __init__(self, conf):
         self.data = {}
-        self._conf = conf
+        self._config_data = conf
 
     def add_arguments(self, parser):
         pass
@@ -102,6 +102,8 @@ class Command(object):
             self.intel_ip(query, data)
         elif type == "domain":
             self.intel_domain(query, data)
+        elif type == "hash":
+            self.intel_hash(query, data)
 
     def intel_ip(self, query, data):
         """
@@ -110,6 +112,12 @@ class Command(object):
         pass
 
     def intel_domain(self, query, data):
+        """
+        Adds information to the global intel command
+        """
+        pass
+
+    def intel_hash(self, query, data):
         """
         Adds information to the global intel command
         """

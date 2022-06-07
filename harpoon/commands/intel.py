@@ -302,11 +302,11 @@ class CommandIntel(Command):
                 for p in plugins:
                     try:
                         if args.all:
-                            if plugins[p].test_config(conf):
-                                plugins[p].intel("hash", args.HASH, data, conf)
+                            if plugins[p].test_config():
+                                plugins[p].intel("hash", args.HASH, data)
                         else:
-                            if plugins[p].test_config(conf) and plugins[p].check_intel(conf):
-                                plugins[p].intel("hash", args.HASH, data, conf)
+                            if plugins[p].test_config() and plugins[p].check_intel():
+                                plugins[p].intel("hash", args.HASH, data)
                     except Exception:
                         print("Command {} failed".format(p))
                         traceback.print_exc()

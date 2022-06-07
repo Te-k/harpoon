@@ -1,8 +1,7 @@
 #! /usr/bin/env python
-import json
 import requests
 from harpoon.commands.base import Command
-from harpoon.lib.utils import bracket, unbracket, is_ip
+from harpoon.lib.utils import unbracket, is_ip
 
 
 class CommandTor(Command):
@@ -32,10 +31,10 @@ class CommandTor(Command):
             return res
         return None
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         if not is_ip(unbracket(args.IP)):
             print("Invalid IP address")
-            sys.exit(-1)
+            return
         ips = self.get_list()
         if ips:
             if unbracket(args.IP) in ips:
@@ -45,14 +44,13 @@ class CommandTor(Command):
         else:
             print("Impossible to reach the Tor Exit node list")
 
-    def intel(self, type, query, data, conf):
-        if type == "ip":
-            print("[+] Checking Tor exit nodes...")
-            ips = self.get_list()
-            if query.strip() in ips:
-                data["reports"].append({
-                    "date": None,
-                    "title": "{} is a Tor Exit Node".format(query),
-                    "url": "",
-                    "source": "TorExit"
-                })
+    def intel_ip(self, query, data):
+        print("[+] Checking Tor exit nodes...")
+        ips = self.get_list()
+        if query.strip() in ips:
+            data["reports"].append({
+                "date": None,
+                "title": "{} is a Tor Exit Node".format(query),
+                "url": "",
+                "source": "TorExit"
+            })
