@@ -1,11 +1,10 @@
 #! /usr/bin/env python
 import os
-import json
 import requests
 from io import BytesIO
 from zipfile import ZipFile
 from harpoon.commands.base import Command
-from harpoon.lib.utils import bracket, unbracket, is_ip
+from harpoon.lib.utils import unbracket
 
 
 class CommandUmbrella(Command):
@@ -43,7 +42,7 @@ class CommandUmbrella(Command):
         if r.status_code != 200:
             print("Impossible to download Umbrella Top 1 millon CSV file.")
             return False
-        input_zip=ZipFile(BytesIO(r.content))
+        input_zip = ZipFile(BytesIO(r.content))
         fname = input_zip.namelist()[0]
         with open(self.topfile, "a+") as f:
             f.write(input_zip.read(fname).decode('utf-8'))
@@ -59,13 +58,13 @@ class CommandUmbrella(Command):
         with open(self.topfile) as f:
             line = f.readline().strip()
             while line != '':
-                l = line.split(',')
-                if domain == l[1]:
-                    return int(l[0])
+                ll = line.split(',')
+                if domain == ll[1]:
+                    return int(ll[0])
                 line = f.readline().strip()
         return None
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         if 'subcommand' in args:
             if args.subcommand == 'domain':
                 rank = self.check(unbracket(args.DOMAIN))
@@ -76,10 +75,10 @@ class CommandUmbrella(Command):
             elif args.subcommand == 'list':
                 umbrella = {}
                 with open(self.topfile) as f:
-                    for l in f.read().split('\n'):
-                        if l.strip() == '':
+                    for line in f.read().split('\n'):
+                        if line.strip() == '':
                             continue
-                        ll = l.strip().split(',')
+                        ll = line.strip().split(',')
                         umbrella[ll[1]] = ll[0]
 
                 with open(args.FILE) as f:
@@ -99,13 +98,12 @@ class CommandUmbrella(Command):
         else:
             self.parser.print_help()
 
-    def intel(self, type, query, data):
-        if type == "domain":
-            rank = self.check(query)
-            if rank:
-                data["reports"].append({
-                    "date": "",
-                    "title": "Domain ranked as {} by Cisco Umbrella".format(rank),
-                    "url": "",
-                    "source": "Cisco Umbrella"
-                })
+    def intel_domain(self, query, data):
+        rank = self.check(query)
+        if rank:
+            data["reports"].append({
+                "date": "",
+                "title": "Domain ranked as {} by Cisco Umbrella".format(rank),
+                "url": "",
+                "source": "Cisco Umbrella"
+            })

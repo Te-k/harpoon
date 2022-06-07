@@ -71,6 +71,7 @@ class CommandIp(Command):
         self.parser = parser
 
     def update(self):
+        print("Downloading AS data")
         file_name, headers = urllib.request.urlretrieve(
             "http://www.cidr-report.org/as2.0/autnums.html"
         )
@@ -87,7 +88,6 @@ class CommandIp(Command):
             line = fin.readline()
         fin.close()
         fout.close()
-        print("-asnname.csv")
         print("Downloading CIDR data")
         try:
             os.remove(self.asncidr)
@@ -189,12 +189,12 @@ class CommandIp(Command):
         except FileNotFoundError:
             pass
             # TODO: add private
-        asnc = CommandAsn()
+        asnc = CommandAsn(self._config_data)
         res = asnc.asn_caida(ipinfo["asn"])
         ipinfo["asn_type"] = res["type"]
         return ipinfo
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         ip = unbracket(args.IP)
         if not is_ip(ip):
             print("Invalid IP address")

@@ -50,10 +50,12 @@ class CommandPassiveTotal(Command):
         self.parser = parser
 
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         if 'subcommand' in args:
             if args.subcommand == 'whois':
-                client = WhoisRequest(conf['PassiveTotal']['username'], conf['PassiveTotal']['key'])
+                client = WhoisRequest(
+                    self._config_data['PassiveTotal']['username'],
+                    self._config_data['PassiveTotal']['key'])
                 if args.domain:
                     raw_results = client.search_whois_by_field(
                         query=unbracket(args.domain.strip()),
@@ -110,13 +112,17 @@ class CommandPassiveTotal(Command):
                 else:
                     self.parser.print_help()
             elif args.subcommand == "dns":
-                client = DnsRequest(conf['PassiveTotal']['username'], conf['PassiveTotal']['key'])
+                client = DnsRequest(
+                    self._config_data['PassiveTotal']['username'],
+                    self._config_data['PassiveTotal']['key'])
                 raw_results = client.get_passive_dns(
                     query=unbracket(args.DOMAIN),
                 )
                 print(json.dumps(raw_results,  sort_keys=True, indent=4, separators=(',', ': ')))
             elif args.subcommand == "malware":
-                client = EnrichmentRequest(conf["PassiveTotal"]["username"], conf["PassiveTotal"]['key'])
+                client = EnrichmentRequest(
+                    self._config_data["PassiveTotal"]["username"],
+                    self._config_data["PassiveTotal"]['key'])
                 if args.domain:
                     raw_results = client.get_malware(query=args.domain)
                     print(json.dumps(raw_results,  sort_keys=True, indent=4, separators=(',', ': ')))
@@ -166,7 +172,9 @@ class CommandPassiveTotal(Command):
 
             elif args.subcommand == "osint":
                 # FIXME: add research of projects
-                client = EnrichmentRequest(conf["PassiveTotal"]["username"], conf["PassiveTotal"]['key'])
+                client = EnrichmentRequest(
+                        self._config_data["PassiveTotal"]["username"],
+                        self._config_data["PassiveTotal"]['key'])
                 if args.domain:
                     raw_results = client.get_osint(query=args.domain)
                     print(json.dumps(raw_results,  sort_keys=True, indent=4, separators=(',', ': ')))
@@ -217,15 +225,15 @@ class CommandPassiveTotal(Command):
         else:
             self.parser.print_help()
 
-    def intel(self, type, query, data, conf):
+    def intel(self, type, query, data):
         if type == "domain":
             print("[+] Checking Passive Total...")
             try:
                 pt_osint = {}
                 ptout = False
                 client = DnsRequest(
-                    conf["PassiveTotal"]["username"],
-                    conf["PassiveTotal"]["key"],
+                    self._config_data["PassiveTotal"]["username"],
+                    self._config_data["PassiveTotal"]["key"],
                 )
                 raw_results = client.get_passive_dns(query=query)
                 if "results" in raw_results:
@@ -248,8 +256,8 @@ class CommandPassiveTotal(Command):
                         ptout = True
                 if not ptout:
                     client2 = EnrichmentRequest(
-                        conf["PassiveTotal"]["username"],
-                        conf["PassiveTotal"]["key"],
+                        self._config_data["PassiveTotal"]["username"],
+                        self._config_data["PassiveTotal"]["key"],
                     )
                     # Get OSINT
                     pt_osint = client2.get_osint(query=query)
@@ -284,8 +292,8 @@ class CommandPassiveTotal(Command):
                 pt_osint = {}
                 ptout = False
                 client = DnsRequest(
-                    conf["PassiveTotal"]["username"],
-                    conf["PassiveTotal"]["key"],
+                    self._config_data["PassiveTotal"]["username"],
+                    self._config_data["PassiveTotal"]["key"],
                 )
                 raw_results = client.get_passive_dns(query=query)
                 if "results" in raw_results:
@@ -308,8 +316,8 @@ class CommandPassiveTotal(Command):
                         ptout = True
                 if not ptout:
                     client2 = EnrichmentRequest(
-                        conf["PassiveTotal"]["username"],
-                        conf["PassiveTotal"]["key"],
+                        self._config_data["PassiveTotal"]["username"],
+                        self._config_data["PassiveTotal"]["key"],
                     )
                     # Get OSINT
                     pt_osint = client2.get_osint(query=query)

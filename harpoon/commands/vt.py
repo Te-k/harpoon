@@ -161,10 +161,10 @@ class CommandVirusTotal(Command):
             print("[+] Last Seen: %s" % response["results"]["last_seen"])
         print("[+] Link: %s" % response["results"]["permalink"])
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         if 'subcommand' in args:
-            if conf["VirusTotal"]["type"] != "public":
-                vt = PrivateApi(conf["VirusTotal"]["key"])
+            if self._config_data["VirusTotal"]["type"] != "public":
+                vt = PrivateApi(self._config_data["VirusTotal"]["key"])
                 if args.subcommand == "hash":
                     response = vt.get_file_report(args.HASH)
                     if args.raw:
@@ -262,7 +262,7 @@ class CommandVirusTotal(Command):
                 else:
                     self.parser.print_help()
             else:
-                vt = PublicApi(conf["VirusTotal"]["key"])
+                vt = PublicApi(self._config_data["VirusTotal"]["key"])
                 if args.subcommand == "hash":
                     response = vt.get_file_report(args.HASH)
                     if args.raw:
@@ -327,11 +327,11 @@ class CommandVirusTotal(Command):
         else:
             self.parser.print_help()
 
-    def intel(self, type, query, data, conf):
+    def intel(self, type, query, data):
         if type == "domain":
-            if conf["VirusTotal"]["type"] != "public":
+            if self._config_data["VirusTotal"]["type"] != "public":
                 print("[+] Checking VirusTotal....")
-                vt = PrivateApi(conf["VirusTotal"]["key"])
+                vt = PrivateApi(self._config_data["VirusTotal"]["key"])
                 res = vt.get_domain_report(query)
                 if "results" in res:
                     if "resolutions" in res["results"]:
@@ -428,9 +428,9 @@ class CommandVirusTotal(Command):
                                 }
                             )
         elif type == "ip":
-            if conf["VirusTotal"]["type"] != "public":
+            if self._config_data["VirusTotal"]["type"] != "public":
                 print("[+] Checking VirusTotal...")
-                vt = PrivateApi(conf["VirusTotal"]["key"])
+                vt = PrivateApi(self._config_data["VirusTotal"]["key"])
                 res = vt.get_ip_report(query)
                 if "results" in res:
                     if "resolutions" in res["results"]:
@@ -515,9 +515,9 @@ class CommandVirusTotal(Command):
                                 }
                             )
         elif type == "hash":
-            if conf["VirusTotal"]["type"] != "public":
+            if self._config_data["VirusTotal"]["type"] != "public":
                 print("[+] Checking VirusTotal...")
-                vt = PrivateApi(conf["VirusTotal"]["key"])
+                vt = PrivateApi(self._config_data["VirusTotal"]["key"])
                 res = vt.get_file_report(query)
                 if res["results"]["response_code"] == 1:
                     # Found

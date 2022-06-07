@@ -50,8 +50,8 @@ class CommandOtx(Command):
         parser.add_argument('--type', '-t', help='Type for search', default="guess", choices=["guess", "domain", "IPv4", "IPv6", "url", "md5", "sha1", "sha256", "pehash", "imphash", "cidr", "file_path", "hostname", "mutex", "cve"])
         self.parser = parser
 
-    def run(self, conf, args, plugins):
-        otx = OTXv2(conf["AlienVaultOtx"]["key"])
+    def run(self, args, plugins):
+        otx = OTXv2(self._config_data["AlienVaultOtx"]["key"])
         if args.pulse:
             try:
                 indicators = otx.get_pulse_indicators(args.pulse)
@@ -190,11 +190,11 @@ class CommandOtx(Command):
         else:
             self.parser.print_help()
 
-    def intel(self, type, query, data, conf):
+    def intel(self, type, query, data):
         if type == "domain":
             print("[+] Checking OTX...")
             try:
-                otx = OTXv2(conf["AlienVaultOtx"]["key"])
+                otx = OTXv2(self._config_data["AlienVaultOtx"]["key"])
                 res = otx.get_indicator_details_full(IndicatorTypes.DOMAIN, query)
                 for pulse in res["general"]["pulse_info"]["pulses"]:
                     data["reports"].append({
@@ -244,7 +244,7 @@ class CommandOtx(Command):
         elif type == "ip":
             print("[+] Checking OTX...")
             try:
-                otx = OTXv2(conf["AlienVaultOtx"]["key"])
+                otx = OTXv2(self._config_data["AlienVaultOtx"]["key"])
                 res = otx.get_indicator_details_full(IndicatorTypes.IPv4, query)
                 for pulse in res["general"]["pulse_info"]["pulses"]:
                     data["reports"].append({
@@ -286,7 +286,7 @@ class CommandOtx(Command):
             t = typeguess(query)
             print("[+] Checking OTX...")
             try:
-                otx = OTXv2(conf["AlienVaultOtx"]["key"])
+                otx = OTXv2(self._config_data["AlienVaultOtx"]["key"])
                 res = otx.get_indicator_details_full(OTX_TYPES[t], query)
                 for pulse in res["general"]["pulse_info"]["pulses"]:
                     data["reports"].append({

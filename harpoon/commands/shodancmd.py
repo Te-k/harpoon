@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-import sys
 import json
 import shodan
 from harpoon.commands.base import Command
@@ -25,12 +24,15 @@ class CommandShodan(Command):
         subparsers = parser.add_subparsers(help='Subcommand')
         parser_a = subparsers.add_parser('ip', help='Get information on an IP address')
         parser_a.add_argument('IP', help='IP to be searched')
-        parser_a.add_argument('--history', '-H', action='store_true',
-                help='Also display historical information')
-        parser_a.add_argument('-v', '--verbose', action='store_true',
-                help="Verbose mode (display raw json)")
-        parser_a.add_argument('-s', '--summary', action='store_true',
-                help="Only display information for ports 22, 80 and 443")
+        parser_a.add_argument(
+            '--history', '-H', action='store_true',
+            help='Also display historical information')
+        parser_a.add_argument(
+            '-v', '--verbose', action='store_true',
+            help="Verbose mode (display raw json)")
+        parser_a.add_argument(
+            '-s', '--summary', action='store_true',
+            help="Only display information for ports 22, 80 and 443")
         parser_a.set_defaults(subcommand='ip')
         parser_b = subparsers.add_parser('search', help='Search in shodan')
         parser_b.add_argument('QUERY', help='Query')
@@ -42,9 +44,9 @@ class CommandShodan(Command):
         parser_d.set_defaults(subcommand='quota')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         if 'subcommand' in args:
-            api = shodan.Shodan(conf['Shodan']['key'])
+            api = shodan.Shodan(self._config_data['Shodan']['key'])
             if args.subcommand == 'ip':
                 try:
                     res = api.host(args.IP, history=args.history)
@@ -132,7 +134,7 @@ class CommandShodan(Command):
                                     if data[fingerprint]['last'] < date:
                                         data[fingerprint]['last'] = date
 
-                    for val in sorted(data.values(), key=lambda x:x['first']):
+                    for val in sorted(data.values(), key=lambda x: x['first']):
                         print('%s - %s -> %s' % (
                                 val['fingerprint'],
                                 val['first'].strftime('%Y-%m-%d'),
@@ -147,18 +149,17 @@ class CommandShodan(Command):
         else:
             self.parser.print_help()
 
-    def intel(self, type, query, data, conf):
-        if type == "ip":
-            print("[+] Checking Shodan...")
-            api = shodan.Shodan(conf['Shodan']['key'])
-            try:
-                res = api.host(query)
-            except shodan.exception.APIError:
-                pass
-            else:
-                for p in res["ports"]:
-                    data["ports"].append({
-                        "port": p,
-                        "source": "Shodan",
-                        "info": ""
-                    })
+    def intel_ip(self, query, data, conf):
+        print("[+] Checking Shodan...")
+        api = shodan.Shodan(self._config_data['Shodan']['key'])
+        try:
+            res = api.host(query)
+        except shodan.exception.APIError:
+            pass
+        else:
+            for p in res["ports"]:
+                data["ports"].append({
+                    "port": p,
+                    "source": "Shodan",
+                    "info": ""
+                })

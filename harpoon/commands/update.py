@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-import sys
 import os
 import subprocess
 from harpoon.commands.base import Command
@@ -21,7 +20,7 @@ class CommandUpdate(Command):
     def add_arguments(self, parser):
         pass
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         configdir = os.path.join(os.path.expanduser('~'), '.config/harpoon')
         if not os.path.isdir(configdir):
             os.makedirs(configdir)
@@ -34,5 +33,6 @@ class CommandUpdate(Command):
         print("sudo geoipupdate")
         a = subprocess.run(['sudo', 'geoipupdate'])
         if a.returncode != 0:
-            print("Impossible to launch geoipupdate, please make sure you have the package installed and correctly configure")
+            print("Impossible to launch geoipupdate")
+            print("Please make sure you have the package installed and correctly configured")
             print("See https://github.com/Te-k/harpoon/wiki/Installation")

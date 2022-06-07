@@ -22,9 +22,11 @@ class CommandConfig(Command):
     description = "Configure Harpoon"
 
     def add_arguments(self, parser):
-        parser.add_argument('--show', '-s', action='store_true',
+        parser.add_argument(
+            '--show', '-s', action='store_true',
             help='Show harpoon configuration')
-        parser.add_argument('--check', '-c', action='store_true',
+        parser.add_argument(
+            '--check', '-c', action='store_true',
             help='Config harpoon configuration')
 
     def run(self, args, plugins):
@@ -41,7 +43,7 @@ class CommandConfig(Command):
             print('Configuration check:')
             for p in plugins:
                 if plugins[p].config_needed:
-                    if plugins[p].test_config(conf):
+                    if plugins[p].test_config():
                         if len(p) < 7:
                             print('-%s\t\t -> OK' % p)
                         else:
