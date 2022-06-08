@@ -1,5 +1,4 @@
 #! /usr/bin/env python3
-
 import json
 import pytz
 from dateutil.parser import parse
@@ -10,9 +9,13 @@ from harpoon.lib.utils import unbracket
 
 class CommandUrlhaus(Command):
     """
-    # URLhaus.ch
+    # URLhaus
 
-    * Submit a potential malicious URL: `harpoon urlhaus url URL`
+    Query https://urlhaus.abuse.ch/ API
+
+    * Get information on an IP : `harpoon urlhaus get-host 111.174.128.51`
+    * Get information on a hash : `harpoon urlhaus get-payload [HASH]`
+    * Download a sample : `harpoon urlhaus get-payload [HASH]`
     """
 
     name = "urlhaus"
@@ -59,8 +62,8 @@ class CommandUrlhaus(Command):
 
         self.parser = parser
 
-    def run(self, conf, args, plugins):
-        urlhaus = UrlHaus(conf["UrlHaus"]["key"])
+    def run(self, args, plugins):
+        urlhaus = UrlHaus(self._config_data["UrlHaus"]["key"])
         if "subcommand" in args:
             try:
                 if args.subcommand == "get-url":
@@ -89,16 +92,16 @@ class CommandUrlhaus(Command):
                 else:
                     self.parser.print_help()
             except UrlHausError:
-                print("UrlHaus : query failed ¯\_(ツ)_/¯")
+                print("UrlHaus : query failed ¯\\_(ツ)_/¯")
         else:
             self.parser.print_help()
 
-    def intel(self, type, query, data, conf):
+    def intel(self, type, query, data):
         if type in ["domain", "ip"]:
             print("[+] Checking URLHaus...")
             try:
-                urlhaus = UrlHaus(conf["UrlHaus"]["key"])
-                res = urlhaus.get_host(query)
+                urlhaus = UrlHaus(self._config_data["UrlHaus"]["key"])
+                res = urlhaus.get_host(unbracket(query))
             except UrlHausError:
                 print("Error with the query")
             else:
@@ -109,4 +112,26 @@ class CommandUrlhaus(Command):
                             "url": r["url"],
                             "ip": "",
                             "source": "UrlHaus",
+                        })
+        elif type == "hash":
+            print("[+] Checking URLHaus...")
+            try:
+                urlhaus = UrlHaus(self._config_data["UrlHaus"]["key"])
+                res = urlhaus.get_payload(query)
+            except UrlHausError:
+                print("Error with the query")
+            else:
+                if "urlhaus_download" in res:
+                    data["samples"].append({
+                        "date": parse(res["firstseen"]),
+                        "source": "UrlHaus",
+                        "url": res["urlhaus_download"]
+                    })
+                if "urls" in res:
+                    for r in res["urls"]:
+                        data["urls"].append({
+                            "date": parse(r["firstseen"]) if "firstseen" in r else "",
+                            "url": r["url"],
+                            "link": r["urlhaus_reference"],
+                            "source": "UrlHaus"
                         })

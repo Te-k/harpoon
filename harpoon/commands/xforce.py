@@ -1,9 +1,8 @@
 #! /usr/bin/env python
 import json
-import requests
 from harpoon.commands.base import Command
-from harpoon.lib.utils import bracket, unbracket, is_ip
-from harpoon.lib.xforce import XforceExchange, XforceExchangeFailed, XforceExchangeNotFound
+from harpoon.lib.utils import unbracket
+from harpoon.lib.xforce import XforceExchange, XforceExchangeNotFound
 
 
 class CommandXforce(Command):
@@ -36,7 +35,9 @@ class CommandXforce(Command):
         parser_f = subparsers.add_parser('casefile', help='Returns a JSON resentation of a Collection')
         parser_f.add_argument('ID',  help='ID of a casefile')
         parser_f.set_defaults(subcommand='casefile')
-        parser_g = subparsers.add_parser('malware', help='Returns a malware report for the given file hash, For example, md5, sha1 and sha256.')
+        parser_g = subparsers.add_parser(
+            'malware',
+            help='Returns a malware report for the given file hash, For example, md5, sha1 and sha256.')
         parser_g.add_argument('HASH',  help='Hash of a malware')
         parser_g.set_defaults(subcommand='malware')
         parser_h = subparsers.add_parser('url', help='Returns the URL report for the entered URL.')
@@ -49,9 +50,11 @@ class CommandXforce(Command):
         parser_j.set_defaults(subcommand='whois')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         if 'subcommand' in args:
-            xe = XforceExchange(conf['Xforce']['key'], conf['Xforce']['password'])
+            xe = XforceExchange(
+                self._config_data['Xforce']['key'],
+                self._config_data['Xforce']['password'])
             if args.subcommand == "ip_reputation":
                 res = xe.ip_reputation(unbracket(args.IP))
                 print(json.dumps(res, sort_keys=False, indent=4))
@@ -89,3 +92,5 @@ class CommandXforce(Command):
                 self.parser.print_help()
         else:
             self.parser.print_help()
+
+    # TODO : intel
