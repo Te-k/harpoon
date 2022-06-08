@@ -1,10 +1,9 @@
 #! /usr/bin/env python3
 import json
 import logging
-
-from greynoise import GreyNoise
-
+from dateutil.parser import parse
 from harpoon.commands.base import Command
+from greynoise import GreyNoise
 
 
 class GreynoiseError(Exception):
@@ -54,17 +53,17 @@ class CommandGreyNoise(Command):
                 print(k, ",", v)
         return
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         logging.getLogger("greynoise").setLevel(logging.CRITICAL)
-        if conf["GreyNoise"]["api_type"].lower() == "community":
+        if self._config_data["GreyNoise"]["api_type"].lower() == "community":
             gn = GreyNoise(
-                api_key=conf["GreyNoise"]["key"],
+                api_key=self._config_data["GreyNoise"]["key"],
                 integration_name="Harpoon (https://github.com/Te-k/harpoon)",
                 offering="community",
             )
         else:
             gn = GreyNoise(
-                api_key=conf["GreyNoise"]["key"],
+                api_key=self._config_data["GreyNoise"]["key"],
                 integration_name="Harpoon (https://github.com/Te-k/harpoon)",
             )
         if args.ip:
@@ -79,40 +78,39 @@ class CommandGreyNoise(Command):
         else:
             self.parser.print_help()
 
-    def intel(self, type, query, data, conf):
-        if type == "ip":
-            print("[+] Checking GreyNoise...")
-            logging.getLogger("greynoise").setLevel(logging.CRITICAL)
-            if conf["GreyNoise"]["api_type"].lower() == "community":
-                gn = GreyNoise(
-                    api_key=conf["GreyNoise"]["key"],
-                    integration_name="Harpoon (https://github.com/Te-k/harpoon)",
-                    offering="community",
+    def intel_ip(self, query, data):
+        print("[+] Checking GreyNoise...")
+        logging.getLogger("greynoise").setLevel(logging.CRITICAL)
+        if self._config_data["GreyNoise"]["api_type"].lower() == "community":
+            gn = GreyNoise(
+                api_key=self._config_data["GreyNoise"]["key"],
+                integration_name="Harpoon (https://github.com/Te-k/harpoon)",
+                offering="community",
+            )
+            res = gn.ip(query)
+            if res["noise"]:
+                data["reports"].append(
+                    {
+                        "url": "https://viz.greynoise.io/ip/{}".format(query),
+                        "title": "Seen by GreyNoise as {}".format(res["name"]),
+                        "date": parse(res["last_seen"]) if "last_seen" in res else "",
+                        "source": "GreyNoise",
+                    }
                 )
-                res = gn.ip(query)
-                if res["noise"]:
-                    data["reports"].append(
-                        {
-                            "url": "https://viz.greynoise.io/ip/{}".format(query),
-                            "title": "Seen by GreyNoise as {}".format(res["name"]),
-                            "date": None,
-                            "source": "GreyNoise",
-                        }
-                    )
-            else:
-                gn = GreyNoise(
-                    api_key=conf["GreyNoise"]["key"],
-                    integration_name="Harpoon (https://github.com/Te-k/harpoon)",
+        else:
+            gn = GreyNoise(
+                api_key=self._config_data["GreyNoise"]["key"],
+                integration_name="Harpoon (https://github.com/Te-k/harpoon)",
+            )
+            res = gn.ip(query)
+            if res["seen"]:
+                data["reports"].append(
+                    {
+                        "url": "https://viz.greynoise.io/ip/{}".format(query),
+                        "title": "Seen by GreyNoise as {}".format(
+                            ", ".join(res["tags"])
+                        ),
+                        "date": parse(res["last_seen"]) if "last_seen" in res else "",
+                        "source": "GreyNoise",
+                    }
                 )
-                res = gn.ip(query)
-                if res["seen"]:
-                    data["reports"].append(
-                        {
-                            "url": "https://viz.greynoise.io/ip/{}".format(query),
-                            "title": "Seen by GreyNoise as {}".format(
-                                ", ".join(res["tags"])
-                            ),
-                            "date": None,
-                            "source": "GreyNoise",
-                        }
-                    )
