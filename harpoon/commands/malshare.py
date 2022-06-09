@@ -1,7 +1,5 @@
 #! /usr/bin/env python
-import sys
 import json
-import hashlib
 from harpoon.commands.base import Command
 from harpoon.lib.malshare import MalShare, MalShareFailed, MalShareNotFound, MalShareSampleMissing
 from harpoon.lib.utils import json_serial
@@ -35,8 +33,8 @@ class CommandMalShare(Command):
         parser_e.set_defaults(subcommand='search')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
-        ms = MalShare(conf['MalShare']['key'])
+    def run(self, args, plugins):
+        ms = MalShare(self._config_data['MalShare']['key'])
         if 'subcommand' in args:
             if args.subcommand == "search":
                 try:
@@ -69,11 +67,11 @@ class CommandMalShare(Command):
         else:
             self.parser.print_help()
 
-    def intel(self, type, query, data, conf):
+    def intel(self, type, query, data):
         if type == "hash":
-            ms = MalShare(conf['MalShare']['key'])
+            ms = MalShare(self._config_data['MalShare']['key'])
             try:
-                res = ms.file_info(query)
+                ms.file_info(query)
             except MalShareNotFound:
                 pass
             else:

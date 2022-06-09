@@ -22,7 +22,7 @@ class MalShare(object):
 
     def _request(self, params):
         params['api_key'] = self.key
-        headers = { 'User-Agent': self.ua }
+        headers = {'User-Agent': self.ua}
         r = requests.get(
             self.base_url,
             params=params,
@@ -31,6 +31,8 @@ class MalShare(object):
         if r.status_code == 200:
             return r
         else:
+            if r.status_code == 404:
+                raise MalShareNotFound()
             raise MalShareFailed()
 
     def list_last24h_samples(self):
