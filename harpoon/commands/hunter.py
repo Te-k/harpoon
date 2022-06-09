@@ -4,6 +4,7 @@ import json
 from harpoon.commands.base import Command
 from pyhunter import PyHunter
 
+
 class CommandHunter(Command):
     """
     # Hunter.io
@@ -15,7 +16,7 @@ class CommandHunter(Command):
     """
     name = "hunter"
     description = "Request hunter.io information through the API"
-    config = { 'Hunter': ['key']}
+    config = {'Hunter': ['key']}
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(help='Subcommand')
@@ -28,9 +29,9 @@ class CommandHunter(Command):
         parser_a.set_defaults(subcommand='domain')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         if 'subcommand' in args:
-            hunter = PyHunter(conf['Hunter']['key'])
+            hunter = PyHunter(self._config_data['Hunter']['key'])
             if args.subcommand == 'email':
                 if ' ' not in args.NAME:
                     print('Name should contains first and last name')

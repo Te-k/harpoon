@@ -6,6 +6,7 @@ import time
 from harpoon.commands.base import Command
 from harpoon.lib.bird import Bird
 
+
 class CommandTwitter(Command):
     """
     # Twitter
@@ -17,20 +18,25 @@ class CommandTwitter(Command):
     config = {'Twitter': ['consumer_secret', 'consumer_key', 'access_token', 'access_token_secret']}
 
     def add_arguments(self, parser):
-        parser.add_argument('--user', '-u',
-	    	help='Get user infos')
-        parser.add_argument('--tweets', '-t',
+        parser.add_argument(
+            '--user', '-u',
+            help='Get user infos')
+        parser.add_argument(
+            '--tweets', '-t',
             help='Download tweets of an user')
-        parser.add_argument('--tweet', '-T',
+        parser.add_argument(
+            '--tweet', '-T',
             help='Download tweet with the given id')
-        parser.add_argument('--save', '-s',
+        parser.add_argument(
+            '--save', '-s',
             help='save all infos about an user and their tweets')
-        parser.add_argument('--file', '-f',
+        parser.add_argument(
+            '--file', '-f',
             help='File containing usernames, display user infos in CSV format')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
-        bird = Bird(conf['Twitter'])
+    def run(self, args, plugins):
+        bird = Bird(self._config_data['Twitter'])
 
         if args.user:
             a = bird.get_profile_information(args.user)
@@ -57,35 +63,37 @@ class CommandTwitter(Command):
             f = open(args.file, 'r')
             data = f.read().split()
             f.close()
-            print("Handle;Status;Name;Id;Description;url;Location;Time zone;UTC offset;Created at;Last Tweet;lang;Tweet count;Favourite count;Followers count;Following count;List count;Verified;Geo enabled;Default profile;Default profile image;Contributors Enabled")
+            print(
+                "Handle;Status;Name;Id;Description;url;Location;Time zone;" +
+                "UTC offset;Created at;Last Tweet;lang;Tweet count;" +
+                "Favourite count;Followers count;Following count;List count;" +
+                "Verified;Geo enabled;Default profile;Default profile image;Contributors Enabled")
             for d in data:
                 try:
                     user = bird.get_profile_information(d.strip())
-                    print("%s;Active;%s;%i;%s;%s;%s;%s;%i;%s;%s;%s;%i;%i;%i;%i;%i;%s;%s;%s;%s;%s" %
-                        (
-                            user.screen_name,
-                            user.name,
-                            user.id,
-                            user.description.replace(";", ",").replace("\n", ""),
-                            user.entities['url']['urls'][0]['expanded_url'] if user.url is not None else "",
-                            user.location,
-                            user.time_zone,
-                            user.utc_offset if user.utc_offset is not None else 0,
-                            user.created_at.strftime("%m/%d/%Y %H:%M:%S"),
-                            user.status.created_at.strftime("%m/%d/%Y %H:%M:%S") if user.status is not None else "",
-                            user.lang,
-                            user.statuses_count,
-                            user.favourites_count,
-                            user.followers_count,
-                            user.friends_count,
-                            user.listed_count,
-                            user.verified,
-                            user.geo_enabled,
-                            user.default_profile,
-                            user.default_profile_image,
-                            user.contributors_enabled
-                        )
-                    )
+                    print("%s;Active;%s;%i;%s;%s;%s;%s;%i;%s;%s;%s;%i;%i;%i;%i;%i;%s;%s;%s;%s;%s" % (
+                        user.screen_name,
+                        user.name,
+                        user.id,
+                        user.description.replace(";", ",").replace("\n", ""),
+                        user.entities['url']['urls'][0]['expanded_url'] if user.url is not None else "",
+                        user.location,
+                        user.time_zone,
+                        user.utc_offset if user.utc_offset is not None else 0,
+                        user.created_at.strftime("%m/%d/%Y %H:%M:%S"),
+                        user.status.created_at.strftime("%m/%d/%Y %H:%M:%S") if user.status is not None else "",
+                        user.lang,
+                        user.statuses_count,
+                        user.favourites_count,
+                        user.followers_count,
+                        user.friends_count,
+                        user.listed_count,
+                        user.verified,
+                        user.geo_enabled,
+                        user.default_profile,
+                        user.default_profile_image,
+                        user.contributors_enabled
+                    ))
                 except tweepy.error.TweepError as ex:
                     if ex.args[0][0]['code'] == 88:
                         # Rate limit exceeded
