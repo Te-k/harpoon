@@ -1,8 +1,8 @@
 #! /usr/bin/env python
-import sys
 import json
 from harpoon.commands.base import Command
 from pypermacc import Permacc, PermaccError
+
 
 class CommandPemacc(Command):
     """
@@ -17,7 +17,7 @@ class CommandPemacc(Command):
     """
     name = "permacc"
     description = "Request Perma.cc information through the API"
-    config = { 'Permacc': ['key']}
+    config = {'Permacc': ['key']}
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(help='Subcommand')
@@ -35,8 +35,8 @@ class CommandPemacc(Command):
         parser_d.set_defaults(subcommand='list')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
-        permacc = Permacc(conf['Permacc']['key'])
+    def run(self, args, plugins):
+        permacc = Permacc(self._config_data['Permacc']['key'])
         if 'subcommand' in args:
             if args.subcommand == 'save':
                 try:
