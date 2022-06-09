@@ -1,63 +1,139 @@
 import requests
-from requests.auth import HTTPBasicAuth
+from harpoon.lib.utils import is_sha256
 
 
 class HybridAnalysisFailed(Exception):
     pass
 
 
-class HybridAnalysis(object):
-    def __init__(self, key, secret):
-        self.key = key
-        self.secret = secret
-        self.base_url = "https://www.hybrid-analysis.com/api/"
-        # Mandatory for Hybrid Analysis (weird)
-        self.ua = "Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0"
+class HybridAnalysisInvalidQuery(Exception):
+    pass
 
-    def _request(self, path, data={}):
+
+class HybridAnalysis(object):
+    def __init__(self, key):
+        self.key = key
+        self.base_url = "https://www.hybrid-analysis.com/api/v2/"
+        # Mandatory for Hybrid Analysis (weird)
+        self.ua = "Falcon Sandbox"
+
+    def _get(self, path):
         """
         Query the API with the given path
         """
-        headers = { 'User-Agent': self.ua }
-        r = requests.get(self.base_url + path, auth=HTTPBasicAuth(self.key, self.secret), headers=headers, params=data)
+        headers = {
+            "User-Agent": self.ua,
+            "api-key": self.key
+        }
+        r = requests.get(
+            self.base_url + path,
+            headers=headers
+        )
         if r.status_code != 200:
             raise HybridAnalysisFailed()
         else:
-            res = r.json()
-            if 'response_code' in res:
-                if res['response_code'] == 0:
-                    return res['response']
+            return r.json()
+
+    def _post(self, path, data={}):
+        """
+        Query the API with the given path
+        """
+        headers = {
+            "User-Agent": self.ua,
+            "api-key": self.key
+        }
+        r = requests.post(
+            self.base_url + path,
+            headers=headers,
+            data=data
+        )
+        if r.status_code != 200:
             raise HybridAnalysisFailed()
+        else:
+            return r.json()
 
-    def quota(self):
+    # --------------------------- search --------------------------------------
+    def search_hash(self, hash):
         """
-        Query quota information
+        Summary for a given hash
+        hash should be md5, sha1 or SHA256
         """
-        return self._request("quota")
+        return self._post(
+            "search/hash",
+            data={"hash": hash}
+        )
 
-    def get_report(self, hash):
+    def search_terms(self, data):
         """
-        Search for a report for the given hash
+        Search the database using search terms
+        Accepted keywords :
+        filename
+        filetype
+        filetype_desc
+        env_id
+        country
+        verdict
+        av_detect
+        vx_family
+        date_from
+        date_to
+        port
+        host
+        domain
+        url
+        similar_to
+        context
+        imp_hash
+        ssdeep
+        authentihash
+        uses_tactics
+        uses_tecnique
         """
-        return self._request('scan/' + hash)
+        terms = [
+            "filename", "filetype", "filetype_desc", "env_id", " country",
+            "verdict", "av_detect", "vx_family", "date_from", "date_to",
+            "port", "host", "domain", "url", "similar_to", "context",
+            "imp_hash", "ssdeep", "authentihash", "uses_tactics", "uses_tecnique"]
+        for d in data:
+            if d not in terms:
+                raise HybridAnalysisInvalidQuery("{} is not a valid search term".format(d))
 
-    def search(self, query):
-        """
-        Search for a query in Hybrid Analysis
-        """
-        return self._request('search', {'query': query})
+        return self._post("search/terms", data)
 
-    def get_summary(self, hash, envid):
+        # ------------------------------- Overview --------------------------------
+    def overview_hash(self, hash):
         """
-        Request the analysis summary
+        Return overview of a hash
+        /overview/{sha256}
         """
-        return self._request('summary/' + hash, data = {'environmentId': envid})
+        if not is_sha256(hash):
+            raise HybridAnalysisInvalidQuery("Invalid sha256 format")
+        return self._get('overview/' + hash)
 
-    def get_last_analysis(self, hash):
+    def overview_summary(self, hash):
         """
-        Get details from the last analysis
+        Returns overview for a hash
+        /overview/{sha256}/summary
         """
-        # Query the hash and then the analysis
-        res = self.get_report(hash)
-        last = sorted(res, key=lambda x:x['analysis_start_time'], reverse=True)[0]
-        return self.get_summary(hash, last['environmentId'])
+        if not is_sha256(hash):
+            raise HybridAnalysisInvalidQuery("Invalid sha256 format")
+        return self._get('overview/' + hash + "/summary")
+
+    def overview_sample(self, hash):
+        """
+        Download a sample
+        """
+        if not is_sha256(hash):
+            raise HybridAnalysisInvalidQuery("Invalid sha256 format")
+        headers = {
+            "User-Agent": self.ua,
+            "api-key": self.key
+        }
+        r = requests.get(
+            self.base_url + "overview/" + hash + "/sample",
+            headers=headers,
+        )
+        if r.status_code != 200:
+            raise HybridAnalysisFailed()
+        else:
+            return r.content

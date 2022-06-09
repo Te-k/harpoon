@@ -1,6 +1,6 @@
 import re
 from IPy import IP
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse
 from datetime import date, datetime
 
 
@@ -18,7 +18,7 @@ def bracket(domain):
 def json_serial(obj):
     if isinstance(obj, (datetime, date)):
         return obj.isoformat()
-    raise TypeError ("Type %s not serializable" % type(obj))
+    raise TypeError("Type %s not serializable" % type(obj))
 
 
 def same_url(url1, url2):
@@ -57,11 +57,11 @@ def typeguess(indicator):
     Guess the type of the indicator
     returns string in "IPv4", "IPv6", "md5", "sha1", "sha256", "domain"
     """
-    if re.match("^\w{32}$", indicator):
+    if re.match(r"^\w{32}$", indicator):
         return "md5"
-    elif re.match("^\w{40}$", indicator):
+    elif re.match(r"^\w{40}$", indicator):
         return "sha1"
-    elif re.match("^\w{64}$", indicator):
+    elif re.match(r"^\w{64}$", indicator):
         return "sha256"
     else:
         try:
@@ -80,12 +80,17 @@ def is_ip(target):
     """
     if isinstance(target, str):
         try:
-            i = IP(target)
+            IP(target)
             return True
         except ValueError:
             return False
     else:
         return False
 
+
 def ts_to_str(ts):
     return datetime.fromtimestamp(ts).isoformat()
+
+
+def is_sha256(string):
+    return re.match(r"^\w{64}$", string) is not None
