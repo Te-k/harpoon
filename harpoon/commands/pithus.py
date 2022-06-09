@@ -1,14 +1,13 @@
 import json
-
 from harpoon.commands.base import Command
-from harpoon.lib.pithus import Pithus, PithusError
+from harpoon.lib.pithus import Pithus
 
 
 class CommandPithus(Command):
     """
     # Pithus
 
-    Queries the Pithus API 
+    Queries the Pithus API
 
     * Query the database: `harpoon pithus report SHA256`
     * Query the status of an upload: `harpoon pithus status SHA256`
@@ -20,6 +19,7 @@ class CommandPithus(Command):
     """
     name = "pithus"
     description = "Search Pithus database for submitted APKs"
+    config = {"Pithus": ["key"]}
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(help='Subcommand')
@@ -28,11 +28,17 @@ class CommandPithus(Command):
         parser_a = subparsers.add_parser(
             'report', help='Retrieve a report from Pithus')
         parser_a.add_argument('SHA256', help='Hash of the sample')
+        parser_a.add_argument(
+            "--json", "-j", action="store_true",
+            help="Show raw JSON info")
         parser_a.set_defaults(subcommand='report')
 
         # get request for the status of the analysis of a report
         parser_b = subparsers.add_parser(
             'status', help='Retrieve the status of tasks for a given report')
+        parser_b.add_argument(
+            "--json", "-j", action="store_true",
+            help="Show raw JSON info")
         parser_b.add_argument('SHA256', help='Hash of the sample')
         parser_b.set_defaults(subcommand='status')
 
@@ -46,30 +52,43 @@ class CommandPithus(Command):
         # post request for advanced search
         parser_d = subparsers.add_parser('search', help='Search in Pithus')
         parser_d.add_argument('QUERY', help='Search query, default is SHA256')
+        parser_d.add_argument(
+            "--json", "-j", action="store_true",
+            help="Show raw JSON info")
         parser_d.set_defaults(subcommand='search')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         if 'subcommand' not in args:
             self.parser.print_help()
         else:
-            key = conf['Pithus']['key']
-            if key == '':
-                PithusError(
-                    "Missing token, visit beta.pithus.org/hunting to retrieve it")
-            else:
-                pithus = Pithus(conf['Pithus']['key'])
+            pithus = Pithus(self._config_data['Pithus']['key'])
 
             if args.subcommand == 'report':
-                pithus.report(args.SHA256)
+                res = pithus.report(args.SHA256)
+                if args.json:
+                    print(json.dumps(res, indent=4))
+                else:
+                    pithus.pretty_print(res, "report")
             elif args.subcommand == 'status':
-                pithus.status(args.SHA256)
+                res = pithus.status(args.SHA256)
+                if args.json:
+                    print(json.dumps(res, indent=4))
+                else:
+                    pithus.pretty_print(res, "status")
             elif args.subcommand == 'upload':
                 with open(args.FILEPATH, "rb") as f:
                     data = f.read()
-                print("passing opening file")
-                pithus.upload(data)
+                res = pithus.upload(data)
+                print("Upload successful!")
+                print("https://beta.pithus.org/report/{}".format(res['file_sha256']))
             elif args.subcommand == 'search':
-                pithus.search(args.QUERY)
+                res = pithus.search(args.QUERY)
+                if args.json:
+                    print(json.dumps(res, indent=4))
+                else:
+                    pithus.pretty_print(res, "search")
             else:
                 self.parser.print_help()
+
+    # TODO : intel

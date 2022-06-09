@@ -1,5 +1,4 @@
 import json
-
 import requests
 
 
@@ -49,7 +48,7 @@ class Pithus(object):
         else:
             return "Unknow status"
 
-    def pretty_print(self, query, result, result_type):
+    def pretty_print(self, result, result_type):
         print("######## Pithus results")
         print("")
 
@@ -160,16 +159,13 @@ class Pithus(object):
                     print(json.dumps(domain['_name'], indent=4))
                 print("")
 
-            print("Important: results are truncated, to have the full report please check " +
-                  query.replace('api/', ''))
-
         else:
             raise PithusError("Something went wrong... Try again, maybe?")
 
     def _get(self, url, result_type):
         r = requests.get(url, headers=self.headers)
-        res = self.handle_request(r)
-        return self.pretty_print(url, res, result_type)
+        return self.handle_request(r)
+        # return self.pretty_print(url, res, result_type)
 
     def _post(self, url, params, result_type):
         r = requests.post(url, json=params, headers=self.headers)
@@ -177,16 +173,16 @@ class Pithus(object):
         return self.pretty_print(url, res, result_type)
 
     def report(self, query):
-        self._get(self.url + "report/" + query, 'report')
+        return self._get(self.url + "report/" + query, 'report')
 
     def status(self, query):
-        self._get(self.url + "status/" + query, 'status')
+        return self._get(self.url + "status/" + query, 'status')
 
     def search(self, query):
         params = {
             "q": query,
         }
-        self._post(self.url + "search/", params, 'search')
+        return self._post(self.url + "search/", params, 'search')
 
     def upload(self, data):
         params = {
@@ -196,6 +192,7 @@ class Pithus(object):
                             files=params, headers=self.headers)
 
         if res.status_code == 200:
+            return res.json()
             print("Upload successful!")
             print("https://beta.pithus.org/report/" +
                   res.json()['file_sha256'])
