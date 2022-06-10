@@ -28,7 +28,7 @@ setup(
         "PyGitHub",
         "telethon==0.18.3",
         "virustotal-api",
-        "pymisp==2.4.134",
+        "pymisp==2.4.159",
         "OTXv2",
         "IPy",
         "maxminddb>=1.4.0",

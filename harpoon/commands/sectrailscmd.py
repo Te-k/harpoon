@@ -1,11 +1,9 @@
 #! /usr/bin/env python
-import sys
 import json
-import datetime
 import pytz
 from dateutil.parser import parse
 from harpoon.commands.base import Command
-from harpoon.lib.utils import bracket, unbracket
+from harpoon.lib.utils import unbracket
 from pysecuritytrails import SecurityTrails, SecurityTrailsError
 
 
@@ -44,12 +42,11 @@ class CommandSecurityTrails(Command):
         parser_e.set_defaults(subcommand='subdomains')
         self.parser = parser
 
-
-    def run(self, conf, args, plugins):
-        client = SecurityTrails(conf['SecurityTrails']['key'])
+    def run(self, args, plugins):
+        client = SecurityTrails(self._config_data['SecurityTrails']['key'])
         if 'subcommand' in args:
             if args.subcommand == 'whois':
-                res = client.domain_history_whois(args.DOMAIN)
+                res = client.domain_history_whois(unbracket(args.DOMAIN))
                 print(json.dumps(res['result']['items'], sort_keys=False, indent=4))
             elif args.subcommand == "quota":
                 res = client.usage()
@@ -59,13 +56,13 @@ class CommandSecurityTrails(Command):
                     )
                 )
             elif args.subcommand == "domain":
-                res = client.domain_history_dns(args.DOMAIN)
+                res = client.domain_history_dns(unbracket(args.DOMAIN))
                 print(json.dumps(res['records'], sort_keys=False, indent=4))
             elif args.subcommand == "ip":
-                res = client.domain_search({"ipv4": args.IP}, include_ips=True)
+                res = client.domain_search({"ipv4": unbracket(args.IP)}, include_ips=True)
                 print(json.dumps(res['records'], sort_keys=False, indent=4))
             elif args.subcommand == "subdomains":
-                res = client.domain_subdomains(args.DOMAIN)
+                res = client.domain_subdomains(unbracket(args.DOMAIN))
                 for d in res['subdomains']:
                     print(d + '.' + args.DOMAIN)
             else:
@@ -73,19 +70,18 @@ class CommandSecurityTrails(Command):
         else:
             self.parser.print_help()
 
-    def intel(self, type, query, data, conf):
-        client = SecurityTrails(conf['SecurityTrails']['key'])
-        if type == "domain":
-            print("[+] Checking SecurityTrails...")
-            try:
-                res = client.domain_history_dns(query)
-                for r in res["records"]:
-                    for ip in r["values"]:
-                        data["passive_dns"].append({
-                            "ip": ip["ip"],
-                            "source": "SecurityTrails",
-                            "first": parse(r['first_seen']).astimezone(pytz.utc),
-                            "last": parse(r['last_seen']).astimezone(pytz.utc)
-                        })
-            except SecurityTrailsError:
-                print("Security Trail request failed")
+    def intel_domain(self, query, data):
+        client = SecurityTrails(self._config_data['SecurityTrails']['key'])
+        print("[+] Checking SecurityTrails...")
+        try:
+            res = client.domain_history_dns(query)
+            for r in res["records"]:
+                for ip in r["values"]:
+                    data["passive_dns"].append({
+                        "ip": ip["ip"],
+                        "source": "SecurityTrails",
+                        "first": parse(r['first_seen']).astimezone(pytz.utc),
+                        "last": parse(r['last_seen']).astimezone(pytz.utc)
+                    })
+        except SecurityTrailsError:
+            print("Security Trail request failed")

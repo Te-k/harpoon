@@ -23,7 +23,7 @@ class DnsDB(object):
         self.base_url = "https://api.dnsdb.info/"
 
     def _get(self, query, params={}):
-        headers={
+        headers = {
             "User-Agent": "harpoon (https://github.com/Te-k/harpoon/)",
             "X-API-Key": self.token
         }
@@ -33,7 +33,7 @@ class DnsDB(object):
         try:
             return r.json()
         except JSONDecodeError:
-            # JSONL
+            # JSONL
             res = []
             for line in r.text.split("\n"):
                 if line.strip() == "":

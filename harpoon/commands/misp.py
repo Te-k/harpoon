@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-import sys
 import pytz
 from urllib.parse import urljoin
 from dateutil.parser import parse
@@ -21,7 +20,7 @@ class CommandMisp(Command):
     """
     name = "misp"
     description = "Get information from a MISP server through the API"
-    config = { 'Misp': ['url', 'key']}
+    config = {'Misp': ['url', 'key']}
 
     def add_arguments(self, parser):
         parser.add_argument('--list', '-l', action='store_true', help='List events')
@@ -32,12 +31,14 @@ class CommandMisp(Command):
         parser.add_argument('--no-tls', '-n', help='Do not validate TLS certificate (bad bad bad)', action='store_true')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
-        server = ExpandedPyMISP(conf['Misp']['url'], conf['Misp']['key'], not args.no_tls)
+    def run(self, args, plugins):
+        server = ExpandedPyMISP(
+            self._config_data['Misp']['url'],
+            self._config_data['Misp']['key'], not args.no_tls)
         if args.list:
             # List events
             events = server.events(pythonify=True)
-            for event in sorted(events, key=lambda x:x.id):
+            for event in sorted(events, key=lambda x: x.id):
                 print("%i : %s" % (event.id, event.info))
         elif args.event is not None:
             event = server.get_event(args.event, pythonify=True)
@@ -47,10 +48,10 @@ class CommandMisp(Command):
                         print(a.value)
                 else:
                     print("Event {} : {}".format(event.id, event.info))
-                    print("Tags : {}".format(", ".join(map(lambda x:str(x.name), event.tags))))
+                    print("Tags : {}".format(", ".join(map(lambda x: str(x.name), event.tags))))
                     print("{} Attributes including:".format(len(event.attributes)))
-                    attrs = Counter(map(lambda x:x.type, event.attributes))
-                    attrs_ids = Counter(map(lambda x:x.type, filter(lambda x:x.to_ids, event.attributes)))
+                    attrs = Counter(map(lambda x: x.type, event.attributes))
+                    attrs_ids = Counter(map(lambda x: x.type, filter(lambda x: x.to_ids, event.attributes)))
                     for type in attrs:
                         print("- %i %s (%i for detection)" % (attrs[type], type, attrs_ids[type]))
             else:
@@ -61,20 +62,20 @@ class CommandMisp(Command):
                             if args.raw:
                                 print("%s" % attr.value)
                             else:
-                                print("{:20}{:10}{:40}{}{}".format(attr.category, attr.type, attr.value, attr.comment, attr.to_ids))
+                                print("{:20}{:10}{:40}{}{}".format(
+                                    attr.category, attr.type, attr.value,
+                                    attr.comment, attr.to_ids))
                 elif args.attr is not None:
                     # search by attribute value
                     for attr in event.attributes:
                         if args.attr in str(attr.value):
-                            print("%s\t%s\t%s\t%s\t%s" %
-                                (
-                                    attr.category,
-                                    attr.type,
-                                    attr.value,
-                                    attr.comment,
-                                    attr.to_ids
-                                )
-                            )
+                            print("%s\t%s\t%s\t%s\t%s" % (
+                                attr.category,
+                                attr.type,
+                                attr.value,
+                                attr.comment,
+                                attr.to_ids
+                            ))
         elif args.attr is not None:
             res = server.search('attributes', value=args.attr)
             if len(res['Attribute']) == 0:
@@ -86,17 +87,17 @@ class CommandMisp(Command):
         else:
             self.parser.print_help()
 
-    def intel(self, type, query, data, conf):
+    def intel(self, type, query, data):
         if type in ["domain", "ip", "hash"]:
             print("[+] Checking MISP...")
-            server = ExpandedPyMISP(conf["Misp"]["url"], conf["Misp"]["key"])
+            server = ExpandedPyMISP(
+                self._config_data["Misp"]["url"],
+                self._config_data["Misp"]["key"])
             misp_results = server.search("events", value=query)
             for event in misp_results:
                 data["reports"].append({
                     "date": parse(event['Event']['date']).astimezone(pytz.utc),
                     "title": event['Event']['info'],
                     "source": "MISP",
-                    "url": urljoin(conf['Misp']['url'], "events/view/".format(event['Event']['id']))
+                    "url": urljoin(self._config_data['Misp']['url'], "events/view/{}".format(event['Event']['id']))
                 })
-
-

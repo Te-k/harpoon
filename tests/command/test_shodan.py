@@ -1,5 +1,3 @@
-import pytest
-
 from harpoon.commands.shodancmd import CommandShodan
 from ..utils import launch_plugin
 

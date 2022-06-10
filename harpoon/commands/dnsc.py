@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-import sys
 from dns import resolver, reversename, exception
 from harpoon.commands.base import Command
 from harpoon.lib.utils import is_ip, unbracket
@@ -20,7 +19,8 @@ class CommandDns(Command):
     name = "dns"
     description = "Map DNS information for a domain or an IP"
     config = {}
-    all_types = ['NONE', 'A', 'NS', 'MD', 'MF', 'CNAME', 'SOA', 'MB', 'MG',
+    all_types = [
+        'NONE', 'A', 'NS', 'MD', 'MF', 'CNAME', 'SOA', 'MB', 'MG',
         'MR', 'NULL', 'WKS', 'PTR', 'HINFO', 'MINFO', 'MX', 'TXT', 'RP',
         'AFSDB', 'X25', 'ISDN', 'RT', 'NSAP', 'NSAP-PTR', 'SIG', 'KEY',
         'PX', 'GPOS', 'AAAA', 'LOC', 'NXT', 'SRV', 'NAPTR', 'KX', 'CERT',
@@ -32,15 +32,16 @@ class CommandDns(Command):
 
     def add_arguments(self, parser):
         parser.add_argument('TARGET', help='Domain or IP to query')
-        parser.add_argument('--extended', '-e', action='store_true',
-                help="Extended testing of all DNS types")
+        parser.add_argument(
+            '--extended', '-e', action='store_true',
+            help="Extended testing of all DNS types")
         self.parser = parser
 
     def owner_to_email(self, owner):
         rev = owner[:-1].split('.')
         return '.'.join(rev[:-2]) + "@" + ".".join(rev[-2:])
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         if is_ip(unbracket(args.TARGET)):
             # That's an IP address
             ptr_n = str(reversename.from_address(unbracket(args.TARGET)))
@@ -57,7 +58,7 @@ class CommandDns(Command):
                         answers = resolver.resolve(unbracket(args.TARGET), a)
                         for rdata in answers:
                             print(a, ':', rdata.to_text())
-                    except Exception as e:
+                    except Exception:
                         pass
             else:
                 target = unbracket(args.TARGET)

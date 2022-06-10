@@ -15,7 +15,7 @@ def get_test_config():
     return config
 
 
-def launch_plugin(plugin, args):
+def launch_plugin(plugin, args, plugins={}):
     """
     Launches a plugin with the given arguments
     """
@@ -35,6 +35,6 @@ def launch_plugin(plugin, args):
 
     # Run
     if pl.test_config():
-        pl.run(vargs, [])
+        pl.run(vargs, plugins)
     else:
         pytest.skip("Configuration not set")

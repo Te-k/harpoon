@@ -1,9 +1,9 @@
 #! /usr/bin/env python
-import sys
 import json
 import requests
 from harpoon.commands.base import Command
 import phonenumbers
+
 
 class CommandNumVerify(Command):
     """
@@ -15,7 +15,7 @@ class CommandNumVerify(Command):
     """
     name = "numverify"
     description = "Query phone number information from NumVerify"
-    config = { 'NumVerify': ['key']}
+    config = {'NumVerify': ['key']}
 
     def query(self, phone, cc, key):
         params = {
@@ -32,12 +32,15 @@ class CommandNumVerify(Command):
         parser.add_argument('COUNTRY',  help='Country code (two letters)')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         x = phonenumbers.parse(args.PHONE, args.COUNTRY)
         print("Requesting phone +{} - {} ({})".format(
             x.country_code,
             x.national_number,
             args.COUNTRY
         ))
-        res = self.query(x.national_number, args.COUNTRY, conf['NumVerify']['key'])
+        res = self.query(
+            x.national_number,
+            args.COUNTRY,
+            self._config_data['NumVerify']['key'])
         print(json.dumps(res, sort_keys=False, indent=4))

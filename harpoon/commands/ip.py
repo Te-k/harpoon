@@ -1,7 +1,5 @@
 #! /usr/bin/env python
-import datetime
 import glob
-import json
 import os
 import re
 import shutil
@@ -10,29 +8,12 @@ import subprocess
 import sys
 import urllib
 import urllib.request
-import logging
 import geoip2.database
 import pyasn
-import pytz
-import requests
-from dateutil.parser import parse
-from greynoise import GreyNoise
 from harpoon.commands.asn import CommandAsn
 from harpoon.commands.base import Command
-from harpoon.commands.tor import CommandTor
-from harpoon.lib.robtex import Robtex, RobtexError
-from harpoon.lib.urlhaus import UrlHaus, UrlHausError
-from harpoon.lib.utils import bracket, is_ip, unbracket
-from harpoon.lib.threatcrowd import ThreatCrowd, ThreatCrowdError
+from harpoon.lib.utils import unbracket, is_ip
 from IPy import IP
-from OTXv2 import IndicatorTypes, OTXv2
-from passivetotal.libs.dns import DnsRequest
-from passivetotal.libs.enrichment import EnrichmentRequest
-from pybinaryedge import BinaryEdge, BinaryEdgeException, BinaryEdgeNotFound
-from pymisp import ExpandedPyMISP
-from pythreatgrid2 import ThreatGrid, ThreatGridError
-from threatminer import ThreatMiner
-from virus_total_apis import PrivateApi, PublicApi
 
 
 class CommandIp(Command):
@@ -79,7 +60,7 @@ class CommandIp(Command):
         fout = open(self.asnname, "w+")
         line = fin.readline()
         reg = re.compile(
-            '^<a href="/cgi-bin/as-report\?as=AS\d+&view=2.0">AS(\d+)\s*</a> (.+)$'
+            r'^<a href="/cgi-bin/as-report\?as=AS\d+&view=2.0">AS(\d+)\s*</a> (.+)$'
         )
         while line != "":
             res = reg.match(line)

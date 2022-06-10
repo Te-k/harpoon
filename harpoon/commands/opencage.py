@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 import json
 from harpoon.commands.base import Command
-from harpoon.lib.opencage import OpenCageGeocode
+from harpoon.lib.opencage import OpenCage, OpenCageError
 
 
 class CommandOpenCageInfo(Command):
@@ -9,6 +9,8 @@ class CommandOpenCageInfo(Command):
     # OpenCage plugin
 
     **Query OpenCage geocoder API**
+
+    https://opencagedata.com/
 
     * Forward Geocoding : `harpoon opencage search QUERY`
     * Reverse Geocoding : `harpoon opencage reverse LATITUDE LONGITUDE`
@@ -28,8 +30,8 @@ class CommandOpenCageInfo(Command):
         parser_b.set_defaults(subcommand='reverse')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
-        geocoder = OpenCageGeocode(key=conf['OpenCage']['key'])
+    def run(self, args, plugins):
+        geocoder = OpenCage(key=self._config_data['OpenCage']['key'])
         if 'subcommand' in args:
             if args.subcommand == 'search':
                 try:
@@ -40,7 +42,7 @@ class CommandOpenCageInfo(Command):
                     print(json.dumps(infos,  sort_keys=True, indent=4, separators=(',', ': ')))
             elif args.subcommand == 'reverse':
                 try:
-                    infos = geocoder.reverse_geocode(args.LATITUDE, args.LONGITUDE)
+                    infos = geocoder.reverse(args.LATITUDE, args.LONGITUDE)
                 except OpenCageError:
                     print("Invalid request")
                 else:

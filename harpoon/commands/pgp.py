@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-import sys
 from harpoon.commands.base import Command
 from harpoon.lib.pgp import Pgp
 
@@ -15,9 +14,9 @@ class CommandPgp(Command):
     harpoon pgp search lemonde.fr
     [+] 0x07A0514E0F568618	2017-12-19	Anne Michel anne.michel@lemonde.fr
     [+] 0xAE95106F1B5A0D7E	2017-11-28	perso maxime.loliee@gmail.com
-					loliee maxime.loliee@gmail.com
-					pro maxime@siliadev.com
-					lemonde loliee@lemonde.fr
+            loliee maxime.loliee@gmail.com
+            pro maxime@siliadev.com
+            lemonde loliee@lemonde.fr
     [SNIP]
     ```
 
@@ -31,12 +30,13 @@ class CommandPgp(Command):
         subparsers = parser.add_subparsers(help='Subcommands')
         parser_a = subparsers.add_parser('search', help='Search in PGP server')
         parser_a.add_argument('SEARCH', help='Query')
-        parser_a.add_argument('--only-emails', '-o', action='store_true',
-                            help='Print only email addresses')
+        parser_a.add_argument(
+            '--only-emails', '-o', action='store_true',
+            help='Print only email addresses')
         parser_a.set_defaults(subcommand='search')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         if hasattr(args, 'subcommand'):
             if args.subcommand == "search":
                 res = Pgp.search(args.SEARCH)

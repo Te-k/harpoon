@@ -16,18 +16,20 @@ class CommandGithub(Command):
     """
     name = "github"
     description = "Request Github information through the API"
-    config = { 'Github': ['token']}
+    config = {'Github': ['token']}
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(help='SubCommands')
         parser_a = subparsers.add_parser('search', help='Search in github')
-        parser_a.add_argument('--type', '-t',
-                choices=['repo', 'code', 'commit', 'issues', 'wikis', 'users'],
-                default='code',
-                help='Type of data to search')
-        parser_a.add_argument('--limit', '-l',
-                default='10', type=int,
-                help='Result limit')
+        parser_a.add_argument(
+            '--type', '-t',
+            choices=['repo', 'code', 'commit', 'issues', 'wikis', 'users'],
+            default='code',
+            help='Type of data to search')
+        parser_a.add_argument(
+            '--limit', '-l',
+            default='10', type=int,
+            help='Result limit')
         parser_a.add_argument('SEARCH')
         parser_a.set_defaults(subcommand='search')
         parser_b = subparsers.add_parser('repo', help='Information on a github repository')
@@ -37,8 +39,8 @@ class CommandGithub(Command):
 
         self.parser = parser
 
-    def run(self, conf, args, plugins):
-        g = Github(conf['Github']['token'])
+    def run(self, args, plugins):
+        g = Github(self._config_data['Github']['token'])
         if 'subcommand' in args:
             if args.subcommand == 'search':
                 if args.type == 'code':
@@ -83,7 +85,7 @@ class CommandGithub(Command):
                 repo = g.get_repo(rep_name)
                 # Check if found
                 try:
-                    idd = repo.id
+                    repo.id
                 except UnknownObjectException:
                     print("Repository not found")
                     return
@@ -117,8 +119,7 @@ class CommandGithub(Command):
                                     committers[c.committer.email] = 1
                     print("-Committers:")
                     for committer in sorted(committers.items()):
-                        print("\t%s %i" % ( committer[0], committer[1]))
-
+                        print("\t%s %i" % (committer[0], committer[1]))
 
             else:
                 self.parser.print_help()

@@ -1,10 +1,8 @@
 #! /usr/bin/env python
-import sys
-import json
 import pytz
 from datetime import datetime
 from harpoon.commands.base import Command
-from harpoon.lib.utils import bracket, unbracket, ts_to_str
+from harpoon.lib.utils import unbracket, ts_to_str
 from harpoon.lib.dnsdb import DnsDB, DNSDBError
 
 
@@ -29,9 +27,8 @@ class DnsDbTotal(Command):
         parser_b.set_defaults(subcommand='domain')
         self.parser = parser
 
-
-    def run(self, conf, args, plugins):
-        dnsdb = DnsDB(conf['Dnsdb']['key'])
+    def run(self, args, plugins):
+        dnsdb = DnsDB(self._config_data['Dnsdb']['key'])
         if 'subcommand' in args:
             if args.subcommand == "domain":
                 try:
@@ -52,6 +49,8 @@ class DnsDbTotal(Command):
                 except DNSDBError as e:
                     print("Request failed : {}".format(e))
                 else:
+                    if len(results) == 0:
+                        print("No resuts for this IP")
                     for r in results:
                         print("{}\t{}\t{}\t{}".format(
                             r["rrtype"],
@@ -64,10 +63,10 @@ class DnsDbTotal(Command):
         else:
             self.parser.print_help()
 
-    def intel(self, type, query, data, conf):
+    def intel(self, type, query, data):
         if type == "domain":
             print("[+] Checking DNSdb...")
-            dnsdb = DnsDB(conf['Dnsdb']['key'])
+            dnsdb = DnsDB(self._config_data['Dnsdb']['key'])
             try:
                 results = dnsdb.rrset_lookup(unbracket(query))
             except DNSDBError:
@@ -84,7 +83,7 @@ class DnsDbTotal(Command):
                         })
         elif type == "ip":
             print("[+] Checking DNSdb...")
-            dnsdb = DnsDB(conf['Dnsdb']['key'])
+            dnsdb = DnsDB(self._config_data['Dnsdb']['key'])
             try:
                 results = dnsdb.rdata_lookup(unbracket(query), type="ip")
             except DNSDBError:
