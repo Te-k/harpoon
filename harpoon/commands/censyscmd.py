@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-import sys
 import json
 import time
 import censys
@@ -48,28 +47,29 @@ class CommandCensys(Command):
         parser_e.set_defaults(subcommand='search')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         if 'subcommand' in args:
             if args.subcommand == 'ip':
-                api = CensysHosts(conf['Censys']['id'],
-                                  conf['Censys']['secret'])
+                api = CensysHosts(
+                    self._config_data['Censys']['id'],
+                    self._config_data['Censys']['secret'])
                 if args.events:
-                    res = api.view_host_events(args.IP)
-                    print(json.dumps(res, sort_keys=True,
+                    res = api.view_host_events(unbracket(args.IP))
+                    print(json.dumps(res,
                           indent=4, separators=(',', ': ')))
                 else:
                     try:
-                        ip = api.view(args.IP)
-                        print(json.dumps(ip, sort_keys=True,
-                              indent=4, separators=(',', ': ')))
+                        ip = api.view(unbracket(args.IP))
+                        print(json.dumps(ip, indent=4, separators=(',', ': ')))
                     except censys.base.CensysNotFoundException:
                         print('IP not found')
             elif args.subcommand == 'cert':
                 try:
                     print(
                         "Viewing certs is not implemented yet, seeing hosts for this cert:")
-                    c = CensysCerts(conf['Censys']['id'],
-                                    conf['Censys']['secret'])
+                    c = CensysCerts(
+                        self._config_data['Censys']['id'],
+                        self._config_data['Censys']['secret'])
                     res = c.get_hosts_by_cert(args.ID)
                 except censys.base.CensysNotFoundException:
                     print("Certificate not found")
@@ -77,8 +77,9 @@ class CommandCensys(Command):
                     print(json.dumps(res, sort_keys=True,
                           indent=4, separators=(',', ': ')))
             elif args.subcommand == 'search':
-                api = CensysHosts(conf['Censys']['id'],
-                                  conf['Censys']['secret'])
+                api = CensysHosts(
+                    self._config_data['Censys']['id'],
+                    self._config_data['Censys']['secret'])
                 if args.file:
                     with open(args.QUERY) as f:
                         query = f.read().strip()
@@ -131,7 +132,9 @@ class CommandCensys(Command):
     def intel(self, type, query, data):
         if type == "ip":
             print("[+] Checking Censys...")
-            api = CensysHosts(conf['Censys']['id'], conf['Censys']['secret'])
+            api = CensysHosts(
+                self._config_data['Censys']['id'],
+                self._config_data['Censys']['secret'])
             ip = api.view(query)
             for service in ip["services"]:
                 data["ports"].append({
@@ -141,14 +144,16 @@ class CommandCensys(Command):
                 })
 
     def get_subdomains(self, conf, query, verbose):
-        api = CensysHosts(conf['Censys']['id'], conf['Censys']['secret'])
+        api = CensysHosts(
+            self._config_data['Censys']['id'],
+            self._config_data['Censys']['secret'])
         raw = api.search(query)
         cleaned = raw.view_all()
         for host in cleaned:
             for i in cleaned[host]['services']:
                 try:
                     leaf_data = i['tls']['certificates']['leaf_data']['names']
-                except:
+                except KeyError:
                     pass
 
         return leaf_data

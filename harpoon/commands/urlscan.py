@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-import sys
 import json
 import time
 import pytz
@@ -38,11 +37,11 @@ class CommandUrlscan(Command):
         parser_d.set_defaults(subcommand='quota')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         if 'subcommand' in args:
             # Optional key
             try:
-                key = conf['UrlScan']['key']
+                key = self._config_data['UrlScan']['key']
                 if key.strip() != "":
                     us = UrlScan(key)
                 else:
@@ -115,7 +114,7 @@ class CommandUrlscan(Command):
         else:
             self.parser.print_help()
 
-    def intel(self, type, query, data, conf):
+    def intel(self, type, query, data):
         if type in ["domain", "ip"]:
             print('[+] Checking UrlScan...')
             us = UrlScan()
@@ -128,4 +127,3 @@ class CommandUrlscan(Command):
                         "ip": r["page"]["ip"] if "ip" in r["page"] else "",
                         "source": "UrlScan"
                     })
-

@@ -1,7 +1,5 @@
 #! /usr/bin/env python3
-
 import json
-import requests
 import pytz
 from dateutil.parser import parse
 from harpoon.commands.base import Command
@@ -47,7 +45,7 @@ class CommandThreatCrowd(Command):
     def pretty_print(self, data):
         print(json.dumps(data, indent=4, sort_keys=True))
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         tc = ThreatCrowd()
         try:
             if args.ip:
@@ -65,7 +63,7 @@ class CommandThreatCrowd(Command):
         except ThreatCrowdError as e:
             print("Query failed: {}".format(e.message))
 
-    def intel(self, type, query, data, conf):
+    def intel(self, type, query, data):
         if type == "domain":
             print("[+] Checking ThreatCrowd...")
             tc = ThreatCrowd()
@@ -74,16 +72,12 @@ class CommandThreatCrowd(Command):
                 if "resolutions" in res:
                     for d in res["resolutions"]:
                         if d["ip_address"] not in ["-", ""]:
-                            try:
-                                data["passive_dns"].append({
-                                    "ip": d["ip_address"],
-                                    "first": parse(d["last_resolved"]).astimezone(pytz.utc),
-                                    "last": parse(d["last_resolved"]).astimezone(pytz.utc),
-                                    "source": "ThreatCrowd"
-                                })
-                            except:
-                                # Date error
-                                pass
+                            data["passive_dns"].append({
+                                "ip": d["ip_address"],
+                                "first": parse(d["last_resolved"]).astimezone(pytz.utc),
+                                "last": parse(d["last_resolved"]).astimezone(pytz.utc),
+                                "source": "ThreatCrowd"
+                            })
                 if "hashes" in res:
                     for h in res["hashes"]:
                         data["malware"].append({
@@ -100,16 +94,12 @@ class CommandThreatCrowd(Command):
                 res = tc.ip(query)
                 if "resolutions" in res:
                     for d in res["resolutions"]:
-                        try:
-                            data["passive_dns"].append({
-                                "domain": d["domain"].strip(),
-                                "first": parse(d["last_resolved"]).astimezone(pytz.utc),
-                                "last": parse(d["last_resolved"]).astimezone(pytz.utc),
-                                "source": "ThreatCrowd"
-                            })
-                        except:
-                            # Date error
-                            pass
+                        data["passive_dns"].append({
+                            "domain": d["domain"].strip(),
+                            "first": parse(d["last_resolved"]).astimezone(pytz.utc),
+                            "last": parse(d["last_resolved"]).astimezone(pytz.utc),
+                            "source": "ThreatCrowd"
+                        })
                 if "hashes" in res:
                     for h in res["hashes"]:
                         data["malware"].append({
@@ -122,7 +112,7 @@ class CommandThreatCrowd(Command):
         elif type == "hash":
             print("[+] Checking ThreatCrowd...")
             if len(query.strip()) != 32:
-                print("ThreatCrowd only accepts md5 ¯\_(ツ)_/¯")
+                print("ThreatCrowd only accepts md5 ¯\\_(ツ)_/¯")
                 return
             tc = ThreatCrowd()
             try:

@@ -39,16 +39,19 @@ class CommandPassiveTotal(Command):
         parser_b.set_defaults(subcommand='dns')
         parser_c = subparsers.add_parser('malware', help='Request malware info')
         parser_c.add_argument('--domain', '-d',  help='DOMAIN to be queried')
-        parser_c.add_argument('--file', '-f',  help='Check malware info from a domain list in a file and return csv of results')
+        parser_c.add_argument(
+            '--file', '-f',
+            help='Check malware info from a domain list in a file and return csv of results')
         parser_c.add_argument('--raw', '-r',  help='Show raw results (JSON)', action="store_true")
         parser_c.set_defaults(subcommand='malware')
         parser_d = subparsers.add_parser('osint', help='Request OSINT info')
         parser_d.add_argument('--domain', '-d',  help='DOMAIN to be queried')
-        parser_d.add_argument('--file', '-f',  help='Check OSINT info from a domain list in a file and return csv of results')
+        parser_d.add_argument(
+            '--file', '-f',
+            help='Check OSINT info from a domain list in a file and return csv of results')
         parser_d.add_argument('--raw', '-r',  help='Show raw results (JSON)', action="store_true")
         parser_d.set_defaults(subcommand='osint')
         self.parser = parser
-
 
     def run(self, args, plugins):
         if 'subcommand' in args:
@@ -74,10 +77,10 @@ class CommandPassiveTotal(Command):
                             field="domain"
                         )
                         if "results" not in raw_results:
-                            print("%s|||||||||||" %  bracket(do) )
+                            print("%s|||||||||||" % bracket(do))
                         else:
                             if len(raw_results["results"]) == 0:
-                                print("%s|||||||||||" %  bracket(do) )
+                                print("%s|||||||||||" % bracket(do))
                             else:
                                 r = raw_results["results"][0]
                                 if "registered" in r:
@@ -101,7 +104,6 @@ class CommandPassiveTotal(Command):
                                         r["registrant"]["country"] if "country" in r["registrant"] else ""
                                     )
                                 )
-
 
                 elif args.email:
                     raw_results = client.search_whois_by_field(
@@ -140,7 +142,7 @@ class CommandPassiveTotal(Command):
                             results = raw_results["results"]
                     else:
                         results = {}
-                        bulk_size=50
+                        bulk_size = 50
                         i = 0
                         while i*bulk_size < len(domain_list):
                             raw_results = client.get_bulk_malware(query=domain_list[i*bulk_size:(i+1)*bulk_size])
@@ -159,13 +161,12 @@ class CommandPassiveTotal(Command):
                             if "results" in results[domain]:
                                 for sample in results[domain]["results"]:
                                     print("%s|%s|%s|%s|%s" % (
-                                                domain,
-                                                sample["collectionDate"],
-                                                sample["sample"],
-                                                sample["source"],
-                                                sample["sourceUrl"]
-                                            )
-                                        )
+                                        domain,
+                                        sample["collectionDate"],
+                                        sample["sample"],
+                                        sample["source"],
+                                        sample["sourceUrl"]
+                                    ))
 
                 else:
                     self.parser.print_help()
@@ -192,7 +193,7 @@ class CommandPassiveTotal(Command):
                             results = raw_results["results"]
                     else:
                         results = {}
-                        bulk_size=50
+                        bulk_size = 50
                         i = 0
                         while i*bulk_size < len(domain_list):
                             raw_results = client.get_bulk_osint(query=domain_list[i*bulk_size:(i+1)*bulk_size])

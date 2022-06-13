@@ -3,7 +3,6 @@ import json
 import os
 import sys
 import time
-
 from harpoon.commands.base import Command
 from harpoon.lib.ipinfo import IPInfo, IPInfoError
 from harpoon.lib.utils import unbracket
@@ -33,8 +32,8 @@ class CommandIPInfo(Command):
         parser_b.set_defaults(subcommand='file')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
-        ipinfo = IPInfo(token=conf['IPInfo']['token'])
+    def run(self, args, plugins):
+        ipinfo = IPInfo(token=self._config_data['IPInfo']['token'])
         if 'subcommand' in args:
             if args.subcommand == 'ip':
                 try:
@@ -47,7 +46,10 @@ class CommandIPInfo(Command):
                 if os.path.isfile(args.FILE):
                     with open(args.FILE) as f:
                         data = f.read().split("\n")
-                    print("IP;Hostname;City;Region;Country;Location;Company Name;Company Domain;Company Type;ASN;AS Name;AS Domain;AS Route;AS Type")
+                    print(
+                            "IP;Hostname;City;Region;Country;Location;" +
+                            "Company Name;Company Domain;Company Type;ASN;" +
+                            "AS Name;AS Domain;AS Route;AS Type")
                     for d in data:
                         if d.strip() == '':
                             continue
