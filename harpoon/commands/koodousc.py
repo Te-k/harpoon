@@ -1,9 +1,7 @@
 #! /usr/bin/env python
-import sys
 import json
 from datetime import datetime
 from harpoon.commands.base import Command
-from harpoon.lib.utils import bracket, unbracket
 from harpoon.lib.koodous import Koodous, KoodousError, KoodousNotFound
 
 
@@ -34,26 +32,31 @@ class CommandKoodous(Command):
         parser_d = subparsers.add_parser('analysis', help='Get a full analysis from Koodous')
         parser_d.add_argument('HASH', help='Sha256')
         parser_d.set_defaults(subcommand='analysis')
+        parser_e = subparsers.add_parser('account', help="Get information on the account")
+        parser_e.set_defaults(subcommand='account')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
-        kd = Koodous(token=conf['Koodous']['token'])
+    def run(self, args, plugins):
+        kd = Koodous(token=self._config_data['Koodous']['token'])
         if 'subcommand' in args:
             try:
                 if args.subcommand == "hash":
                     res = kd.sha256(args.HASH)
-                    print(json.dumps(res, sort_keys=True, indent=4))
+                    print(json.dumps(res, indent=4))
                 elif args.subcommand == "search":
                     res = kd.search(args.QUERY)
-                    print(json.dumps(res, sort_keys=True, indent=4))
+                    print(json.dumps(res, indent=4))
                 elif args.subcommand == "dl":
                     data = kd.download(args.HASH)
                     with open(args.HASH, "wb+") as f:
                         f.write(data)
-                    print("File downlaoded as {}".format(args.HASH))
+                    print("File downloaded as {}".format(args.HASH))
                 elif args.subcommand == "analysis":
                     res = kd.analysis(args.HASH)
-                    print(json.dumps(res, sort_keys=True, indent=4))
+                    print(json.dumps(res, indent=4))
+                elif args.subcommand == "account":
+                    res = kd.account()
+                    print(json.dumps(res, indent=4))
                 else:
                     self.parser.print_help()
             except KoodousNotFound:
@@ -65,7 +68,7 @@ class CommandKoodous(Command):
         if type == "hash":
             if len(query) == 64:
                 try:
-                    kd = Koodous(token=conf['Koodous']['token'])
+                    kd = Koodous(token=self._config_data['Koodous']['token'])
                     res = kd.sha256(query)
                 except KoodousError:
                     pass

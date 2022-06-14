@@ -5,6 +5,7 @@ import telethon
 import csv
 import sys
 import time
+from getpass import getpass
 from telethon import TelegramClient
 from telethon.errors import SessionPasswordNeededError
 from telethon.tl.functions.channels import GetParticipantsRequest
@@ -44,34 +45,39 @@ class CommandTelegram(Command):
         parser_a.set_defaults(subcommand='id')
         parser_b = subparsers.add_parser('messages', help='Get messages from a public channel')
         parser_b.add_argument('ID', help='Id to be requested')
-        parser_b.add_argument('--limit', '-l', default=25, type=int,
-                help="Limit number of messages to get")
+        parser_b.add_argument(
+            '--limit', '-l', default=25, type=int,
+            help="Limit number of messages to get")
         parser_b.add_argument('--format', '-f', default='text', choices=['text', 'csv', 'json'], help="Output format")
         parser_b.add_argument('--dump', '-D', help="Dump media in the given path")
         parser_b.set_defaults(subcommand='messages')
         parser_c = subparsers.add_parser('users', help='Get user list of a group')
         parser_c.add_argument('ID', help='Id to be requested')
-        parser_c.add_argument('--limit', '-l', default=25, type=int,
-                help="Limit number of messages to get")
-        parser_c.add_argument('--format', '-f', default='text', choices=['text', 'csv', 'json'],
-                help="Output format")
+        parser_c.add_argument(
+            '--limit', '-l', default=25, type=int,
+            help="Limit number of messages to get")
+        parser_c.add_argument(
+            '--format', '-f', default='text', choices=['text', 'csv', 'json'],
+            help="Output format")
         parser_c.set_defaults(subcommand='users')
         self.parser = parser
 
-    def run(self, conf, args, plugins):
+    def run(self, args, plugins):
         session_file = os.path.join(os.path.expanduser("~"), ".config/harpoon/telegram")
-        client = TelegramClient(session_file, int(conf['Telegram']['id']), conf['Telegram']['hash'])
+        client = TelegramClient(
+            session_file,
+            int(self._config_data['Telegram']['id']),
+            self._config_data['Telegram']['hash'])
         # FIXME : do not connect if it's help
         client.connect()
         if not client.is_user_authorized():
-            client.send_code_request(conf['Telegram']['phone'])
+            client.send_code_request(self._config_data['Telegram']['phone'])
             code_ok = False
             while not code_ok:
                 code = input("Enter Telegram code:")
                 try:
-                    code_ok = client.sign_in(conf['Telegram']['phone'], code)
+                    code_ok = client.sign_in(self._config_data['Telegram']['phone'], code)
                 except SessionPasswordNeededError:
-                    # FIXME: getpass is not imported, that would not work
                     password = getpass('Two step verification enabled. Please enter your password: ')
                     code_ok = client.sign_in(password=password)
         if hasattr(args, 'subcommand'):
@@ -87,7 +93,7 @@ class CommandTelegram(Command):
                 users = {}
                 if args.dump:
                     if not os.path.exists(args.dump):
-                         os.makedirs(args.dump)
+                        os.makedirs(args.dump)
                 if args.format == "text":
                     if len(messages) == 0:
                         print("No messages in this channel")
@@ -155,7 +161,7 @@ class CommandTelegram(Command):
                     if args.dump:
                         for msg in messages:
                             if msg.media is None:
-                                if not os.path.exists(os.path.join(args.dump, str(msg.id)+ '.jpg')):
+                                if not os.path.exists(os.path.join(args.dump, str(msg.id) + '.jpg')):
                                     client.download_media(msg.media, os.path.join(args.dump, str(msg.id)))
                                     time.sleep(7)
                 elif args.format == "csv":
@@ -167,26 +173,75 @@ class CommandTelegram(Command):
                             if m.from_id not in users:
                                 users[m.from_id] = client.get_entity(m.from_id)
                             if isinstance(m, telethon.tl.types.MessageService):
-                                w.writerow([m.date.isoformat(), m.id, users[m.from_id].username, m.from_id, m.__class__.__name__, m.action.__class__.__name__])
+                                w.writerow([
+                                    m.date.isoformat(),
+                                    m.id,
+                                    users[m.from_id].username,
+                                    m.from_id,
+                                    m.__class__.__name__,
+                                    m.action.__class__.__name__
+                                ])
                             else:
-                                w.writerow([m.date.isoformat(), m.id, users[m.from_id].username, m.from_id, m.__class__.__name__, m.message])
+                                w.writerow([
+                                    m.date.isoformat(),
+                                    m.id,
+                                    users[m.from_id].username,
+                                    m.from_id,
+                                    m.__class__.__name__,
+                                    m.message
+                                ])
                     else:
                         w = csv.writer(sys.stdout, delimiter=';')
                         w.writerow(["Date", "id", "Type", "Information", "Media", "Views"])
                         for m in messages:
                             if isinstance(m, telethon.tl.types.MessageService):
                                 if isinstance(m.action, telethon.tl.types.MessageActionChatEditPhoto):
-                                    w.writerow([m.date.isoformat(), m.id,  m.__class__.__name__, "Channel Photo Changed", "No", ""])
+                                    w.writerow([
+                                        m.date.isoformat(),
+                                        m.id,
+                                        m.__class__.__name__,
+                                        "Channel Photo Changed",
+                                        "No",
+                                        ""
+                                    ])
                                 elif isinstance(m.action, telethon.tl.types.MessageActionChannelCreate):
-                                    w.writerow([m.date.isoformat(), m.id, m.__class__.__name__, "Channel Created", "No", ""])
+                                    w.writerow([
+                                        m.date.isoformat(),
+                                        m.id,
+                                        m.__class__.__name__,
+                                        "Channel Created",
+                                        "No",
+                                        ""
+                                    ])
                                 else:
-                                    w.writerow([m.date.isoformat(), m.id, m.__class__.__name__, m.action.__class__.__name__, "No", ""])
+                                    w.writerow([
+                                        m.date.isoformat(),
+                                        m.id,
+                                        m.__class__.__name__,
+                                        m.action.__class__.__name__,
+                                        "No",
+                                        ""
+                                    ])
                             else:
                                 if m.media is None:
                                     # message
-                                    w.writerow([m.date.isoformat(), m.id, m.__class__.__name__, m.message, "No", m.views])
+                                    w.writerow([
+                                        m.date.isoformat(),
+                                        m.id,
+                                        m.__class__.__name__,
+                                        m.message,
+                                        "No",
+                                        m.views
+                                    ])
                                 else:
-                                    w.writerow([m.date.isoformat(), m.id, m.__class__.__name__, m.message, "Yes", m.views])
+                                    w.writerow([
+                                        m.date.isoformat(),
+                                        m.id,
+                                        m.__class__.__name__,
+                                        m.message,
+                                        "Yes",
+                                        m.views
+                                    ])
                                     if args.dump:
                                         if not os.path.exists(os.path.join(args.dump, str(m.id) + '.jpg')):
                                             client.download_media(m.media, os.path.join(args.dump, str(m.id)))
@@ -203,7 +258,14 @@ class CommandTelegram(Command):
                     all_participants = []
 
                     while True:
-                        participants = client.invoke(GetParticipantsRequest(entity, ChannelParticipantsSearch(''), offset, limit, hash=0))
+                        participants = client.invoke(
+                            GetParticipantsRequest(
+                                entity,
+                                ChannelParticipantsSearch(''),
+                                offset,
+                                limit,
+                                hash=0
+                            ))
                         if not participants.users:
                             break
                         all_participants.extend(participants.users)
