@@ -51,7 +51,25 @@ class CommandPassiveTotal(Command):
             help='Check OSINT info from a domain list in a file and return csv of results')
         parser_d.add_argument('--raw', '-r',  help='Show raw results (JSON)', action="store_true")
         parser_d.set_defaults(subcommand='osint')
+        parser_e = subparsers.add_parser('subdomains', help='Get subdomains of a domain')
+        parser_e.add_argument('DOMAIN', help='DOMAIN to be queried')
+        parser_e.set_defaults(subcommand='subdomains')
         self.parser = parser
+
+    def get_subdomains(self, domain):
+        """
+        Get and show subdomains of a domain
+        """
+        client = EnrichmentRequest(
+            self._config_data['PassiveTotal']['username'],
+            self._config_data['PassiveTotal']['key'])
+
+        res = client.get_subdomains(
+            query=domain,
+            field="domain"
+        )
+        for d in res["subdomains"]:
+            print(d)
 
     def run(self, args, plugins):
         if 'subcommand' in args:
@@ -220,7 +238,8 @@ class CommandPassiveTotal(Command):
                                     )
                 else:
                     self.parser.print_help()
-
+            elif args.subcommand == "subdomains":
+                self.get_subdomains(unbracket(args.DOMAIN))
             else:
                 self.parser.print_help()
         else:
