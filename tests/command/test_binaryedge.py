@@ -1,5 +1,3 @@
-import pytest
-
 from harpoon.commands.binaryedge import CommandBinaryEdge
 from ..utils import launch_plugin
 
