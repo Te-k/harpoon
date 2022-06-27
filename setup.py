@@ -25,7 +25,7 @@ setup(
         "shodan",
         "fullcontact.py",
         "pyhunter",
-        "PyGitHub",
+        "PyGitHub>=1.55",
         "telethon==0.19.1.6",
         "virustotal-api",
         "pymisp==2.4.159",

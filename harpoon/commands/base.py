@@ -104,6 +104,8 @@ class Command(object):
             self.intel_domain(query, data)
         elif type == "hash":
             self.intel_hash(query, data)
+        elif type == "email":
+            self.intel_email(query, data)
 
     def intel_ip(self, query, data):
         """
@@ -118,6 +120,12 @@ class Command(object):
         pass
 
     def intel_hash(self, query, data):
+        """
+        Adds information to the global intel command
+        """
+        pass
+
+    def intel_email(self, query, data):
         """
         Adds information to the global intel command
         """

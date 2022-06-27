@@ -2,6 +2,7 @@
 import sys
 from harpoon.commands.base import Command
 from github import Github, UnknownObjectException
+from github.GithubException import RateLimitExceededException
 
 
 class CommandGithub(Command):
@@ -125,3 +126,22 @@ class CommandGithub(Command):
                 self.parser.print_help()
         else:
             self.parser.print_help()
+
+    def intel_email(self, query, data):
+        """
+        Check for emails in Github pages
+        """
+        print("[+] Checking Github...")
+        g = Github(self._config_data['Github']['token'])
+
+        try:
+            res = g.search_code(query)
+        except RateLimitExceededException:
+            print("Rate limit exceeded on Github")
+            return
+
+        for i in res:
+            data["mentions"].append({
+                "url": i.html_url,
+                "source": "Github"
+            })

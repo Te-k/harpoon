@@ -245,124 +245,151 @@ class CommandPassiveTotal(Command):
         else:
             self.parser.print_help()
 
-    def intel(self, type, query, data):
-        if type == "domain":
-            print("[+] Checking Passive Total...")
-            try:
-                pt_osint = {}
-                ptout = False
-                client = DnsRequest(
+    def intel_domain(self, query, data):
+        print("[+] Checking Passive Total...")
+        try:
+            pt_osint = {}
+            ptout = False
+            client = DnsRequest(
+                self._config_data["PassiveTotal"]["username"],
+                self._config_data["PassiveTotal"]["key"],
+            )
+            raw_results = client.get_passive_dns(query=query)
+            if "results" in raw_results:
+                for res in raw_results["results"]:
+                    data["passive_dns"].append(
+                        {
+                            "first": parse(res["firstSeen"]).astimezone(
+                                pytz.utc
+                            ),
+                            "last": parse(res["lastSeen"]).astimezone(
+                                pytz.utc
+                            ),
+                            "ip": res["resolve"],
+                            "source": "PT",
+                        }
+                    )
+            if "message" in raw_results:
+                if "quota_exceeded" in raw_results["message"]:
+                    print("PT quota exceeded")
+                    ptout = True
+            if not ptout:
+                client2 = EnrichmentRequest(
                     self._config_data["PassiveTotal"]["username"],
                     self._config_data["PassiveTotal"]["key"],
                 )
-                raw_results = client.get_passive_dns(query=query)
+                # Get OSINT
+                pt_osint = client2.get_osint(query=query)
+                if "results" in pt_osint:
+                    for r in pt_osint["results"]:
+                        data["reports"].append({
+                            "date": "",
+                            "title": r["name"] if "name" in r else "",
+                            "url": r["sourceUrl"],
+                            "source": "PT"
+                        })
+                # Get malware
+                raw_results = client2.get_malware(
+                    query=query
+                )
                 if "results" in raw_results:
-                    for res in raw_results["results"]:
-                        data["passive_dns"].append(
+                    for r in raw_results["results"]:
+                        data["malware"].append(
                             {
-                                "first": parse(res["firstSeen"]).astimezone(
-                                    pytz.utc
-                                ),
-                                "last": parse(res["lastSeen"]).astimezone(
-                                    pytz.utc
-                                ),
-                                "ip": res["resolve"],
-                                "source": "PT",
+                                "hash": r["sample"],
+                                "date": parse(
+                                    r["collectionDate"]
+                                ).astimezone(pytz.utc),
+                                "source": "PT (%s)" % r["source"],
                             }
                         )
-                if "message" in raw_results:
-                    if "quota_exceeded" in raw_results["message"]:
-                        print("PT quota exceeded")
-                        ptout = True
-                if not ptout:
-                    client2 = EnrichmentRequest(
-                        self._config_data["PassiveTotal"]["username"],
-                        self._config_data["PassiveTotal"]["key"],
+        except requests.exceptions.ReadTimeout:
+            print("PT: Time Out")
+
+    def intel_ip(self, query, data):
+        print("[+] Checking Passive Total...")
+        try:
+            pt_osint = {}
+            ptout = False
+            client = DnsRequest(
+                self._config_data["PassiveTotal"]["username"],
+                self._config_data["PassiveTotal"]["key"],
+            )
+            raw_results = client.get_passive_dns(query=query)
+            if "results" in raw_results:
+                for res in raw_results["results"]:
+                    data["passive_dns"].append(
+                        {
+                            "first": parse(res["firstSeen"]).astimezone(
+                                pytz.utc
+                            ),
+                            "last": parse(res["lastSeen"]).astimezone(
+                                pytz.utc
+                            ),
+                            "domain": res["resolve"],
+                            "source": "PT",
+                        }
                     )
-                    # Get OSINT
-                    pt_osint = client2.get_osint(query=query)
-                    if "results" in pt_osint:
-                        for r in pt_osint["results"]:
-                            data["reports"].append({
-                                "date": "",
-                                "title": r["name"] if "name" in r else "",
-                                "url": r["sourceUrl"],
-                                "source": "PT"
-                            })
-                    # Get malware
-                    raw_results = client2.get_malware(
-                        query=query
-                    )
-                    if "results" in raw_results:
-                        for r in raw_results["results"]:
-                            data["malware"].append(
-                                {
-                                    "hash": r["sample"],
-                                    "date": parse(
-                                        r["collectionDate"]
-                                    ).astimezone(pytz.utc),
-                                    "source": "PT (%s)" % r["source"],
-                                }
-                            )
-            except requests.exceptions.ReadTimeout:
-                print("PT: Time Out")
-        elif type == "ip":
-            print("[+] Checking Passive Total...")
-            try:
-                pt_osint = {}
-                ptout = False
-                client = DnsRequest(
+            if "message" in raw_results:
+                if "quota_exceeded" in raw_results["message"]:
+                    print("PT quota exceeded")
+                    ptout = True
+            if not ptout:
+                client2 = EnrichmentRequest(
                     self._config_data["PassiveTotal"]["username"],
                     self._config_data["PassiveTotal"]["key"],
                 )
-                raw_results = client.get_passive_dns(query=query)
+                # Get OSINT
+                pt_osint = client2.get_osint(query=query)
+                if "results" in pt_osint:
+                    for r in pt_osint["results"]:
+                        data["reports"].append({
+                            "date": "",
+                            "title": r["name"] if "name" in r else "",
+                            "url": r["sourceUrl"],
+                            "source": "PT"
+                        })
+                # Get malware
+                raw_results = client2.get_malware(
+                    query=query
+                )
                 if "results" in raw_results:
-                    for res in raw_results["results"]:
-                        data["passive_dns"].append(
+                    for r in raw_results["results"]:
+                        data["malware"].append(
                             {
-                                "first": parse(res["firstSeen"]).astimezone(
-                                    pytz.utc
-                                ),
-                                "last": parse(res["lastSeen"]).astimezone(
-                                    pytz.utc
-                                ),
-                                "domain": res["resolve"],
-                                "source": "PT",
+                                "hash": r["sample"],
+                                "date": parse(
+                                    r["collectionDate"]
+                                ).astimezone(pytz.utc),
+                                "source": "PT (%s)" % r["source"],
                             }
                         )
-                if "message" in raw_results:
-                    if "quota_exceeded" in raw_results["message"]:
-                        print("PT quota exceeded")
-                        ptout = True
-                if not ptout:
-                    client2 = EnrichmentRequest(
-                        self._config_data["PassiveTotal"]["username"],
-                        self._config_data["PassiveTotal"]["key"],
-                    )
-                    # Get OSINT
-                    pt_osint = client2.get_osint(query=query)
-                    if "results" in pt_osint:
-                        for r in pt_osint["results"]:
-                            data["reports"].append({
-                                "date": "",
-                                "title": r["name"] if "name" in r else "",
-                                "url": r["sourceUrl"],
-                                "source": "PT"
-                            })
-                    # Get malware
-                    raw_results = client2.get_malware(
-                        query=query
-                    )
-                    if "results" in raw_results:
-                        for r in raw_results["results"]:
-                            data["malware"].append(
-                                {
-                                    "hash": r["sample"],
-                                    "date": parse(
-                                        r["collectionDate"]
-                                    ).astimezone(pytz.utc),
-                                    "source": "PT (%s)" % r["source"],
-                                }
-                            )
-            except requests.exceptions.ReadTimeout:
-                print("PT: Time Out")
+        except requests.exceptions.ReadTimeout:
+            print("PT: Time Out")
+
+    def intel_email(self, query, data):
+        print("[+] Checking Passive Total...")
+        client = WhoisRequest(
+            self._config_data['PassiveTotal']['username'],
+            self._config_data['PassiveTotal']['key']
+        )
+        raw_results = client.search_whois_by_field(
+            query=query,
+            field="email")
+
+        if "results" in raw_results:
+            for res in raw_results["results"]:
+                # Concat all other interesting infos
+                other_infos = []
+                for a in ["admin", "tech", "registrant"]:
+                    if a in res:
+                        for b in ["email", "name", "organization", "telephone"]:
+                            if b in res[a]:
+                                if res[a][b] not in other_infos:
+                                    other_infos.append(
+                                        res[a][b])
+                data["domains"].append({
+                    "registered": res["registered"][:10],
+                    "domain": res["domain"],
+                    "infos": other_infos
+                })

@@ -24,7 +24,7 @@ class CommandPgp(Command):
     """
     name = "pgp"
     description = "Search for information in PGP key servers"
-    config = {}
+    config = {'PGP': []}
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(help='Subcommands')
@@ -68,3 +68,14 @@ class CommandPgp(Command):
                 self.parser.print_help()
         else:
             self.parser.print_help()
+
+    def intel_email(self, query, data):
+        print("[+] Checking PGP servers...")
+        res = Pgp.search(query)
+        for r in res:
+            data["keys"].append({
+                "date": r['date'],
+                "id": r['id'],
+                "name": r['emails'][0][0],
+                "email": r['emails'][0][1]
+            })
