@@ -6,6 +6,7 @@ class PulseDiveError(Exception):
         Exception.__init__(self, message)
         self.message = message
 
+
 class PulseDiveNotFound(PulseDiveError):
     pass
 
@@ -37,7 +38,7 @@ class PulseDive(object):
         information is retrieved using the indicator value. Querying
         links and properties by indicator value won't work.
         """
-        params  = {'indicator': val}
+        params = {'indicator': val}
         if historical:
             params['historical'] = "1"
         return self._query("info.php", params)
@@ -53,6 +54,3 @@ class PulseDive(object):
 
     def threat_indicators(self, tid):
         return self._query("info.php", {'tid': tid, 'get': 'links'})
-
-
-

@@ -14,7 +14,7 @@ class Pgp(object):
             return []
         res = []
         soup = BeautifulSoup(r.text, 'lxml')
-        emailsearch = re.compile("([\w\(\) ]+) &lt;([\w@\.]+)&gt;")
+        emailsearch = re.compile(r"([\w\(\) ]+) &lt;([\w@\.]+)&gt;")
         for pre in soup.find_all('pre')[1:]:
             key = {}
             t = str(pre)

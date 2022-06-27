@@ -1,5 +1,3 @@
-import pytest
-
 from harpoon.commands.hybrid import CommandHybridAnalysis
 from ..utils import launch_plugin
 

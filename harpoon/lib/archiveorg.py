@@ -13,8 +13,9 @@ class ArchiveOrg(object):
         Return a list of snapshots for a given url
         """
         # FIXME: report more snapshot through the Memento API
-        r = requests.get('http://archive.org/wayback/available?url=%s' %
-                urllib.parse.quote(url))
+        r = requests.get(
+            'http://archive.org/wayback/available?url=%s' %
+            urllib.parse.quote(url))
         data = r.json()
         res = []
         if 'archived_snapshots' in data:
@@ -32,7 +33,7 @@ class ArchiveOrg(object):
         Download cache from a cache url
         """
         if cache_url.startswith('https://web.archive.org/web/') or \
-            cache_url.startswith('http://web.archive.org/web/'):
+                cache_url.startswith('http://web.archive.org/web/'):
             r = requests.get(cache_url)
             data = r.text
             t1 = data.find('<!-- End Wayback Rewrite JS Include -->')

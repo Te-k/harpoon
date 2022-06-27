@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
 import re
-
 import requests
 
 
@@ -57,7 +56,7 @@ class UrlHaus(object):
             if r.ok:
                 try:
                     return r.content
-                except:
+                except:  # noqa: E722
                     raise UrlHausError()
             else:
                 return None
@@ -85,9 +84,9 @@ class UrlHaus(object):
         """
         url = "{}payload/".format(self.base_url)
         # check if the hash is md5 or sha256
-        if re.match("[A-Fa-f0-9]{64}", query.strip()):
+        if re.match(r"[A-Fa-f0-9]{64}", query.strip()):
             return self.launch_post_query(url, "sha256_hash", query.strip())
-        elif re.match("[a-fA-F\d]{32}", query.strip()):
+        elif re.match(r"[a-fA-F\d]{32}", query.strip()):
             return self.launch_post_query(url, "md5_hash", query.strip())
         else:
             raise UrlHausError()

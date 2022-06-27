@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 from harpoon.commands.base import Command
 from harpoon.commands.censyscmd import CommandCensys
-from censys.asm import AsmClient
 from harpoon.lib.utils import unbracket
 from passivetotal.libs.enrichment import EnrichmentRequest
 from virus_total_apis import PublicApi, PrivateApi
@@ -78,16 +77,16 @@ class CommandSubdomains(Command):
     def intel(self, type, query, data):
         if type == "domain":
             try:
-                #subdomains = self.censys_certs(unbracket(query), self._confif_data, True)
-                #self.prepare_data(subdomains, data, "Censys")
+                # subdomains = self.censys_certs(unbracket(query), self._confif_data, True)
+                # self.prepare_data(subdomains, data, "Censys")
                 pass
 
             except CensysRateLimitExceededException:
                 print('Censys quota exceeded!')
-            #subdomains = self.pt(unbracket(query), conf, True)
-            #self.prepare_data(subdomains, data, "PassiveTotal")
-            #subdomains = self.vt(unbracket(query), conf, True)
-            #self.prepare_data(subdomains, data, "VirusTotal")
+            # subdomains = self.pt(unbracket(query), conf, True)
+            # self.prepare_data(subdomains, data, "PassiveTotal")
+            # subdomains = self.vt(unbracket(query), conf, True)
+            # self.prepare_data(subdomains, data, "VirusTotal")
 
         else:
             pass

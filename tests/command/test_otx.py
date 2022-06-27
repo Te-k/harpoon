@@ -1,5 +1,3 @@
-import pytest
-
 from harpoon.commands.otx import CommandOtx
 from ..utils import launch_plugin
 

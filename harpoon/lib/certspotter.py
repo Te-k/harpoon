@@ -1,6 +1,5 @@
 import requests
 from requests.auth import HTTPBasicAuth
-import json
 
 
 class CertSpotterError(Exception):
@@ -35,6 +34,10 @@ class CertSpotter(object):
         else:
             raise CertSpotterError("Invalid HTTP status code %i" % r.status_code)
 
-
     def search(self, domain, include_subdomains=False):
-        return self._get("v1/issuances", params = {'domain': domain, "expand": ["dns_names", "issuer", "cert"], "include_subdomains": include_subdomains})
+        return self._get(
+                "v1/issuances",
+                params={
+                    "domain": domain,
+                    "expand": ["dns_names", "issuer", "cert"],
+                    "include_subdomains": include_subdomains})

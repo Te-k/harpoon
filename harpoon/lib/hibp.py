@@ -1,5 +1,4 @@
 import requests
-import json
 
 
 class HibpError(Exception):
@@ -26,7 +25,9 @@ class HIBP(object):
         """
         Request an url
         """
-        r = requests.get('https://haveibeenpwned.com' + query, headers= {'User-Agent': self.ua, 'hibp-api-key': self.key})
+        r = requests.get(
+            "https://haveibeenpwned.com" + query,
+            headers={'User-Agent': self.ua, 'hibp-api-key': self.key})
         if r.status_code != 200:
             if r.status_code == 404:
                 raise HibpNotFound()
@@ -52,4 +53,3 @@ class HIBP(object):
 
     def check_pwd(self, pwd):
         return self._request('/api/v3/pwnedpassword/%s' % pwd).json()
-

@@ -24,12 +24,15 @@ class ArchiveIs(object):
         r = requests.get(cache_url)
         data = r.text
         t1 = data.find('\n\n\n\n\n\n')
-        t2 = data.find('</div></div><!--[if !IE]><!--><div style="position:absolute;right:1028px;top:-14px;bottom:-2px">')
-        #t3 = data.find('<input style="border:1px solid black;height:20px;margin:0 0 0 0;padding:0;width:500px" type="text" name="q"')
-        #t4 = data[t3+115:].find('"')
+        t2 = data.find(
+            '</div></div><!--[if !IE]><!--><div style="position:absolute;right:1028px;' +
+            'top:-14px;bottom:-2px">')
+        # t3 = data.find('<input style="border:1px solid black;height:20px;' +
+        #  'margin:0 0 0 0;padding:0;width:500px" type="text" name="q"')
+        # t4 = data[t3+115:].find('"')
         t5 = data.find('<meta property="article:modified_time" content="')
         cached_data = data[t1+6:t2]
-        #original_url = data[t3+115:t3+115+t4]
+        # original_url = data[t3+115:t3+115+t4]
         date = parse(data[t5+48:t5+68])
         return {
             'success': True,

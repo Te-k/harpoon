@@ -1,5 +1,6 @@
 import tweepy
 
+
 class Bird(object):
     def __init__(self, config):
         self.consumer_key = config['consumer_key']

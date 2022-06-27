@@ -1,6 +1,5 @@
 import requests
 import base64
-import json
 
 
 class XforceExchangeFailed(Exception):
@@ -99,7 +98,3 @@ class XforceExchange(object):
         Returns a JSON object containing information about the given host address.
         """
         return self._request('/whois/' + domain)
-
-
-
-

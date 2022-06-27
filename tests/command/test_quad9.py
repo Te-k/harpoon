@@ -1,5 +1,3 @@
-import pytest
-
 from harpoon.commands.quad9 import CommandQuad9
 from ..utils import launch_plugin
 

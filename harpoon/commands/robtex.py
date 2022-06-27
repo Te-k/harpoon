@@ -1,13 +1,9 @@
 #! /usr/bin/env python
-import sys
-import operator
 import json
 import pytz
-from dateutil.parser import parse
 from harpoon.commands.base import Command
 from harpoon.lib.robtex import Robtex, RobtexError
 from harpoon.lib.utils import json_serial, unbracket
-from datetime import date, datetime
 
 
 class CommandRobtex(Command):
@@ -143,5 +139,3 @@ class CommandRobtex(Command):
                             )
             except RobtexError:
                 print("Robtex query failed")
-
-

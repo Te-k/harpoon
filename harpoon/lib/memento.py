@@ -3,13 +3,14 @@ import re
 from urllib.parse import urljoin, quote
 from dateutil.parser import parse
 
+
 class MementoClient(object):
     """
     Implement Memento Protocol
     """
     def __init__(self, base_url='http://archive.is/'):
         self.base_url = base_url
-        self.linkre = re.compile('^<(?P<url>[^>]+)>; rel="(?P<type>[a-z ]+)"(; datetime="(?P<date>[^"]+)"|,|; type="application/link-format"; from="(?P<from>[^"]+)"; until="(?P<until>[^"]+)")')
+        self.linkre = re.compile(r'^<(?P<url>[^>]+)>; rel="(?P<type>[a-z ]+)"(; datetime="(?P<date>[^"]+)"|,|; type="application/link-format"; from="(?P<from>[^"]+)"; until="(?P<until>[^"]+)")')  # noqa: E501
 
     def _parselinks(self, data):
         """
@@ -56,7 +57,7 @@ class MementoClient(object):
                 if d['type'] in ['memento', 'first last memento']:
                     snapshots.append({
                         'url': original,
-                        'date':d['date'],
+                        'date': d['date'],
                         'archive': d['url']
                     })
             return snapshots

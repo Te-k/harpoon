@@ -1,5 +1,3 @@
-import pytest
-
 from harpoon.commands.crtsh import CommandCertsh
 from ..utils import launch_plugin
 
