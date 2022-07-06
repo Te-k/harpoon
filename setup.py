@@ -20,7 +20,7 @@ setup(
         "tweepy>=3.8.0",
         "passivetotal>=2.5.9",
         "beautifulsoup4==4.11.1",
-        "lxml==4.6.5",
+        "lxml==4.9.1",
         "censys==2.0.9",
         "shodan",
         "fullcontact.py",
