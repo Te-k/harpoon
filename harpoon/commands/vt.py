@@ -233,7 +233,7 @@ class CommandVirusTotal(Command):
                                 )
                         else:
                             print("%s;Not found;;;;;" % h)
-                        # Max 4 requests per minute
+                        #  Max 4 requests per minute
                         time.sleep(15)
                 elif args.subcommand == "domainlist":
                     with open(args.FILE, 'r') as infile:
