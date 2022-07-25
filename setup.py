@@ -45,7 +45,7 @@ setup(
         "pybinaryedge==0.5",
         "spyonweb==0.1",
         "pythreatgrid2==0.1.1",
-        "pycrtsh==0.3.9",
+        "pycrtsh==0.3.10",
         "pysafebrowsing==0.1.2",
         "pysecuritytrails==0.1.3",
         "phonenumbers==8.12.4",
