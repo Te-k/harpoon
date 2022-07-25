@@ -4,6 +4,7 @@ import json
 import hashlib
 import os
 import pytz
+import time
 from dateutil.parser import parse
 from harpoon.commands.base import Command
 from virus_total_apis import PublicApi, PrivateApi
@@ -222,17 +223,18 @@ class CommandVirusTotal(Command):
                             if response["results"]["response_code"] == 0:
                                 print("%s;Not found;;;;;" % h)
                             else:
-                                print("%s;Found;%i;%i;%s;%s;%s" % (
+                                print("{};Found;{};{};{};{}".format(
                                         h,
                                         response["results"]["positives"],
                                         response["results"]["total"],
-                                        response["results"]["first_seen"],
-                                        response["results"]["last_seen"],
+                                        response["results"]["scan_date"],
                                         response["results"]["permalink"]
                                     )
                                 )
                         else:
                             print("%s;Not found;;;;;" % h)
+                        # Max 4 requests per minute
+                        time.sleep(15)
                 elif args.subcommand == "domainlist":
                     with open(args.FILE, 'r') as infile:
                         data = infile.read().split()
