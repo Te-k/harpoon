@@ -21,7 +21,7 @@ setup(
         "passivetotal>=2.5.9",
         "beautifulsoup4==4.11.1",
         "lxml==4.9.1",
-        "censys==2.0.9",
+        "censys==2.1.7",
         "shodan",
         "fullcontact.py",
         "pyhunter",

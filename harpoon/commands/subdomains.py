@@ -4,7 +4,7 @@ from harpoon.commands.censyscmd import CommandCensys
 from harpoon.lib.utils import unbracket
 from passivetotal.libs.enrichment import EnrichmentRequest
 from virus_total_apis import PublicApi, PrivateApi
-from censys.common.base import CensysRateLimitExceededException
+from censys.common.exceptions import CensysRateLimitExceededException
 
 
 class CommandSubdomains(Command):
