@@ -1,4 +1,5 @@
 import json
+
 from harpoon.commands.base import Command
 from harpoon.lib.pithus import Pithus
 

@@ -1,4 +1,5 @@
 import json
+
 import requests
 
 
@@ -13,14 +14,14 @@ class PithusQuotaExceeded(PithusError):
 
 
 class Pithus(object):
-    def __init__(self, key=None, url=None):
-        self.url = url
-        self.api_key = key
+    def __init__(self, config=None):
+        self.url = config['url']
+        self.api_key = config['key']
         self.headers = {
             "User-Agent": "Harpoon (https://github.com/Te-k/harpoon)",
         }
         if self.api_key:
-            self.headers['Authorization'] = 'Token ' + self.api_key
+            self.headers["Authorization"] = "Token " + self.api_key
         else:
             PithusError(
                 "Missing token, visit beta.pithus.org/hunting to retrieve it")
@@ -188,12 +189,12 @@ class Pithus(object):
         params = {
             "file": data,
         }
-        res = requests.post(self.url + "upload",
-                            files=params, headers=self.headers)
+        url = self.url + "/upload"
+        res = requests.post(url, files=params, headers=self.headers)
 
         if res.status_code == 200:
             print("Upload successful!")
-            print(self.url + "report/" +
+            print(self.url + "/report/" +
                   res.json()['file_sha256'])
         else:
-            raise PithusError("Upload failed:", res.status_code)
+            print(res.status_code)
