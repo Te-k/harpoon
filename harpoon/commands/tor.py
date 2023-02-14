@@ -1,7 +1,8 @@
 #! /usr/bin/env python
 import requests
+
 from harpoon.commands.base import Command
-from harpoon.lib.utils import unbracket, is_ip
+from harpoon.lib.utils import is_ip, unbracket
 
 
 class CommandTor(Command):

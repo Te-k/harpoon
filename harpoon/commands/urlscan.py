@@ -1,10 +1,12 @@
 #! /usr/bin/env python
 import json
 import time
+
 import pytz
 from dateutil.parser import parse
+
 from harpoon.commands.base import Command
-from harpoon.lib.urlscan import UrlScan, UrlScanQuotaExceeded, UrlScanError
+from harpoon.lib.urlscan import UrlScan, UrlScanError, UrlScanQuotaExceeded
 
 
 class CommandUrlscan(Command):

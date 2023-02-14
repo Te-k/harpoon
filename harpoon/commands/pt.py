@@ -1,15 +1,17 @@
 #! /usr/bin/env python
-import sys
-import json
 import datetime
+import json
+import sys
+
 import pytz
 import requests
 from dateutil.parser import parse
-from harpoon.commands.base import Command
-from harpoon.lib.utils import bracket, unbracket
-from passivetotal.libs.whois import WhoisRequest
 from passivetotal.libs.dns import DnsRequest
 from passivetotal.libs.enrichment import EnrichmentRequest
+from passivetotal.libs.whois import WhoisRequest
+
+from harpoon.commands.base import Command
+from harpoon.lib.utils import bracket, unbracket
 
 
 class CommandPassiveTotal(Command):

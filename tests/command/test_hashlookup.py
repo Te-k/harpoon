@@ -1,4 +1,5 @@
 from harpoon.commands.hashlookup import CommandHashLookup
+
 from ..utils import launch_plugin
 
 

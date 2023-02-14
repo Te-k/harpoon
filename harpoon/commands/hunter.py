@@ -1,8 +1,10 @@
 #! /usr/bin/env python
-import sys
 import json
-from harpoon.commands.base import Command
+import sys
+
 from pyhunter import PyHunter
+
+from harpoon.commands.base import Command
 
 
 class CommandHunter(Command):

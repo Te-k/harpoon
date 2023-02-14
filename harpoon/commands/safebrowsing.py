@@ -1,8 +1,11 @@
 #! /usr/bin/env python
-import sys
 import json
+import sys
+
+from pysafebrowsing.api import (SafeBrowsing, SafeBrowsingInvalidApiKey,
+                                SafeBrowsingWeirdError)
+
 from harpoon.commands.base import Command
-from pysafebrowsing.api import SafeBrowsing, SafeBrowsingInvalidApiKey, SafeBrowsingWeirdError
 
 
 class CommandSafeBrowsing(Command):

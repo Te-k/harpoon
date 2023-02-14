@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 import json
+
 from harpoon.commands.base import Command
 from harpoon.lib.hibp import HIBP, HibpNotFound
 

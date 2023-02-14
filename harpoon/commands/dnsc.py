@@ -1,5 +1,6 @@
 #! /usr/bin/env python
-from dns import resolver, reversename, exception
+from dns import exception, resolver, reversename
+
 from harpoon.commands.base import Command
 from harpoon.lib.utils import is_ip, unbracket
 

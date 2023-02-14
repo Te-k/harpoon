@@ -1,10 +1,12 @@
 #! /usr/bin/env python
 import json
+
 import pytz
 from dateutil.parser import parse
+from pythreatgrid2 import ThreatGrid, ThreatGridError
+
 from harpoon.commands.base import Command
 from harpoon.lib.utils import typeguess, unbracket
-from pythreatgrid2 import ThreatGrid, ThreatGridError
 
 
 class CommandThreatGrid(Command):

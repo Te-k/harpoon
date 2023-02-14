@@ -3,6 +3,7 @@ import json
 import os
 import sys
 import time
+
 from harpoon.commands.base import Command
 from harpoon.lib.ipinfo import IPInfo, IPInfoError
 from harpoon.lib.utils import unbracket

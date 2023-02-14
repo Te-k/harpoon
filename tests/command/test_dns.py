@@ -1,5 +1,6 @@
 from harpoon.commands.dnsc import CommandDns
 from harpoon.commands.ip import CommandIp
+
 from ..utils import launch_plugin
 
 

@@ -1,4 +1,5 @@
 from harpoon.commands.safebrowsing import CommandSafeBrowsing
+
 from ..utils import launch_plugin
 
 

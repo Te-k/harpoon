@@ -1,7 +1,9 @@
 #! /usr/bin/env python
 import json
+
 from harpoon.commands.base import Command
-from harpoon.lib.malshare import MalShare, MalShareFailed, MalShareNotFound, MalShareSampleMissing
+from harpoon.lib.malshare import (MalShare, MalShareFailed, MalShareNotFound,
+                                  MalShareSampleMissing)
 from harpoon.lib.utils import json_serial
 
 

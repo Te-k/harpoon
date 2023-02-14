@@ -1,8 +1,10 @@
 #! /usr/bin/env python
 import json
-import requests
-from harpoon.commands.base import Command
+
 import phonenumbers
+import requests
+
+from harpoon.commands.base import Command
 
 
 class CommandNumVerify(Command):

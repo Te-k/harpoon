@@ -1,8 +1,10 @@
 #! /usr/bin/env python
 import os
-import requests
 from io import BytesIO
 from zipfile import ZipFile
+
+import requests
+
 from harpoon.commands.base import Command
 from harpoon.lib.utils import unbracket
 

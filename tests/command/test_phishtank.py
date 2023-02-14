@@ -1,4 +1,5 @@
 from harpoon.commands.phishtank import CommandPhishtank
+
 from ..utils import launch_plugin
 
 

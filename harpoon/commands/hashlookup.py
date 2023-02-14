@@ -1,8 +1,10 @@
 #! /usr/bin/env python
 import json
 from datetime import datetime
-from harpoon.commands.base import Command
+
 from pyhashlookup.api import Hashlookup, PyHashlookupError
+
+from harpoon.commands.base import Command
 
 
 class CommandHashLookup(Command):

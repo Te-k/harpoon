@@ -1,11 +1,13 @@
 #! /usr/bin/env python
-import json
 import datetime
+import json
+
 import pytz
 from dateutil.parser import parse
+from threatminer import ThreatMiner
+
 from harpoon.commands.base import Command
 from harpoon.lib.utils import unbracket
-from threatminer import ThreatMiner
 
 
 class CommandThreatMiner(Command):

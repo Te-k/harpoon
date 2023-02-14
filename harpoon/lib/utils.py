@@ -1,7 +1,8 @@
 import re
-from IPy import IP
-from urllib.parse import urlparse
 from datetime import date, datetime
+from urllib.parse import urlparse
+
+from IPy import IP
 
 
 def unbracket(domain):

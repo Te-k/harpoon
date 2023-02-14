@@ -1,10 +1,12 @@
 #! /usr/bin/env python
 import json
 import time
+
 import censys
-from censys.search import CensysHosts, CensysCerts
-from harpoon.lib.utils import unbracket
+from censys.search import CensysCerts, CensysHosts
+
 from harpoon.commands.base import Command
+from harpoon.lib.utils import unbracket
 
 
 class CommandCensys(Command):

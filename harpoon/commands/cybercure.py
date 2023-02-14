@@ -1,10 +1,11 @@
 #! /usr/bin/env python
-import sys
-import os
 import json
+import os
+import sys
+
 from harpoon.commands.base import Command
-from harpoon.lib.utils import unbracket
 from harpoon.lib.cybercure import CyberCure, CyberCureError
+from harpoon.lib.utils import unbracket
 
 
 class CommandCyberCure(Command):

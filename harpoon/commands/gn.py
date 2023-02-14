@@ -1,9 +1,11 @@
 #! /usr/bin/env python3
 import json
 import logging
+
 from dateutil.parser import parse
-from harpoon.commands.base import Command
 from greynoise import GreyNoise
+
+from harpoon.commands.base import Command
 
 
 class GreynoiseError(Exception):

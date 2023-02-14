@@ -1,10 +1,11 @@
 #! /usr/bin/env python
 import requests
+from pypermacc import Permacc, PermaccError
+
 from harpoon.commands.base import Command
-from harpoon.lib.utils import unbracket
 from harpoon.lib.archiveis import ArchiveIs
 from harpoon.lib.archiveorg import ArchiveOrg
-from pypermacc import Permacc, PermaccError
+from harpoon.lib.utils import unbracket
 
 
 class CommandSave(Command):

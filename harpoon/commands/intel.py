@@ -2,8 +2,9 @@
 import os
 import sys
 import traceback
+
 from harpoon.commands.base import Command
-from harpoon.lib.utils import unbracket, is_ip
+from harpoon.lib.utils import is_ip, unbracket
 
 
 class CommandIntel(Command):

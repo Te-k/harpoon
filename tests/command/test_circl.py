@@ -1,4 +1,5 @@
 from harpoon.commands.circl import CommandCircl
+
 from ..utils import launch_plugin
 
 

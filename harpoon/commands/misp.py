@@ -1,10 +1,12 @@
 #! /usr/bin/env python
-import pytz
-from urllib.parse import urljoin
-from dateutil.parser import parse
 from collections import Counter
-from harpoon.commands.base import Command
+from urllib.parse import urljoin
+
+import pytz
+from dateutil.parser import parse
 from pymisp import ExpandedPyMISP
+
+from harpoon.commands.base import Command
 
 
 class CommandMisp(Command):

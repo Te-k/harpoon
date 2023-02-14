@@ -1,4 +1,5 @@
 import requests
+
 from harpoon.lib.utils import is_sha256
 
 

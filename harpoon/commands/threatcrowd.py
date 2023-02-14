@@ -1,7 +1,9 @@
 #! /usr/bin/env python3
 import json
+
 import pytz
 from dateutil.parser import parse
+
 from harpoon.commands.base import Command
 from harpoon.lib.threatcrowd import ThreatCrowd, ThreatCrowdError
 from harpoon.lib.utils import unbracket

@@ -1,6 +1,7 @@
-import requests
 import archiveis
+import requests
 from dateutil.parser import parse
+
 from harpoon.lib.memento import MementoClient
 
 

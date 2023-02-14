@@ -1,6 +1,7 @@
+import json
+
 import requests
 from simplejson.errors import JSONDecodeError
-import json
 
 
 class DNSDBError(Exception):

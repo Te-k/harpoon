@@ -1,8 +1,10 @@
 #! /usr/bin/env python
-import sys
 import json
-import tweepy
+import sys
 import time
+
+import tweepy
+
 from harpoon.commands.base import Command
 from harpoon.lib.bird import Bird
 

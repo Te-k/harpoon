@@ -1,9 +1,11 @@
 #! /usr/bin/env python
-import pytz
 from datetime import datetime
+
+import pytz
+
 from harpoon.commands.base import Command
-from harpoon.lib.utils import unbracket, ts_to_str
 from harpoon.lib.dnsdb import DnsDB, DNSDBError
+from harpoon.lib.utils import ts_to_str, unbracket
 
 
 class DnsDbTotal(Command):

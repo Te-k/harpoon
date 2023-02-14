@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 import json
 from datetime import datetime
+
 from harpoon.commands.base import Command
 from harpoon.lib.koodous import Koodous, KoodousError, KoodousNotFound
 

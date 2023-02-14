@@ -8,12 +8,14 @@ import subprocess
 import sys
 import urllib
 import urllib.request
+
 import geoip2.database
 import pyasn
+from IPy import IP
+
 from harpoon.commands.asn import CommandAsn
 from harpoon.commands.base import Command
-from harpoon.lib.utils import unbracket, is_ip
-from IPy import IP
+from harpoon.lib.utils import is_ip, unbracket
 
 
 class CommandIp(Command):

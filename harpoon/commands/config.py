@@ -1,8 +1,9 @@
 #! /usr/bin/env python
-import sys
 import os
 import subprocess
+import sys
 from shutil import copyfile
+
 from harpoon.commands.base import Command
 
 

@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import json
+
 from harpoon.commands.base import Command
 from harpoon.lib.phishtank import Phishtank, PhishtankError
 

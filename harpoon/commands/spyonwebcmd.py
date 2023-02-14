@@ -1,7 +1,10 @@
 #! /usr/bin/env python
 import json
+
+from spyonweb import (SpyOnWeb, SpyOnWebError, SpyOnWebInvalidToken,
+                      SpyOnWebNotFound)
+
 from harpoon.commands.base import Command
-from spyonweb import SpyOnWeb, SpyOnWebNotFound, SpyOnWebInvalidToken, SpyOnWebError
 
 
 class CommandSpyonweb(Command):

@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 import os
 import subprocess
+
 from harpoon.commands.base import Command
 
 

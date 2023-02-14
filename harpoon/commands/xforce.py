@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 import json
+
 from harpoon.commands.base import Command
 from harpoon.lib.utils import unbracket
 from harpoon.lib.xforce import XforceExchange, XforceExchangeNotFound

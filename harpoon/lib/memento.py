@@ -1,6 +1,7 @@
-import requests
 import re
-from urllib.parse import urljoin, quote
+from urllib.parse import quote, urljoin
+
+import requests
 from dateutil.parser import parse
 
 

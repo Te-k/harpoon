@@ -1,11 +1,13 @@
 #! /usr/bin/env python
 import json
 import re
+
 import pytz
 from dateutil.parser import parse
+from zetalytics import Zetalytics
+
 from harpoon.commands.base import Command
 from harpoon.lib.utils import unbracket
-from zetalytics import Zetalytics
 
 
 class CommandZetalytics(Command):

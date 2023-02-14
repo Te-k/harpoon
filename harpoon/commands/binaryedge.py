@@ -1,10 +1,12 @@
 #! /usr/bin/env python
 import json
+
 import pytz
 from dateutil.parser import parse
-from harpoon.lib.utils import unbracket
-from harpoon.commands.base import Command
 from pybinaryedge import BinaryEdge, BinaryEdgeException, BinaryEdgeNotFound
+
+from harpoon.commands.base import Command
+from harpoon.lib.utils import unbracket
 
 
 class CommandBinaryEdge(Command):

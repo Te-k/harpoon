@@ -1,10 +1,11 @@
 #! /usr/bin/env python
+from censys.common.exceptions import CensysRateLimitExceededException
+from passivetotal.libs.enrichment import EnrichmentRequest
+from virus_total_apis import PrivateApi, PublicApi
+
 from harpoon.commands.base import Command
 from harpoon.commands.censyscmd import CommandCensys
 from harpoon.lib.utils import unbracket
-from passivetotal.libs.enrichment import EnrichmentRequest
-from virus_total_apis import PublicApi, PrivateApi
-from censys.common.exceptions import CensysRateLimitExceededException
 
 
 class CommandSubdomains(Command):

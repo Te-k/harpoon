@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 import json
+
 import pytz
+
 from harpoon.commands.base import Command
 from harpoon.lib.robtex import Robtex, RobtexError
 from harpoon.lib.utils import json_serial, unbracket

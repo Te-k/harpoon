@@ -1,4 +1,4 @@
-from harpoon.lib.utils import unbracket, bracket, same_url, typeguess
+from harpoon.lib.utils import bracket, same_url, typeguess, unbracket
 
 
 class TestUtils:

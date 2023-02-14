@@ -1,8 +1,10 @@
 #! /usr/bin/env python
-import os
 import json
+import os
+
 import pytz
 from dateutil.parser import parse
+
 from harpoon.commands.base import Command
 from harpoon.lib.hybrid import HybridAnalysis, HybridAnalysisFailed
 from harpoon.lib.utils import json_serial

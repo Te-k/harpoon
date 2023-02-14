@@ -1,7 +1,9 @@
 #! /usr/bin/env python
 import json
-from dateutil.parser import parse
+
 import shodan
+from dateutil.parser import parse
+
 from harpoon.commands.base import Command, Subcommand
 from harpoon.lib.utils import unbracket
 

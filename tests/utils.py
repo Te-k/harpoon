@@ -1,6 +1,7 @@
-import os
 import argparse
 import configparser
+import os
+
 import pytest
 
 

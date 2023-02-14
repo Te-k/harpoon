@@ -1,7 +1,9 @@
 #! /usr/bin/env python
-import sys
 import json
+import sys
+
 import requests
+
 from harpoon.commands.base import Command
 
 

@@ -1,6 +1,7 @@
 import urllib
-from dateutil.parser import parse
+
 import requests
+from dateutil.parser import parse
 
 
 class ArchiveOrg(object):

@@ -1,13 +1,15 @@
 #! /usr/bin/env python
-import sys
-import json
 import hashlib
+import json
 import os
-import pytz
+import sys
 import time
+
+import pytz
 from dateutil.parser import parse
+from virus_total_apis import PrivateApi, PublicApi
+
 from harpoon.commands.base import Command
-from virus_total_apis import PublicApi, PrivateApi
 from harpoon.lib.utils import unbracket
 
 

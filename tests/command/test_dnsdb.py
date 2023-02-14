@@ -1,4 +1,5 @@
 from harpoon.commands.dnsdbcmd import DnsDbTotal
+
 from ..utils import launch_plugin
 
 

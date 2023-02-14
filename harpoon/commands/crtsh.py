@@ -1,8 +1,10 @@
 #! /usr/bin/env python
 import json
+
+from pycrtsh import Crtsh, CrtshCertificateNotFound
+
 from harpoon.commands.base import Command, Subcommand
 from harpoon.lib.utils import unbracket
-from pycrtsh import Crtsh, CrtshCertificateNotFound
 
 
 class SubcommandCert(Subcommand):

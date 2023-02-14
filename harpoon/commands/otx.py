@@ -1,10 +1,12 @@
 #! /usr/bin/env python
 import json
+
 import pytz
 from dateutil.parser import parse
+from OTXv2 import IndicatorTypes, OTXv2
+
 from harpoon.commands.base import Command
 from harpoon.lib.utils import typeguess
-from OTXv2 import OTXv2, IndicatorTypes
 
 OTX_TYPES = {
     "domain": IndicatorTypes.DOMAIN,

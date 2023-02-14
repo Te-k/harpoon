@@ -1,9 +1,10 @@
 #! /usr/bin/env python
-import sys
 import json
+import sys
+
 from harpoon.commands.base import Command
-from harpoon.lib.utils import unbracket, json_serial
 from harpoon.lib.certspotter import CertSpotter, CertSpotterError
+from harpoon.lib.utils import json_serial, unbracket
 
 
 class CommandCertSpotter(Command):

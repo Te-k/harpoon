@@ -1,8 +1,10 @@
 #! /usr/bin/env python
 import sys
-from harpoon.commands.base import Command
+
 from github import Github, UnknownObjectException
 from github.GithubException import RateLimitExceededException
+
+from harpoon.commands.base import Command
 
 
 class CommandGithub(Command):

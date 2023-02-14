@@ -1,8 +1,9 @@
-import os
-import sys
 import argparse
 import configparser
+import os
 import signal
+import sys
+
 from harpoon.commands.base import Command
 
 

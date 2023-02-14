@@ -1,7 +1,9 @@
 #! /usr/bin/env python
 import json
-from harpoon.commands.base import Command
+
 from pypermacc import Permacc, PermaccError
+
+from harpoon.commands.base import Command
 
 
 class CommandPemacc(Command):

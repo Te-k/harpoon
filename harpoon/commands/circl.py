@@ -1,7 +1,9 @@
 #! /usr/bin/env python
 import json
+
 import pypdns
 import pytz
+
 from harpoon.commands.base import Command
 from harpoon.lib.utils import json_serial, unbracket
 
