@@ -20,7 +20,7 @@ class CommandPithus(Command):
     """
     name = "pithus"
     description = "Search Pithus database for submitted APKs"
-    config = {"Pithus": ["key"]}
+    config = {"Pithus": ["key", "url"]}
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(help='Subcommand')
@@ -63,7 +63,7 @@ class CommandPithus(Command):
         if 'subcommand' not in args:
             self.parser.print_help()
         else:
-            pithus = Pithus(self._config_data['Pithus']['key'])
+            pithus = Pithus(self._config_data['Pithus'])
 
             if args.subcommand == 'report':
                 res = pithus.report(args.SHA256)
@@ -80,9 +80,7 @@ class CommandPithus(Command):
             elif args.subcommand == 'upload':
                 with open(args.FILEPATH, "rb") as f:
                     data = f.read()
-                res = pithus.upload(data)
-                print("Upload successful!")
-                print("https://beta.pithus.org/report/{}".format(res['file_sha256']))
+                pithus.upload(data)
             elif args.subcommand == 'search':
                 res = pithus.search(args.QUERY)
                 if args.json:

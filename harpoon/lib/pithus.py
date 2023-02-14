@@ -4,7 +4,7 @@ import requests
 
 
 class PithusError(Exception):
-    def __init__(self, message):
+    def __init__(self, message, **kwargs):
         Exception.__init__(self, message)
         self.message = message
 
@@ -14,14 +14,14 @@ class PithusQuotaExceeded(PithusError):
 
 
 class Pithus(object):
-    def __init__(self, key=None):
-        self.url = "https://beta.pithus.org/api/"
-        self.api_key = key
+    def __init__(self, config=None):
+        self.url = config['url']
+        self.api_key = config['key']
         self.headers = {
             "User-Agent": "Harpoon (https://github.com/Te-k/harpoon)",
         }
         if self.api_key:
-            self.headers['Authorization'] = 'Token ' + self.api_key
+            self.headers["Authorization"] = "Token " + self.api_key
         else:
             PithusError(
                 "Missing token, visit beta.pithus.org/hunting to retrieve it")
@@ -55,7 +55,7 @@ class Pithus(object):
 
         if result_type == 'search':
             for res in result:
-                print("[*] Result for " + "https://beta.pithus.org/report/" +
+                print("[*] Result for " + self.url + "report/" +
                       res["source"]["sha256"])
                 print("App name      ", res["source"]["app_name"])
                 print("Handle        ", res["source"]["handle"])
@@ -189,13 +189,12 @@ class Pithus(object):
         params = {
             "file": data,
         }
-        res = requests.post(self.url + "upload",
-                            files=params, headers=self.headers)
+        url = self.url + "/upload"
+        res = requests.post(url, files=params, headers=self.headers)
 
         if res.status_code == 200:
-            return res.json()
             print("Upload successful!")
-            print("https://beta.pithus.org/report/" +
+            print(self.url + "/report/" +
                   res.json()['file_sha256'])
         else:
-            raise PithusError("Upload failed:", res.status_code)
+            print(res.status_code)
