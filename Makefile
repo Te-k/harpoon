@@ -1,6 +1,11 @@
 PWD = $(shell pwd)
 
 
+check:
+	pytest -q
+	flake8
+	ruff check .
+
 test:
 	pytest
 
