@@ -195,7 +195,7 @@ class CommandShodan(Command):
         self.add_subcommand(SubcommandSsh)
         self.add_subcommand(SubcommandQuota)
 
-    def intel_ip(self, query, data, conf):
+    def intel_ip(self, query, data):
         print("[+] Checking Shodan...")
         api = shodan.Shodan(self._config_data['Shodan']['key'])
         try:
