@@ -21,21 +21,19 @@ def launch_plugin(plugin, args, plugins={}):
     Launches a plugin with the given arguments
     """
     config = get_test_config()
-    pl = plugin(config)
 
     # Generate the command parser
     parser = argparse.ArgumentParser()
-    subparser = parser.add_subparsers(help='Commands')
-    sp = subparser.add_parser(
-        pl.name,
-    )
-    pl.add_arguments(sp)
-    sp.set_defaults(command=pl.name)
+    subparser = parser.add_subparsers(help="Plugins")
+    sp = subparser.add_parser(plugin.name, help=plugin.description)
+    pl = plugin(config, sp)
+    sp.set_defaults(plugin=pl.name)
 
     vargs = parser.parse_args(args)
 
     # Run
-    if pl.test_config():
-        pl.run(vargs, plugins)
+    if pl.is_config_valid():
+        pl.prerun(vargs, plugins)
+        pl.run()
     else:
         pytest.skip("Configuration not set")
