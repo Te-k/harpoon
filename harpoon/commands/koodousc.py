@@ -15,31 +15,36 @@ class CommandKoodous(Command):
     * get info on a hash : `harpoon koodous hash SHA256`
     * Download a file : `harpoon koodous dl SHA256`
     """
+
     name = "koodous"
     description = "Request Koodous API"
-    config = {'Koodous': ['token']}
+    config = {"Koodous": ["token"]}
 
     def add_arguments(self, parser):
-        subparsers = parser.add_subparsers(help='Subcommand')
-        parser_a = subparsers.add_parser('hash', help='Get info on a SHA256 hash')
-        parser_a.add_argument('HASH', help='SHA256 hash')
-        parser_a.set_defaults(subcommand='hash')
-        parser_b = subparsers.add_parser('search', help='Search in Koodous')
-        parser_b.add_argument('QUERY', help='Query')
-        parser_b.set_defaults(subcommand='search')
-        parser_c = subparsers.add_parser('dl', help='Download a sample from Koodous')
-        parser_c.add_argument('HASH', help='Sha256')
-        parser_c.set_defaults(subcommand='dl')
-        parser_d = subparsers.add_parser('analysis', help='Get a full analysis from Koodous')
-        parser_d.add_argument('HASH', help='Sha256')
-        parser_d.set_defaults(subcommand='analysis')
-        parser_e = subparsers.add_parser('account', help="Get information on the account")
-        parser_e.set_defaults(subcommand='account')
+        subparsers = parser.add_subparsers(help="Subcommand")
+        parser_a = subparsers.add_parser("hash", help="Get info on a SHA256 hash")
+        parser_a.add_argument("HASH", help="SHA256 hash")
+        parser_a.set_defaults(subcommand="hash")
+        parser_b = subparsers.add_parser("search", help="Search in Koodous")
+        parser_b.add_argument("QUERY", help="Query")
+        parser_b.set_defaults(subcommand="search")
+        parser_c = subparsers.add_parser("dl", help="Download a sample from Koodous")
+        parser_c.add_argument("HASH", help="Sha256")
+        parser_c.set_defaults(subcommand="dl")
+        parser_d = subparsers.add_parser(
+            "analysis", help="Get a full analysis from Koodous"
+        )
+        parser_d.add_argument("HASH", help="Sha256")
+        parser_d.set_defaults(subcommand="analysis")
+        parser_e = subparsers.add_parser(
+            "account", help="Get information on the account"
+        )
+        parser_e.set_defaults(subcommand="account")
         self.parser = parser
 
     def run(self, args, plugins):
-        kd = Koodous(token=self._config_data['Koodous']['token'])
-        if 'subcommand' in args:
+        kd = Koodous(token=self._config_data["Koodous"]["token"])
+        if "subcommand" in args:
             try:
                 if args.subcommand == "hash":
                     res = kd.sha256(args.HASH)
@@ -69,13 +74,15 @@ class CommandKoodous(Command):
         if type == "hash":
             if len(query) == 64:
                 try:
-                    kd = Koodous(token=self._config_data['Koodous']['token'])
+                    kd = Koodous(token=self._config_data["Koodous"]["token"])
                     res = kd.sha256(query)
                 except KoodousError:
                     pass
                 else:
-                    data["samples"].append({
-                        "source": "Koodous",
-                        "date": datetime.fromtimestamp(res["created_on"]),
-                        "url": "https://koodous.com/apks/" + query
-                    })
+                    data["samples"].append(
+                        {
+                            "source": "Koodous",
+                            "date": datetime.fromtimestamp(res["created_on"]),
+                            "url": "https://koodous.com/apks/" + query,
+                        }
+                    )

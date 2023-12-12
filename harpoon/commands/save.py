@@ -17,12 +17,13 @@ class CommandSave(Command):
     Commands:
     * Save an url: `harpoon save URL`
     """
+
     name = "save"
     description = "Save a webpage in cache platforms"
     config = {}
 
     def add_arguments(self, parser):
-        parser.add_argument('URL', help='URL to save')
+        parser.add_argument("URL", help="URL to save")
         self.parser = parser
 
     def run(self, args, plugins):
@@ -44,8 +45,8 @@ class CommandSave(Command):
             print("Web Archive: %s" % ao_url)
 
         # Perma.cc
-        if 'Permacc' in self._config_data and 'key' in self._config_data['Permacc']:
-            pc = Permacc(self._config_data['Permacc']['key'])
+        if "Permacc" in self._config_data and "key" in self._config_data["Permacc"]:
+            pc = Permacc(self._config_data["Permacc"]["key"])
             try:
                 saved = pc.archive_create(unbracket(args.URL))
             except PermaccError:

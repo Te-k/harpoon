@@ -30,9 +30,10 @@ class CommandThreatCrowd(Command):
     * Query for a antivirus: `harpoon threatcrowd --antivirus MALWARE` (ex: plugx)
     * Query for a filehash: `harpoon threatcrowd --file HASH`
     """
+
     name = "threatcrowd"
     description = "Request the ThreatCrowd API"
-    config = {'ThreatCrowd': []}
+    config = {"ThreatCrowd": []}
 
     def add_arguments(self, parser):
         parser.add_argument("--email", "-e", help="Query an email")
@@ -74,19 +75,23 @@ class CommandThreatCrowd(Command):
                 if "resolutions" in res:
                     for d in res["resolutions"]:
                         if d["ip_address"] not in ["-", ""]:
-                            data["passive_dns"].append({
-                                "ip": d["ip_address"],
-                                "first": parse(d["last_resolved"]).astimezone(pytz.utc),
-                                "last": parse(d["last_resolved"]).astimezone(pytz.utc),
-                                "source": "ThreatCrowd"
-                            })
+                            data["passive_dns"].append(
+                                {
+                                    "ip": d["ip_address"],
+                                    "first": parse(d["last_resolved"]).astimezone(
+                                        pytz.utc
+                                    ),
+                                    "last": parse(d["last_resolved"]).astimezone(
+                                        pytz.utc
+                                    ),
+                                    "source": "ThreatCrowd",
+                                }
+                            )
                 if "hashes" in res:
                     for h in res["hashes"]:
-                        data["malware"].append({
-                            "hash": h,
-                            "source": "ThreatCrowd",
-                            "date": ""
-                        })
+                        data["malware"].append(
+                            {"hash": h, "source": "ThreatCrowd", "date": ""}
+                        )
             except ThreatCrowdError as e:
                 print("Connection to ThreatCrowd failed: {}".format(e.message))
         elif type == "ip":
@@ -96,19 +101,19 @@ class CommandThreatCrowd(Command):
                 res = tc.ip(query)
                 if "resolutions" in res:
                     for d in res["resolutions"]:
-                        data["passive_dns"].append({
-                            "domain": d["domain"].strip(),
-                            "first": parse(d["last_resolved"]).astimezone(pytz.utc),
-                            "last": parse(d["last_resolved"]).astimezone(pytz.utc),
-                            "source": "ThreatCrowd"
-                        })
+                        data["passive_dns"].append(
+                            {
+                                "domain": d["domain"].strip(),
+                                "first": parse(d["last_resolved"]).astimezone(pytz.utc),
+                                "last": parse(d["last_resolved"]).astimezone(pytz.utc),
+                                "source": "ThreatCrowd",
+                            }
+                        )
                 if "hashes" in res:
                     for h in res["hashes"]:
-                        data["malware"].append({
-                            "hash": h,
-                            "source": "ThreatCrowd",
-                            "date": ""
-                        })
+                        data["malware"].append(
+                            {"hash": h, "source": "ThreatCrowd", "date": ""}
+                        )
             except ThreatCrowdError as e:
                 print("Connection to ThreatCrowd failed: {}".format(e.message))
         elif type == "hash":
@@ -121,17 +126,21 @@ class CommandThreatCrowd(Command):
                 res = tc.file(query)
                 if "domains" in res:
                     for d in res["domains"]:
-                        data["network"].append({
-                            "host": d,
-                            "source": "ThreatCrowd",
-                            "url": res["permalink"]
-                        })
+                        data["network"].append(
+                            {
+                                "host": d,
+                                "source": "ThreatCrowd",
+                                "url": res["permalink"],
+                            }
+                        )
                 if "ips" in res:
                     for d in res["ips"]:
-                        data["network"].append({
-                            "host": d,
-                            "source": "ThreatCrowd",
-                            "url": res["permalink"]
-                        })
+                        data["network"].append(
+                            {
+                                "host": d,
+                                "source": "ThreatCrowd",
+                                "url": res["permalink"],
+                            }
+                        )
             except ThreatCrowdError as e:
                 print("Connection to ThreatCrowd failed: {}".format(e.message))

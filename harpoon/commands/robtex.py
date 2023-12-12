@@ -20,33 +20,42 @@ class CommandRobtex(Command):
 
     The option `-j` shows raw JSON output.
     """
+
     name = "robtex"
     description = "Search in Robtex API (https://www.robtex.com/api/)"
-    config = {'RobTex': []}
+    config = {"RobTex": []}
 
     def add_arguments(self, parser):
-        subparsers = parser.add_subparsers(help='Subcommand')
-        parser_a = subparsers.add_parser('ip', help='Request info on an IP')
-        parser_a.add_argument('IP',  help='IP')
-        parser_a.add_argument('--json', '-j', action='store_true', help='Show raw JSON info')
-        parser_a.set_defaults(subcommand='ip')
-        parser_b = subparsers.add_parser('asn', help='Request info on an ASN')
-        parser_b.add_argument('ASN',  help='ASN', type=int)
-        parser_b.add_argument('--json', '-j', action='store_true', help='Show raw JSON info')
-        parser_b.set_defaults(subcommand='asn')
-        parser_c = subparsers.add_parser('domain', help='Request info on a domain')
-        parser_c.add_argument('DOMAIN',  help='DOMAIN')
-        parser_c.add_argument('--json', '-j', action='store_true', help='Show raw JSON info')
-        parser_c.set_defaults(subcommand='domain')
+        subparsers = parser.add_subparsers(help="Subcommand")
+        parser_a = subparsers.add_parser("ip", help="Request info on an IP")
+        parser_a.add_argument("IP", help="IP")
+        parser_a.add_argument(
+            "--json", "-j", action="store_true", help="Show raw JSON info"
+        )
+        parser_a.set_defaults(subcommand="ip")
+        parser_b = subparsers.add_parser("asn", help="Request info on an ASN")
+        parser_b.add_argument("ASN", help="ASN", type=int)
+        parser_b.add_argument(
+            "--json", "-j", action="store_true", help="Show raw JSON info"
+        )
+        parser_b.set_defaults(subcommand="asn")
+        parser_c = subparsers.add_parser("domain", help="Request info on a domain")
+        parser_c.add_argument("DOMAIN", help="DOMAIN")
+        parser_c.add_argument(
+            "--json", "-j", action="store_true", help="Show raw JSON info"
+        )
+        parser_c.set_defaults(subcommand="domain")
         self.parser = parser
 
     def run(self, args, plugins):
-        if 'subcommand' in args:
+        if "subcommand" in args:
             if args.subcommand == "ip":
                 r = Robtex()
                 res = r.get_ip_info(args.IP)
                 if args.json:
-                    print(json.dumps(res, sort_keys=True, indent=4, default=json_serial))
+                    print(
+                        json.dumps(res, sort_keys=True, indent=4, default=json_serial)
+                    )
                 else:
                     print("AS %i: %s" % (res["as"], res["asname"]))
                     print("Location: %s, %s" % (res["city"], res["country"]))
@@ -77,7 +86,9 @@ class CommandRobtex(Command):
                 r = Robtex()
                 res = r.get_asn_info(args.ASN)
                 if args.json:
-                    print(json.dumps(res, sort_keys=True, indent=4, default=json_serial))
+                    print(
+                        json.dumps(res, sort_keys=True, indent=4, default=json_serial)
+                    )
                 else:
                     print("ASN Routes:")
                     for n in res["nets"]:
@@ -86,18 +97,22 @@ class CommandRobtex(Command):
                 r = Robtex()
                 res = r.get_pdns_domain(unbracket(args.DOMAIN))
                 if args.json:
-                    print(json.dumps(res, sort_keys=True, indent=4, default=json_serial))
+                    print(
+                        json.dumps(res, sort_keys=True, indent=4, default=json_serial)
+                    )
                 else:
                     if len(res) == 0:
                         print("No information on this domain")
                     else:
                         print("Passive DNS info:")
                         for r in res:
-                            print("[+] %s\t%s\t(%s -> %s)" % (
+                            print(
+                                "[+] %s\t%s\t(%s -> %s)"
+                                % (
                                     r["rrtype"],
                                     r["rrdata"],
                                     r["time_first_o"].isoformat(),
-                                    r["time_last_o"].isoformat()
+                                    r["time_last_o"].isoformat(),
                                 )
                             )
             else:

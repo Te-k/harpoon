@@ -17,29 +17,36 @@ class CommandSafeBrowsing(Command):
     * Query an url: `harpoon safebrowsing url URL`
     * Query a list of domains or url from a file with CSV output: `harpoon safebrowsing file FILE -f csv`
     """
+
     name = "safebrowsing"
     description = "Check if the given domain is in Google safe Browsing list"
-    config = {'SafeBrowsing': ['key']}
+    config = {"SafeBrowsing": ["key"]}
 
     def add_arguments(self, parser):
         # FIXME: migrate to subcommands
-        subparsers = parser.add_subparsers(help='SubCommands')
-        parser_b = subparsers.add_parser('url', help='Query an URL')
-        parser_b.add_argument('URL', help='URL to be requested')
-        parser_b.add_argument('--json', '-j', action='store_true', help='Show raw json')
-        parser_b.set_defaults(subcommand='url')
-        parser_c = subparsers.add_parser('file', help='Check domains or urls from a file')
-        parser_c.add_argument('FILE', help='File path')
+        subparsers = parser.add_subparsers(help="SubCommands")
+        parser_b = subparsers.add_parser("url", help="Query an URL")
+        parser_b.add_argument("URL", help="URL to be requested")
+        parser_b.add_argument("--json", "-j", action="store_true", help="Show raw json")
+        parser_b.set_defaults(subcommand="url")
+        parser_c = subparsers.add_parser(
+            "file", help="Check domains or urls from a file"
+        )
+        parser_c.add_argument("FILE", help="File path")
         parser_c.add_argument(
-            '--format', '-f', help='Output format',
-            choices=["json", "csv", "txt"], default="txt")
-        parser_c.set_defaults(subcommand='file')
+            "--format",
+            "-f",
+            help="Output format",
+            choices=["json", "csv", "txt"],
+            default="txt",
+        )
+        parser_c.set_defaults(subcommand="file")
         self.parser = parser
 
     def run(self, args, plugins):
-        sb = SafeBrowsing(self._config_data['SafeBrowsing']['key'])
-        if 'subcommand' in args:
-            if args.subcommand == 'url':
+        sb = SafeBrowsing(self._config_data["SafeBrowsing"]["key"])
+        if "subcommand" in args:
+            if args.subcommand == "url":
                 try:
                     if args.URL.startswith("http"):
                         res = sb.lookup_url(args.URL)
@@ -61,11 +68,16 @@ class CommandSafeBrowsing(Command):
                             print("Threats: %s" % ", ".join(res["threats"]))
                         else:
                             print("Malicious: No")
-            elif args.subcommand == 'file':
-                with open(args.FILE, 'r') as f:
+            elif args.subcommand == "file":
+                with open(args.FILE, "r") as f:
                     data = f.read()
                 domains = [d.strip() for d in data.split()]
-                res = sb.lookup_urls(["http://" + d + "/" if not d.startswith("http") else d for d in domains])
+                res = sb.lookup_urls(
+                    [
+                        "http://" + d + "/" if not d.startswith("http") else d
+                        for d in domains
+                    ]
+                )
                 if args.format == "txt":
                     for domain in res:
                         if res[domain]["malicious"]:
@@ -78,11 +90,13 @@ class CommandSafeBrowsing(Command):
                     print("Url|Malicious|Threat|Platform")
                     for domain in res:
                         if res[domain]["malicious"]:
-                            print("%s|%s|%s|%s" % (
+                            print(
+                                "%s|%s|%s|%s"
+                                % (
                                     domain,
                                     "Yes",
                                     ",".join(res[domain]["threats"]),
-                                    ",".join(res[domain]["platforms"])
+                                    ",".join(res[domain]["platforms"]),
                                 )
                             )
                         else:

@@ -109,12 +109,14 @@ class CommandUrlhaus(Command):
             else:
                 if "urls" in res:
                     for r in res["urls"]:
-                        data["urls"].append({
-                            "date": parse(r["date_added"]).astimezone(pytz.utc),
-                            "url": r["url"],
-                            "ip": "",
-                            "source": "UrlHaus",
-                        })
+                        data["urls"].append(
+                            {
+                                "date": parse(r["date_added"]).astimezone(pytz.utc),
+                                "url": r["url"],
+                                "ip": "",
+                                "source": "UrlHaus",
+                            }
+                        )
         elif type == "hash":
             print("[+] Checking URLHaus...")
             try:
@@ -124,16 +126,22 @@ class CommandUrlhaus(Command):
                 print("Error with the query")
             else:
                 if "urlhaus_download" in res:
-                    data["samples"].append({
-                        "date": parse(res["firstseen"]),
-                        "source": "UrlHaus",
-                        "url": res["urlhaus_download"]
-                    })
+                    data["samples"].append(
+                        {
+                            "date": parse(res["firstseen"]),
+                            "source": "UrlHaus",
+                            "url": res["urlhaus_download"],
+                        }
+                    )
                 if "urls" in res:
                     for r in res["urls"]:
-                        data["urls"].append({
-                            "date": parse(r["firstseen"]) if "firstseen" in r else "",
-                            "url": r["url"],
-                            "link": r["urlhaus_reference"],
-                            "source": "UrlHaus"
-                        })
+                        data["urls"].append(
+                            {
+                                "date": parse(r["firstseen"])
+                                if "firstseen" in r
+                                else "",
+                                "url": r["url"],
+                                "link": r["urlhaus_reference"],
+                                "source": "UrlHaus",
+                            }
+                        )

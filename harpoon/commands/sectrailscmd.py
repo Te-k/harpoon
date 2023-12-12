@@ -22,68 +22,73 @@ class CommandSecurityTrails(Command):
     * Get subdomains of a domain : `harpoon subdomains DOMAIN`
 
     """
+
     name = "securitytrails"
     description = "Requests SecurityTrails database"
-    config = {'SecurityTrails': ['key']}
+    config = {"SecurityTrails": ["key"]}
 
     def add_arguments(self, parser):
-        subparsers = parser.add_subparsers(help='Subcommand')
-        parser_a = subparsers.add_parser('whois', help='Request whois info')
-        parser_a.add_argument('DOMAIN', help='DOMAIN to be queried')
-        parser_a.set_defaults(subcommand='whois')
-        parser_b = subparsers.add_parser('quota', help='Check quota')
-        parser_b.set_defaults(subcommand='quota')
-        parser_c = subparsers.add_parser('domain', help='Passive DNS info')
-        parser_c.add_argument('DOMAIN', help='DOMAIN to be queried')
-        parser_c.set_defaults(subcommand='domain')
-        parser_d = subparsers.add_parser('ip', help='Passive DNS info')
-        parser_d.add_argument('IP', help='Search for passive DNS on an IP')
-        parser_d.set_defaults(subcommand='ip')
-        parser_e = subparsers.add_parser('subdomains', help='Get subdomains')
-        parser_e.add_argument('DOMAIN', help='Domain to be queried')
-        parser_e.set_defaults(subcommand='subdomains')
+        subparsers = parser.add_subparsers(help="Subcommand")
+        parser_a = subparsers.add_parser("whois", help="Request whois info")
+        parser_a.add_argument("DOMAIN", help="DOMAIN to be queried")
+        parser_a.set_defaults(subcommand="whois")
+        parser_b = subparsers.add_parser("quota", help="Check quota")
+        parser_b.set_defaults(subcommand="quota")
+        parser_c = subparsers.add_parser("domain", help="Passive DNS info")
+        parser_c.add_argument("DOMAIN", help="DOMAIN to be queried")
+        parser_c.set_defaults(subcommand="domain")
+        parser_d = subparsers.add_parser("ip", help="Passive DNS info")
+        parser_d.add_argument("IP", help="Search for passive DNS on an IP")
+        parser_d.set_defaults(subcommand="ip")
+        parser_e = subparsers.add_parser("subdomains", help="Get subdomains")
+        parser_e.add_argument("DOMAIN", help="Domain to be queried")
+        parser_e.set_defaults(subcommand="subdomains")
         self.parser = parser
 
     def run(self, args, plugins):
-        client = SecurityTrails(self._config_data['SecurityTrails']['key'])
-        if 'subcommand' in args:
-            if args.subcommand == 'whois':
+        client = SecurityTrails(self._config_data["SecurityTrails"]["key"])
+        if "subcommand" in args:
+            if args.subcommand == "whois":
                 res = client.domain_history_whois(unbracket(args.DOMAIN))
-                print(json.dumps(res['result']['items'], sort_keys=False, indent=4))
+                print(json.dumps(res["result"]["items"], sort_keys=False, indent=4))
             elif args.subcommand == "quota":
                 res = client.usage()
-                print("Quota : {} / {}".format(
-                        res['current_monthly_usage'],
-                        res['allowed_monthly_usage']
+                print(
+                    "Quota : {} / {}".format(
+                        res["current_monthly_usage"], res["allowed_monthly_usage"]
                     )
                 )
             elif args.subcommand == "domain":
                 res = client.domain_history_dns(unbracket(args.DOMAIN))
-                print(json.dumps(res['records'], sort_keys=False, indent=4))
+                print(json.dumps(res["records"], sort_keys=False, indent=4))
             elif args.subcommand == "ip":
-                res = client.domain_search({"ipv4": unbracket(args.IP)}, include_ips=True)
-                print(json.dumps(res['records'], sort_keys=False, indent=4))
+                res = client.domain_search(
+                    {"ipv4": unbracket(args.IP)}, include_ips=True
+                )
+                print(json.dumps(res["records"], sort_keys=False, indent=4))
             elif args.subcommand == "subdomains":
                 res = client.domain_subdomains(unbracket(args.DOMAIN))
-                for d in res['subdomains']:
-                    print(d + '.' + args.DOMAIN)
+                for d in res["subdomains"]:
+                    print(d + "." + args.DOMAIN)
             else:
                 self.parser.print_help()
         else:
             self.parser.print_help()
 
     def intel_domain(self, query, data):
-        client = SecurityTrails(self._config_data['SecurityTrails']['key'])
+        client = SecurityTrails(self._config_data["SecurityTrails"]["key"])
         print("[+] Checking SecurityTrails...")
         try:
             res = client.domain_history_dns(query)
             for r in res["records"]:
                 for ip in r["values"]:
-                    data["passive_dns"].append({
-                        "ip": ip["ip"],
-                        "source": "SecurityTrails",
-                        "first": parse(r['first_seen']).astimezone(pytz.utc),
-                        "last": parse(r['last_seen']).astimezone(pytz.utc)
-                    })
+                    data["passive_dns"].append(
+                        {
+                            "ip": ip["ip"],
+                            "source": "SecurityTrails",
+                            "first": parse(r["first_seen"]).astimezone(pytz.utc),
+                            "last": parse(r["last_seen"]).astimezone(pytz.utc),
+                        }
+                    )
         except SecurityTrailsError:
             print("Security Trail request failed")

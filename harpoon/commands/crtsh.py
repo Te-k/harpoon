@@ -12,7 +12,7 @@ class SubcommandCert(Subcommand):
     cmd = "cert"
 
     def add_arguments(self, parser):
-        parser = parser.add_argument('ID', help='ID, sha1 or sha256 of a certificate')
+        parser = parser.add_argument("ID", help="ID, sha1 or sha256 of a certificate")
 
     def run(self, args):
         crt = Crtsh()
@@ -39,12 +39,13 @@ class SubcommandDomain(Subcommand):
     cmd = "domain"
 
     def add_arguments(self, parser):
-        parser.add_argument('DOMAIN', help='Domain')
+        parser.add_argument("DOMAIN", help="Domain")
         parser.add_argument(
-            '--format', '-f',
+            "--format",
+            "-f",
             choices=["csv", "json", "txt"],
             default="txt",
-            help='Output format (default is txt)'
+            help="Output format (default is txt)",
         )
 
     def run(self, args):
@@ -55,11 +56,13 @@ class SubcommandDomain(Subcommand):
         if args.format == "txt":
             print("Certificates")
             for c in self.data:
-                print("%s\t%s\t%s\t%s" % (
-                    c["name"],
-                    c["not_before"].isoformat(),
-                    c["not_after"].isoformat(),
-                    c["id"]
+                print(
+                    "%s\t%s\t%s\t%s"
+                    % (
+                        c["name"],
+                        c["not_before"].isoformat(),
+                        c["not_after"].isoformat(),
+                        c["id"],
                     )
                 )
         elif args.format == "json":
@@ -67,12 +70,18 @@ class SubcommandDomain(Subcommand):
         else:
             print("id|name|Issuer|Not Before|Not After")
             for c in self.data:
-                print("{}|{}|{}|{}|{}".format(
-                    c["id"],
-                    c["name"],
-                    ", ".join(["{}={}".format(a, b) for (a, b) in c["ca"]["parsed_name"].items()]),
-                    c["not_before"],
-                    c["not_after"],
+                print(
+                    "{}|{}|{}|{}|{}".format(
+                        c["id"],
+                        c["name"],
+                        ", ".join(
+                            [
+                                "{}={}".format(a, b)
+                                for (a, b) in c["ca"]["parsed_name"].items()
+                            ]
+                        ),
+                        c["not_before"],
+                        c["not_after"],
                     )
                 )
 
@@ -82,19 +91,20 @@ class SubcommandList(Subcommand):
     cmd = "list"
 
     def add_arguments(self, parser):
-        parser.add_argument('FILE', help='File containing a list of domains')
+        parser.add_argument("FILE", help="File containing a list of domains")
         parser.add_argument(
-            '--format', '-f',
+            "--format",
+            "-f",
             choices=["csv", "json", "txt"],
             default="txt",
-            help='Output format (default is txt)'
+            help="Output format (default is txt)",
         )
 
     def run(self, args):
         crt = Crtsh()
 
         # Get the list of domains
-        with open(args.FILE, 'r') as f:
+        with open(args.FILE, "r") as f:
             domains = [a.strip() for a in f.read().split()]
 
         # Get certificates
@@ -106,11 +116,13 @@ class SubcommandList(Subcommand):
         if args.format == "txt":
             print("Certificates")
             for c in self.data:
-                print("%s\t%s\t%s\t%s" % (
-                    c["name"],
-                    c["not_before"].isoformat(),
-                    c["not_after"].isoformat(),
-                    c["id"]
+                print(
+                    "%s\t%s\t%s\t%s"
+                    % (
+                        c["name"],
+                        c["not_before"].isoformat(),
+                        c["not_after"].isoformat(),
+                        c["id"],
                     )
                 )
         elif args.format == "json":
@@ -118,12 +130,18 @@ class SubcommandList(Subcommand):
         else:
             print("id|name|Issuer|Not Before|Not After")
             for c in self.data:
-                print("{}|{}|{}|{}|{}".format(
-                    c["id"],
-                    c["name"],
-                    ", ".join(["{}={}".format(a, b) for (a, b) in c["ca"]["parsed_name"].items()]),
-                    c["not_before"],
-                    c["not_after"],
+                print(
+                    "{}|{}|{}|{}|{}".format(
+                        c["id"],
+                        c["name"],
+                        ", ".join(
+                            [
+                                "{}={}".format(a, b)
+                                for (a, b) in c["ca"]["parsed_name"].items()
+                            ]
+                        ),
+                        c["not_before"],
+                        c["not_after"],
                     )
                 )
 
@@ -133,7 +151,7 @@ class SubcommandSubdomains(Subcommand):
     cmd = "subdomains"
 
     def add_arguments(self, parser):
-        parser.add_argument('DOMAIN', help='Domain')
+        parser.add_argument("DOMAIN", help="Domain")
 
     def run(self, args):
         crt = Crtsh()
@@ -163,9 +181,10 @@ class CommandCertsh(Command):
     * Search for subdomains of a domain : `harpoon crtsh subdomains DOMAIN`
     * Show details of a certificate : `harpoon crtsh cert SHA1`
     """
+
     name = "crtsh"
     description = "Search in https://crt.sh/ (Certificate Transparency database)"
-    config = {'Crtsh': []}
+    config = {"Crtsh": []}
 
     def __init__(self, config):
         super().__init__(config=config)

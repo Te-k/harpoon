@@ -17,66 +17,73 @@ class CommandGithub(Command):
     * Search for information in Github code: `harpoon github search randhome.io`
     * Search for information in Github repo: `harpoon github search -t repo harpoon`
     """
+
     name = "github"
     description = "Request Github information through the API"
-    config = {'Github': ['token']}
+    config = {"Github": ["token"]}
 
     def add_arguments(self, parser):
-        subparsers = parser.add_subparsers(help='SubCommands')
-        parser_a = subparsers.add_parser('search', help='Search in github')
+        subparsers = parser.add_subparsers(help="SubCommands")
+        parser_a = subparsers.add_parser("search", help="Search in github")
         parser_a.add_argument(
-            '--type', '-t',
-            choices=['repo', 'code', 'commit', 'issues', 'wikis', 'users'],
-            default='code',
-            help='Type of data to search')
+            "--type",
+            "-t",
+            choices=["repo", "code", "commit", "issues", "wikis", "users"],
+            default="code",
+            help="Type of data to search",
+        )
         parser_a.add_argument(
-            '--limit', '-l',
-            default='10', type=int,
-            help='Result limit')
-        parser_a.add_argument('SEARCH')
-        parser_a.set_defaults(subcommand='search')
-        parser_b = subparsers.add_parser('repo', help='Information on a github repository')
-        parser_b.add_argument('REPOSITORY')
-        parser_b.add_argument('-o', '--only-emails', action="store_true", help="Only list emails of committers")
-        parser_b.set_defaults(subcommand='repo')
+            "--limit", "-l", default="10", type=int, help="Result limit"
+        )
+        parser_a.add_argument("SEARCH")
+        parser_a.set_defaults(subcommand="search")
+        parser_b = subparsers.add_parser(
+            "repo", help="Information on a github repository"
+        )
+        parser_b.add_argument("REPOSITORY")
+        parser_b.add_argument(
+            "-o",
+            "--only-emails",
+            action="store_true",
+            help="Only list emails of committers",
+        )
+        parser_b.set_defaults(subcommand="repo")
 
         self.parser = parser
 
     def run(self, args, plugins):
-        g = Github(self._config_data['Github']['token'])
-        if 'subcommand' in args:
-            if args.subcommand == 'search':
-                if args.type == 'code':
+        g = Github(self._config_data["Github"]["token"])
+        if "subcommand" in args:
+            if args.subcommand == "search":
+                if args.type == "code":
                     res = g.search_code(args.SEARCH)
                     nb = 0
                     for i in res:
-                        print('[+] %s' % i.html_url)
+                        print("[+] %s" % i.html_url)
                         print(i.decoded_content[:300])
-                        print('')
+                        print("")
                         nb += 1
                         if nb > args.limit:
                             sys.exit(0)
-                elif args.type == 'repo':
+                elif args.type == "repo":
                     res = g.search_repositories(args.SEARCH)
                     nb = 0
                     for i in res:
-                        print('[+] %s by %s' % (i.name, i.owner.name))
-                        print('\t%s' % i.description)
-                        print('\t%s' % i.html_url)
-                        print('\t%s' % i.language)
-                        print('\t[Watch: %i][Stars: %i][Forks: %i]' % (
-                                i.watchers,
-                                i.stargazers_count,
-                                i.forks_count
-                            )
+                        print("[+] %s by %s" % (i.name, i.owner.name))
+                        print("\t%s" % i.description)
+                        print("\t%s" % i.html_url)
+                        print("\t%s" % i.language)
+                        print(
+                            "\t[Watch: %i][Stars: %i][Forks: %i]"
+                            % (i.watchers, i.stargazers_count, i.forks_count)
                         )
-                        print('')
+                        print("")
                         nb += 1
                         if nb > args.limit:
                             sys.exit(0)
-                elif args.type == 'commit':
+                elif args.type == "commit":
                     # Not yet implemented by PyGithub
-                    raise Exception('Not yet implemented')
+                    raise Exception("Not yet implemented")
             elif args.subcommand == "repo":
                 # clean input
                 if args.REPOSITORY.startswith("https://github.com"):
@@ -105,11 +112,9 @@ class CommandGithub(Command):
                     print("-Name: %s" % repo.full_name)
                     print("-Owner: %s %s" % (repo.owner.login, repo.owner.email))
                     print("-Language: %s" % repo.language)
-                    print("-%i Watchers / %i Stars / %i Forks" % (
-                            repo.watchers,
-                            repo.stargazers_count,
-                            repo.forks_count
-                        )
+                    print(
+                        "-%i Watchers / %i Stars / %i Forks"
+                        % (repo.watchers, repo.stargazers_count, repo.forks_count)
                     )
                     # FIXME: really slow
                     committers = {}
@@ -134,7 +139,7 @@ class CommandGithub(Command):
         Check for emails in Github pages
         """
         print("[+] Checking Github...")
-        g = Github(self._config_data['Github']['token'])
+        g = Github(self._config_data["Github"]["token"])
 
         try:
             res = g.search_code(query)
@@ -143,7 +148,4 @@ class CommandGithub(Command):
             return
 
         for i in res:
-            data["mentions"].append({
-                "url": i.html_url,
-                "source": "Github"
-            })
+            data["mentions"].append({"url": i.html_url, "source": "Github"})

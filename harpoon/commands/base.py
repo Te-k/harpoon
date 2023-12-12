@@ -2,6 +2,7 @@ class Subcommand(object):
     """
     Subcommand object that can be used by a Command
     """
+
     description = ""
     cmd = ""
 
@@ -37,7 +38,7 @@ class Command(object):
         if len(list(self.config.keys())) == 0:
             return False
         pname = list(self.config.keys())[0]
-        return (len(self.config[pname]) > 0)
+        return len(self.config[pname]) > 0
 
     def update(self):
         pass
@@ -68,7 +69,7 @@ class Command(object):
                     if d not in self._config_data[pname]:
                         return False
                     else:
-                        if self._config_data[pname][d] == '':
+                        if self._config_data[pname][d] == "":
                             return False
             return True
 
@@ -88,7 +89,7 @@ class Command(object):
                 if "intel" not in self._config_data[pname]:
                     return True
                 else:
-                    return (self._config_data[pname]["intel"].lower() != "false")
+                    return self._config_data[pname]["intel"].lower() != "false"
 
     def intel(self, type, query, data):
         """
@@ -133,7 +134,7 @@ class Command(object):
 
     def add_arguments(self, parser):
         if len(self._subcommands) > 0:
-            subparser = parser.add_subparsers(help='Subcommand')
+            subparser = parser.add_subparsers(help="Subcommand")
             for sc in self._subcommands.values():
                 p = subparser.add_parser(sc.cmd, help=sc.description)
                 sc.add_arguments(p)
@@ -145,7 +146,7 @@ class Command(object):
         Run the command
         """
         if len(self._subcommands) > 0:
-            if 'subcommand' in args:
+            if "subcommand" in args:
                 if args.subcommand in self._subcommands.keys():
                     self._subcommands[args.subcommand].run(args)
                     self._subcommands[args.subcommand].display(args)

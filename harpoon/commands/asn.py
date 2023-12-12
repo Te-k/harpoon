@@ -27,32 +27,41 @@ class CommandAsn(Command):
     Created: 2011-06-15T06:16:44Z
     ```
     """
+
     name = "asn"
     description = "Gather information on an ASN"
     config = None
-    asn_name = os.path.join(os.path.expanduser('~'), '.config/harpoon/asnnames.csv')
-    asncidr = os.path.join(os.path.expanduser('~'), '.config/harpoon/asncidr.dat')
-    asncaida = os.path.join(os.path.realpath(__file__)[:-16], 'data/caida.txt')
+    asn_name = os.path.join(os.path.expanduser("~"), ".config/harpoon/asnnames.csv")
+    asncidr = os.path.join(os.path.expanduser("~"), ".config/harpoon/asncidr.dat")
+    asncaida = os.path.join(os.path.realpath(__file__)[:-16], "data/caida.txt")
 
     def add_arguments(self, parser):
-        subparsers = parser.add_subparsers(help='Subcommand')
-        parser_a = subparsers.add_parser('info', help='Information on an ASn number')
-        parser_a.add_argument('ASN', help='ASN Number')
-        parser_a.set_defaults(subcommand='info')
-        parser_b = subparsers.add_parser('db', help='ASN information from peeringdb (https://peeringdb.com/)')
-        parser_b.add_argument('ASN', help='ASN Number')
-        parser_b.add_argument('--json', '-j', help='Show raw json', action='store_true')
-        parser_b.set_defaults(subcommand='db')
-        parser_c = subparsers.add_parser('subnet', help='List of subnets for an ASN number')
-        parser_c.add_argument('ASN', help='ASN Number')
-        parser_c.set_defaults(subcommand='subnet')
+        subparsers = parser.add_subparsers(help="Subcommand")
+        parser_a = subparsers.add_parser("info", help="Information on an ASn number")
+        parser_a.add_argument("ASN", help="ASN Number")
+        parser_a.set_defaults(subcommand="info")
+        parser_b = subparsers.add_parser(
+            "db", help="ASN information from peeringdb (https://peeringdb.com/)"
+        )
+        parser_b.add_argument("ASN", help="ASN Number")
+        parser_b.add_argument("--json", "-j", help="Show raw json", action="store_true")
+        parser_b.set_defaults(subcommand="db")
+        parser_c = subparsers.add_parser(
+            "subnet", help="List of subnets for an ASN number"
+        )
+        parser_c.add_argument("ASN", help="ASN Number")
+        parser_c.set_defaults(subcommand="subnet")
         self.parser = parser
 
     def check_update(self):
         """
         Check if files obtained through updates are on the system
         """
-        if not os.path.isfile(self.asn_name) or not os.path.isfile(self.asncidr) or not os.path.isfile(self.asncaida):
+        if (
+            not os.path.isfile(self.asn_name)
+            or not os.path.isfile(self.asncidr)
+            or not os.path.isfile(self.asncaida)
+        ):
             print("ASN files not downloaded on the system")
             print("Please run harpoon update before using harpoon")
             sys.exit(1)
@@ -63,17 +72,17 @@ class CommandAsn(Command):
         input: asn : integer
         output {'source': SOURCE, 'type': TYPE}
         """
-        with open(self.asncaida, 'r') as f:
+        with open(self.asncaida, "r") as f:
             line = f.readline()
-            while line != '':
-                if line.startswith('#'):
+            while line != "":
+                if line.startswith("#"):
                     line = f.readline()
                     continue
                 data = line.split("|")
                 if int(data[0]) == asn:
-                    return {'source': data[1], 'type': data[2].strip()}
+                    return {"source": data[1], "type": data[2].strip()}
                 line = f.readline()
-        return {'source': '', 'type': 'Unknown'}
+        return {"source": "", "type": "Unknown"}
 
     def asnname(self, asn):
         """
@@ -83,19 +92,19 @@ class CommandAsn(Command):
         Returns an empty string if not found
         """
         # Search for name
-        f = open(self.asn_name, 'r')
+        f = open(self.asn_name, "r")
         line = f.readline()
-        while line != '':
-            s = line.split('|')
+        while line != "":
+            s = line.split("|")
             if s[0] == str(asn):
                 f.close()
                 return s[1].strip()
             line = f.readline()
         f.close()
-        return ''
+        return ""
 
     def run(self, args, plugins):
-        if hasattr(args, 'ASN'):
+        if hasattr(args, "ASN"):
             if args.ASN.lower().startswith("asn"):
                 asn = int(args.ASN[3:])
             elif args.ASN.lower().startswith("as"):
@@ -105,8 +114,8 @@ class CommandAsn(Command):
         else:
             self.parser.print_help()
             sys.exit(0)
-        if 'subcommand' in args:
-            if args.subcommand == 'info':
+        if "subcommand" in args:
+            if args.subcommand == "info":
                 self.check_update()
                 info = self.asnname(asn)
                 if len(info):
@@ -120,20 +129,20 @@ class CommandAsn(Command):
                 for s in subnets:
                     print(s)
             elif args.subcommand == "db":
-                r = requests.get('https://peeringdb.com/api/net?asn=%i' % asn)
+                r = requests.get("https://peeringdb.com/api/net?asn=%i" % asn)
                 if r.status_code == 200:
                     if args.json:
                         print(json.dumps(r.json(), sort_keys=False, indent=4))
                     else:
-                        data = r.json()['data'][0]
-                        print('Name: %s' % data['name'])
-                        if data['aka'] != '':
-                            print("aka: %s" % data['aka'])
-                        if data['notes'] != '':
-                            print("Notes: %s" % data['notes'])
-                        if data['website'] != '':
-                            print("Website: %s" % data['website'])
-                        print("Created: %s" % data['created'])
+                        data = r.json()["data"][0]
+                        print("Name: %s" % data["name"])
+                        if data["aka"] != "":
+                            print("aka: %s" % data["aka"])
+                        if data["notes"] != "":
+                            print("Notes: %s" % data["notes"])
+                        if data["website"] != "":
+                            print("Website: %s" % data["website"])
+                        print("Created: %s" % data["created"])
                 else:
                     print("ASN not found")
             else:

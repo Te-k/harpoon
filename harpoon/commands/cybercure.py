@@ -26,37 +26,45 @@ class CommandCyberCure(Command):
     ```
 
     """
+
     name = "cybercure"
     description = "Search cybercure.ai intelligence database for specific indicators."
 
     def add_arguments(self, parser):
-        subparsers = parser.add_subparsers(help='Subcommand')
-        parser_a = subparsers.add_parser('ip', help="Returns a response whether an\
-                indicator exists in cybercure.ai database")
-        parser_a.add_argument('IP', help='IP address')
-        parser_a.set_defaults(subcommand='ip')
-        parser_b = subparsers.add_parser('file', help='Information on a list of IPs')
-        parser_b.add_argument('FILE', help='Filename')
-        parser_b.set_defaults(subcommand='file')
+        subparsers = parser.add_subparsers(help="Subcommand")
+        parser_a = subparsers.add_parser(
+            "ip",
+            help="Returns a response whether an\
+                indicator exists in cybercure.ai database",
+        )
+        parser_a.add_argument("IP", help="IP address")
+        parser_a.set_defaults(subcommand="ip")
+        parser_b = subparsers.add_parser("file", help="Information on a list of IPs")
+        parser_b.add_argument("FILE", help="Filename")
+        parser_b.set_defaults(subcommand="file")
         self.parser = parser
 
     def run(self, args, plugins):
-        cybercure = CyberCure(token='reserved_for_future')
-        if 'subcommand' in args:
-            if args.subcommand == 'ip':
+        cybercure = CyberCure(token="reserved_for_future")
+        if "subcommand" in args:
+            if args.subcommand == "ip":
                 try:
                     infos = cybercure.get_infos(unbracket(args.IP))
                 except CyberCureError:
                     print("Invalid request")
                 else:
-                    print(json.dumps(infos,  sort_keys=True, indent=4, separators=(',', ': ')))
-            elif args.subcommand == 'file':
+                    print(
+                        json.dumps(
+                            infos, sort_keys=True, indent=4, separators=(",", ": ")
+                        )
+                    )
+            elif args.subcommand == "file":
                 if os.path.isfile(args.FILE):
                     with open(args.FILE) as f:
                         data = f.read().split("\n")
                     print("IP;Exists;Details")
                     for d in data:
-                        if d.strip() == '':
+                        if d.strip() == "":
                             continue
                         ip = unbracket(d.strip())
                         try:
@@ -64,10 +72,11 @@ class CommandCyberCure(Command):
                         except CyberCureError:
                             print("%s;;" % ip)
                         else:
-                            print("{};{};{}".format(
+                            print(
+                                "{};{};{}".format(
                                     ip,
-                                    infos['exists'],
-                                    infos['visual'] if 'visual' in infos else ''
+                                    infos["exists"],
+                                    infos["visual"] if "visual" in infos else "",
                                 )
                             )
                 else:

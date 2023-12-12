@@ -181,9 +181,7 @@ class CommandIp(Command):
             sys.exit(1)
         # FIXME: move code here in a library
         ipinfo = self.ipinfo(ip)
-        print(
-            "MaxMind: Located in %s, %s" % (ipinfo["city"], ipinfo["country"])
-        )
+        print("MaxMind: Located in %s, %s" % (ipinfo["city"], ipinfo["country"]))
         if ipinfo["asn"] == 0:
             print("MaxMind: IP not found in the ASN database")
         else:

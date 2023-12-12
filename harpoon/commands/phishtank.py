@@ -17,12 +17,13 @@ class CommandPhishtank(Command):
     $ harpoon phishtank URL
     ```
     """
+
     name = "phishtank"
     description = "Gather information on a URL"
     config = {"Phishtank": []}
 
     def add_arguments(self, parser):
-        parser.add_argument('URL', help='Phish URL')
+        parser.add_argument("URL", help="Phish URL")
         self.parser = parser
 
     def run(self, args, plugins):

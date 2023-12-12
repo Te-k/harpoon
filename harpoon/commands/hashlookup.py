@@ -16,26 +16,27 @@ class CommandHashLookup(Command):
 
     * `harpoon hashlookup hash 8ED4B4ED952526D89899E723F3488DE4`
     """
+
     name = "hashlookup"
     description = "Request CIRCL Hash Lookup db"
     config = {"HashLookup": []}
 
     def add_arguments(self, parser):
-        subparsers = parser.add_subparsers(help='Subcommand')
-        parser_a = subparsers.add_parser('hash', help='Request info on a hash')
-        parser_a.add_argument('HASH', help='Hash')
-        parser_a.set_defaults(subcommand='hash')
-        parser_b = subparsers.add_parser('info', help='Info about the db')
-        parser_b.set_defaults(subcommand='info')
+        subparsers = parser.add_subparsers(help="Subcommand")
+        parser_a = subparsers.add_parser("hash", help="Request info on a hash")
+        parser_a.add_argument("HASH", help="Hash")
+        parser_a.set_defaults(subcommand="hash")
+        parser_b = subparsers.add_parser("info", help="Info about the db")
+        parser_b.set_defaults(subcommand="info")
         # TODO: bulk query
         self.parser = parser
 
     def run(self, args, plugins):
         hl = Hashlookup()
-        if 'subcommand' in args:
+        if "subcommand" in args:
             if args.subcommand == "info":
                 print(json.dumps(hl.info(), indent=4))
-            elif args.subcommand == 'hash':
+            elif args.subcommand == "hash":
                 try:
                     res = hl.lookup(args.HASH)
                 except PyHashlookupError:
@@ -57,9 +58,11 @@ class CommandHashLookup(Command):
         else:
             if "FileName" in res:
                 # File exist
-                data["reports"].append({
-                    "title": "Hash found in CIRCL db: {}".format(res["FileName"]),
-                    "source": res["source"],
-                    "date": datetime.fromtimestamp(float(res["insert-timestamp"])),
-                    "url": ""
-                })
+                data["reports"].append(
+                    {
+                        "title": "Hash found in CIRCL db: {}".format(res["FileName"]),
+                        "source": res["source"],
+                        "date": datetime.fromtimestamp(float(res["insert-timestamp"])),
+                        "url": "",
+                    }
+                )
