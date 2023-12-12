@@ -74,6 +74,7 @@ After configuration the following plugins are available within the `harpoon` com
     intel               Gather information on a domain
     ip                  Gather information on an IP address
     ipinfo              Request ipinfo.io information
+    ip2locationio       Request IP2Location.io information
     koodous             Request Koodous API
     malshare            Requests MalShare database
     misp                Get information from a MISP server through the API
@@ -125,6 +126,7 @@ You can get information on each command with `harpoon help COMMAND`
 * [Hybrid Analysis](https://www.hybrid-analysis.com/apikeys/info)
 * [IBM Xforce Exchange](https://exchange.xforce.ibmcloud.com/settings/api)
 * [ipinfo.io](https://ipinfo.io/)
+* [IP2Location.io](https://www.ip2location.io/)
 * [Koodous](https://koodous.com/)
 * [MalShare](https://malshare.com/register.php)
 * [NumVerify](https://numverify.com/)
