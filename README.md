@@ -10,7 +10,7 @@ OSINT / Threat Intel CLI tool.
 
 ## Requirements
 
-As a pre-requesite for Harpoon, you need to install [lxml](https://lxml.de/installation.html) requirements, on Debian/Ubuntu : `sudo apt-get install libxml2-dev libxslt-dev python3-dev`.
+As a pre-requesite for Harpoon, you need to install [lxml](https://lxml.de/installation.html) requirements, on Debian/Ubuntu : `sudo apt-get install libxml2-dev libxslt-dev python3-dev`. On Fedora: `sudo dnf install sqlite-devel automake bzip2 bzip2-devel bzip2-lib cython g++ gcc gcc-c++ kernel-devel libffi-devel libxlt libxml2 libxml2-devel libxslt libxslt-devel make openssl openssl-devel python3-dev python3-devel python3-lxml python-dev python-devel sqlite-devel`.
 
 You need to have [geoipupdate](https://github.com/maxmind/geoipupdate) installed and [correctly configured](https://dev.maxmind.com/geoip/geoipupdate/) to use geolocation correctly (make sure you to have `GeoLite2-Country GeoLite2-City GeoLite2-ASN` as `EditionIDs`).
 
