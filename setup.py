@@ -19,7 +19,7 @@ setup(
         "configparser",
         "passivetotal>=2.5.9",
         "beautifulsoup4>=4.12.3",
-        "lxml==5.3.0",
+        "lxml==6.1.0",
         "censys==2.2.0",
         "shodan",
         "fullcontact.py",
