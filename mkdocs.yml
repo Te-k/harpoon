@@ -10,6 +10,7 @@ nav:
       - Help: plugins/help.md
       - Intel: plugins/intel.md
       - IpInfo: plugins/ipinfo.md
+      - Shodan: plugins/shodan.md
       - Tor: plugins/tor.md
       - UrlScan: plugins/urlscan.md
       - Version: plugins/version.md

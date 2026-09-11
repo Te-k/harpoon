@@ -25,6 +25,7 @@ dependencies = [
     "appdirs",
     "rich",
     "maxminddb",
+    "shodan",
 ]
 
 [project.optional-dependencies]
