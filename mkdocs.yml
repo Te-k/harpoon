@@ -1,0 +1,20 @@
+site_name: Harpoon
+site_description: OSINT / Threat Intel CLI tool
+repo_url: https://github.com/Te-k/harpoon
+
+nav:
+  - Home: index.md
+  - Plugins:
+      - Circl: plugins/circl.md
+      - Config: plugins/config.md
+      - Help: plugins/help.md
+      - Intel: plugins/intel.md
+      - Tor: plugins/tor.md
+      - UrlScan: plugins/urlscan.md
+      - Version: plugins/version.md
+
+theme:
+  name: readthedocs
+
+markdown_extensions:
+  - fenced_code
