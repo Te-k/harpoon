@@ -9,6 +9,7 @@ nav:
       - Config: plugins/config.md
       - Help: plugins/help.md
       - Intel: plugins/intel.md
+      - IpInfo: plugins/ipinfo.md
       - Tor: plugins/tor.md
       - UrlScan: plugins/urlscan.md
       - Version: plugins/version.md

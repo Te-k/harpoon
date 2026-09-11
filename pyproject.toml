@@ -24,6 +24,7 @@ dependencies = [
     "consolemd",
     "appdirs",
     "rich",
+    "maxminddb",
 ]
 
 [project.optional-dependencies]

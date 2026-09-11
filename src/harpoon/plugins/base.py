@@ -1,9 +1,14 @@
 import json
+import os
 from typing import Any
 
+import appdirs
+import maxminddb
 from IPy import IP
 
 from harpoon.utils import json_serial
+
+IP66_MMDB_PATH = os.path.join(appdirs.user_config_dir("harpoon"), "ip66.mmdb")
 
 
 class InvalidConfiguration(Exception):
@@ -184,3 +189,17 @@ class HarpoonPlugin:
                 return False
         else:
             return False
+
+    def ipinfo(self, ip: str) -> dict:
+        """
+        Get geolocation and network information on an IP address from the
+        local ip66.dev MaxMind database (downloaded by
+        harpoon.cli.download_needed_files into the Harpoon config directory).
+        """
+        if not os.path.isfile(IP66_MMDB_PATH):
+            raise FileNotFoundError(
+                "{} not found, run harpoon update first".format(IP66_MMDB_PATH)
+            )
+
+        with maxminddb.open_database(IP66_MMDB_PATH) as reader:
+            return reader.get(ip) or {}

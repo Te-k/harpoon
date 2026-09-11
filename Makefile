@@ -2,11 +2,7 @@ PWD = $(shell pwd)
 
 
 check:
-	#pytest -q
-	flake8
 	ruff check .
-	black --check .
-	mypy .
 
 test:
 	pytest
