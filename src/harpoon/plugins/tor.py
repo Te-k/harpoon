@@ -44,7 +44,7 @@ class Tor(HarpoonPlugin):
             if ip in ips:
                 self.results = {ip: "Tor exit node"}
             else:
-                self.results = {ip: "not a Tor exit node currently"}
+                self.results = {ip: "not a Tor exit node"}
         else:
             print("Impossible to get the Tor Exit node list")
 

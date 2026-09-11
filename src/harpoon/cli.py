@@ -1,7 +1,6 @@
 import argparse
 import configparser
 import os
-
 import appdirs
 
 from harpoon.plugins import PLUGINS
