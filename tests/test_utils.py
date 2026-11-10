@@ -6,6 +6,12 @@ class TestUtils:
         assert unbracket("domain[.]com") == "domain.com"
         assert bracket("domain.com") == "domain[.]com"
 
+    def test_bracket_without_dot(self):
+        # A domain without a dot (e.g. "localhost") has nothing to
+        # bracket and must be returned unchanged
+        assert bracket("localhost") == "localhost"
+        assert bracket("") == ""
+
     def test_same_url(self):
         assert same_url("http://example.org", "https://example.org")
         assert same_url("http://example.org", "http://www.example.org")

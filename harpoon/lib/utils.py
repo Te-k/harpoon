@@ -13,6 +13,8 @@ def unbracket(domain):
 def bracket(domain):
     """Add protective bracket to a domain"""
     last_dot = domain.rfind(".")
+    if last_dot == -1:
+        return domain
     return domain[:last_dot] + "[.]" + domain[last_dot+1:]
 
 
