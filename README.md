@@ -78,6 +78,7 @@ After configuration the following plugins are available within the `harpoon` com
     koodous             Request Koodous API
     malshare            Requests MalShare database
     misp                Get information from a MISP server through the API
+    netapi              Query NetAPI: Top 1M rank, compromised feed, new domains, TLD figures
     numverify           Query phone number information from NumVerify
     opencage            Forward/Reverse Geocoding using OpenCage
     otx                 Requests information from AlienVault OTX
@@ -129,6 +130,7 @@ You can get information on each command with `harpoon help COMMAND`
 * [IP2Location.io](https://www.ip2location.io/)
 * [Koodous](https://koodous.com/)
 * [MalShare](https://malshare.com/register.php)
+* [NetAPI](https://netapi.com/help/api/#json-api) : no key needed; an account token raises the request limits
 * [NumVerify](https://numverify.com/)
 * [OpenCage](https://opencagedata.com/)
 * [PassiveTotal](https://community.riskiq.com/registration)
